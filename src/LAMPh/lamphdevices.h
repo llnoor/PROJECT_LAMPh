@@ -78,7 +78,7 @@ private:
 
     QMap<QString, QString> AllAvailableSerialPortsQMap;
     QMap<int, QString> AllAvailableDevicesQMap;
-
+    QMap<QString, QStringList> AllFunctionsDevicesQMap;
 
 
     Counter *d_randomCount;

@@ -278,16 +278,15 @@ void LAMPhDevices::getAllAvailableSerialPorts(){ // main
     }
 
     numberofdeviceInt=0;
+
+    // COM PORT
     for (int i=0; i<listDllCOM->size();i++)
     {
-        //QString nameofDLL = listDllCOM[i].at(i);
-
         QStringList receivedDataList;   //=outputTest
         // receivedDataList transfer to next Strings!!!
-
-        QString nameofdeviceString = "APPA205";
-        QString commandString = "byte:00;00;55;55;AA";
-        QString respondString = "APPA205";
+        QString nameofdeviceString; // = "APPA205";
+        QString commandString; //= "byte:00;00;55;55;AA";
+        QString respondString; //= "APPA205";
 
         QLibrary lib ( listDllCOM->at(i) );
         typedef const char* ( *ReceivedData )();
@@ -295,23 +294,16 @@ void LAMPhDevices::getAllAvailableSerialPorts(){ // main
 
         receivedData = ( ReceivedData ) lib.resolve( "getCOMcommands" );
         if( receivedData ) {
-            receivedDataList = QString::fromUtf8(receivedData()).split(",");
-            //qDebug() << receivedData();
+            receivedDataList = QString::fromUtf8(receivedData()).split(",");//qDebug() << receivedData();
         }
 
         nameofdeviceString = receivedDataList.at(0);
         commandString = receivedDataList.at(1);
         respondString = receivedDataList.at(2);
-        qDebug() << "name" << nameofdeviceString << "command" << commandString << "respond" << respondString;
-
-        //statusBar()->showMessage(  receivedDataList.join("---") );
-
+        //qDebug() << "name" << nameofdeviceString << "command" << commandString << "respond" << respondString;
         int numberTHISdevice=0;
         for (const QSerialPortInfo &info : QSerialPortInfo::availablePorts()) {
             //AllAvailableSerialPortsQMap[info.portName()] = (info.isBusy() ? QObject::tr("Busy") : QObject::tr("Ready"));
-
-            //if (info.isBusy()) AllAvailableSerialPortsQMap[info.portName()] = QObject::tr("Busy");
-
             if (!info.isBusy())
             {
                 QSerialPort newSerialPort;
@@ -333,159 +325,96 @@ void LAMPhDevices::getAllAvailableSerialPorts(){ // main
                 newSerialPort.close();
 
                 if (data_tmp.contains(respondString, Qt::CaseInsensitive)){
+
+                    //set COM PORT (this port will be Busy when info.isBusy() will check)
                     typedef bool (*Fct) (const int, const char*);
                     Fct fct = (Fct)(lib.resolve("setPORT"));
-                    if (fct) {
-                        qDebug() << fct(numberTHISdevice,info.portName().toLatin1());
+                    fct(numberTHISdevice,info.portName().toLatin1());   /*if (fct) qDebug() << fct(numberTHISdevice,info.portName().toLatin1());*/
 
-                    }
-
-
-                    QStringList functionDataList;   //=outputTest
-                    // receivedDataList transfer to next Strings!!!
-
-                    QString functionDatanameofdeviceString = "APPA205";
-                    QString functionDatacommandString = "byte:00;00;55;55;AA";
-                    QString functionDatarespondString = "APPA205";
-
+                    // get list of Functions
                     typedef const char* ( *FunctionData )();
                     FunctionData functionData;
-
                     functionData = ( FunctionData ) lib.resolve( "getFunctions" );
-                    if( functionData ) {
-                        //functionDataList = QString::fromUtf8(functionData()).split(":");
-                        qDebug() << functionData();
+                    if( functionData ) { 
+                        QString functionsQString = QString::fromLatin1(functionData()); //qDebug() << functionData();
+                        AllAvailableDevicesQMap[numberofdeviceInt] = QString ("COM_Device%1:%2 Number:%3 DLL:%4 Functions:%5").arg(numberofdeviceInt).arg(nameofdeviceString).arg(numberTHISdevice).arg(listDllCOM->at(i)).arg(functionsQString);
+                        QStringList FunctionsQStringList = QString::fromLatin1(functionData()).split(";");
+                        AllFunctionsDevicesQMap[nameofdeviceString] = FunctionsQStringList;
                     }
-
-
-
-
-
-                    //qDebug() << functionsD;
-                    //QStringList functionsDList = QString::fromUtf8(functionsD()).split(":");
-                    //QString functionsQString = QString::fromLatin1(functions);
-                    //AllAvailableDevicesQMap[numberofdeviceInt] = QString ("Device%1:%2#%3 DLL:%4 Functions:%5").arg(numberofdeviceInt).arg(nameofdeviceString).arg(numberTHISdevice).arg(listDllCOM->at(i)).arg(functionsQString);
-
-
-
-
-
-
-                    AllAvailableSerialPortsQMap[info.portName()] = QString ("Device%1:%2#%3 DLL:%4").arg(numberofdeviceInt++).arg(nameofdeviceString).arg(numberTHISdevice++).arg(listDllCOM->at(i));
-                    //setPORT(numberTHISdevice, const char* const str );
-
-
+                    AllAvailableSerialPortsQMap[info.portName()] = QString ("COM_Device%1:%2 Number:%3 DLL:%4").arg(numberofdeviceInt++).arg(nameofdeviceString).arg(numberTHISdevice++).arg(listDllCOM->at(i));
                 }
-
-
             }
-            qDebug() << info.portName() << ":" << AllAvailableSerialPortsQMap.value(info.portName());
+            //qDebug() << info.portName() << ":" << AllAvailableSerialPortsQMap.value(info.portName());
             //qDebug() << info.portName() << "Device:" << AllAvailableDevicesQMap.value(numberofdeviceInt);
+        }
+    }
 
+
+
+    // Socket
+    for (int i=0; i<listDllSocket->size();i++)
+    {
+        /*QLibrary lib ( listDllCOM->at(i) );
+        typedef const char* ( *ReceivedData )();
+        ReceivedData receivedData;
+
+        receivedData = ( ReceivedData ) lib.resolve( "getCOMcommands" );
+        if( receivedData ) {
+            receivedDataList = QString::fromUtf8(receivedData()).split(",");
+            //qDebug() << receivedData();
+        }*/
+    }
+
+    // USB
+    for (int i=0; i<listDllUSB->size();i++)
+    {
+        QStringList receivedDataList;
+        QString nameofdeviceString;
+        QString commandString;
+        QString respondString;
+
+        QLibrary lib ( listDllUSB->at(i) );
+        /*typedef const char* ( *ReceivedData )();
+        ReceivedData receivedData;
+
+        receivedData = ( ReceivedData ) lib.resolve( "getUSBcommands" );
+        if( receivedData ) {
+            receivedDataList = QString::fromUtf8(receivedData()).split(",");
+            qDebug() << receivedData();
         }
 
-        //after that we will have 3-4 classCOM[1] .. [2]
-
-    }
-
-
-    /*QString testString = "byte:00;00;55;55;AA";
-
-    QStringList testStringList = testString.split(':');
-
-    testString = testStringList[1];
-
-    testStringList = testString.split(';');
-
-    QByteArray testByteArray;
-    testByteArray.resize(testStringList.size());
-    for (int i=0; i<testStringList.size(); i++)
-    {
-        testByteArray.append(testStringList[i]);
-        //testByteArray=testStringList[i].toLocal8Bit();
-    }
-
-    //testByteArray=testStringList.toLocal8Bit();
-
-    char *buff = testByteArray.data();
-    int buff_int_char[60];
-    for (int l=0; l<30; l++){
-        buff_int_char[l]=0;
-        buff_int_char[l]= buff[l]  - '0';
-    }
-    int sn_appa =
-            buff_int_char[12]* 10000000+
-            buff_int_char[13]* 1000000+
-            buff_int_char[14]* 100000+
-            buff_int_char[15]* 10000+
-            buff_int_char[16]* 1000+
-            buff_int_char[17]* 100+
-            buff_int_char[18]* 10+
-            buff_int_char[19];
-    QString str= QString::number(sn_appa);
+        nameofdeviceString = receivedDataList.at(0);
+        commandString = receivedDataList.at(1);
+        respondString = receivedDataList.at(2);*/
 
 
-    std::string testSTDString = testByteArray.toStdString();
-    QString testNEWString = QString::fromStdString(testSTDString);*/
+        nameofdeviceString = "d"; //sorry
 
-    //qDebug() << "QSting->Byte->QString" << str;
+        int numberTHISdevice=0; //sorry
 
-
-    /*QStringList commandlist;
-    QFile file ("conf/COMcommands.txt");
-    file.open(QIODevice::ReadOnly | QIODevice::Text);
-    QTextStream in(&file);
-    while (!in.atEnd()) {
-        commandlist.append(in.readLine());
-    }
-    file.flush();
-    file.close();
-
-    for (int i=0; i<commandlist.size() ; i++)
-    {
-        qDebug() << commandlist[i];
-    }*/
-
-
-
-
-    /*for (const QSerialPortInfo &info : QSerialPortInfo::availablePorts()) {
-        AllAvailableSerialPortsQMap[info.portName()] = (info.isBusy() ? QObject::tr("Busy") : QObject::tr("Ready"));
-
-        if (!info.isBusy())
+        typedef bool (*Fct) (const int);
+        Fct fct = (Fct)(lib.resolve("checkUSB"));
+        if (fct(numberTHISdevice)) //if device is ready to work
         {
-            QSerialPort newSerialPort;
-            newSerialPort.setPortName(info.portName());
-            newSerialPort.setBaudRate(QSerialPort::Baud9600);
-            newSerialPort.setStopBits(QSerialPort::OneStop);
-            newSerialPort.setDataBits(QSerialPort::Data8);
-            newSerialPort.setParity(QSerialPort::NoParity);
-            newSerialPort.setFlowControl(QSerialPort::NoFlowControl);
-            newSerialPort.open(QIODevice::ReadWrite);
-            for (int i=0; i<commandlist.size() ; i++)
-            {
-
-                //if "commandlist[i] == byte:..." send bytes!!!
-
-                newSerialPort.write(commandlist[i].toLocal8Bit());
-                newSerialPort.waitForReadyRead(300);
-
-                QByteArray data;
-
-                data = newSerialPort.readAll();
-                std::string result_tmp = data.toStdString();
-                QString data_tmp = QString::fromStdString(result_tmp);   //here should be name of devices, SN and so on.
-                //qDebug() << "PORT:" << info.portName() << "DATA:" << data_tmp;
-                if (data_tmp==commandlist[i]) {AllAvailableSerialPortsQMap[info.portName()] = "BIOS"; break;}
-                else if (data_tmp.trimmed().isEmpty()) {
-                                                        //continue
-                    }
-                else { AllAvailableSerialPortsQMap[info.portName()] = data_tmp; break;}
+            // get list of Functions
+            typedef const char* ( *FunctionData )();
+            FunctionData functionData;
+            functionData = ( FunctionData ) lib.resolve( "getFunctions" );
+            if( functionData ) {
+                QString functionsQString = QString::fromLatin1(functionData()); //qDebug() << functionData();
+                AllAvailableDevicesQMap[numberofdeviceInt] = QString ("USB_Device%1:%2 Number:%3 DLL:%4 Functions:%5").arg(numberofdeviceInt).arg(nameofdeviceString).arg(numberTHISdevice++).arg(listDllUSB->at(i)).arg(functionsQString);
+                QStringList FunctionsQStringList = QString::fromLatin1(functionData()).split(";");
+                AllFunctionsDevicesQMap[nameofdeviceString] = FunctionsQStringList;
+                numberofdeviceInt++;
             }
         }
-        qDebug() << info.portName() << ":" << AllAvailableSerialPortsQMap.value(info.portName());
+    }
 
-    }*/
+    for (int i=0; i<numberofdeviceInt; i++)  qDebug() << AllAvailableDevicesQMap.value(i);
+
+
+
+
 }
 
 
@@ -505,7 +434,7 @@ QToolBar *LAMPhDevices::toolBar()
     QAction *whatsThisAction = QWhatsThis::createAction( toolBar );
     whatsThisAction->setText( "Help" );
 
-    toolBar->addAction( d_connectAction );
+    toolBar->addAction( d_connectAction ); //update AllAvailableDevices
     toolBar->addAction( d_sendAction );
     toolBar->addAction( d_getAction );
     toolBar->addAction( whatsThisAction );
@@ -762,7 +691,7 @@ void LAMPhDevices::update_toolBar_PORTS(){
     int device=0;
     //const infos = QSerialPortInfo::availablePorts();
     for (const QSerialPortInfo &info : QSerialPortInfo::availablePorts()) {
-        QString s = QObject::tr("Port: ") + info.portName() + " "
+        QString s = QObject::tr("Port: ") + info.portName() + "\n"
                 + AllAvailableSerialPortsQMap.value(info.portName()) + "\n"
                 + QObject::tr("Manufacturer: ") + info.manufacturer() + " "
                     + QObject::tr("Serial number: ") + info.serialNumber() + "\n"
