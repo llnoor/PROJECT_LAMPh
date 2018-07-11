@@ -1,0 +1,48 @@
+PLAN
+
+QString comPort[10] 		[0] is COM11
+bool COM_port available[10]      [0] is COM11
+
+if comPort[0] in not busy to connect
+if comPort[1] doesn't matter, because it is other part of pair comPort[0]
+if comPort[2] in not busy to connect
+and so on
+
+
+QTimer every 100 ms
+
+for (int i=0; i<10; i++)
+{
+
+	read data from COM_port[comboBox_Pairs[i]->currentIndex()]
+
+	if (send[i]=="rand")
+	{
+	send_temp =rand();
+	}
+	elseif (send[i]=="time")
+	{
+	send_temp= current time(); // like hhmmss without dots
+	}
+	elseif ((send[i]=="*"))
+	{
+	send_temp= received[i];
+	}
+	else{
+	send_temp=send[i];
+	}
+
+	if  (received[i] =="*")   //accept any data like BIOS
+	{
+		send send_temp;
+	}
+	elseif( received[i] ==data)   //like device (for example: if appa then send rand data)
+	{
+		send send_temp;
+	}
+	else  //this data not for this device
+	{
+		nothing; 
+	}
+
+}

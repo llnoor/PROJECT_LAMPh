@@ -1,0 +1,30 @@
+Plan3
+
+
+all devices
+connect
+add devices in  comboBox
+
+after check DATA[i]
+focus on DATA[i] determine Device get function for this device and items for comboBox "Functions"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+get command "Read data" (from LAMPh) Read data
+
+LAMPhDevices should
+
+array DATA[20]
+
+DATA[0] is Device1 function "Second"

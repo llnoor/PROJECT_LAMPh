@@ -1,0 +1,40 @@
+scientists
+experiments
+devices
+name
+surname
+description
+author
+date of creation
+date of registration
+parent
+selected experiments
+Date of Birth
+subject
+process
+authorization
+check in
+detect devices
+check available devices
+Topics
+logs
+change
+not available
+always keep in touch with the log
+
+generator
+oscilloscope
+logo
+
+user table
+
+SCIENTISTS
+EXPERIMENTS
+DEVICES
+THEMES
+LOGS
+EXPERIMENT
+dll
+
+
+

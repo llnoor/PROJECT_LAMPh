@@ -1,0 +1,63 @@
+LAMPh Devices::
+
+numberofdevice++
+
+
+Get list of DLLs
+open folder "DLL"
+add names of all DLLs
+
+for (int i=0; i<sizeOFdllsList;i++)
+{
+if in a name have COM add in COMdllList
+else in NEWdllList  //it can be Sockets, LAN, USB and so on
+}
+
+for (int i=0; i<sizeOFCOMdllList;i++)
+{
+	
+	getCOMcommands from COMdllList[1]                   //COM_APPA205
+	received nameofdevice-command-respond                                    //received "APPA205,byte:00;00;55;55;AA,APPA205"    //means byte:00;00;55;55;AA and APPA205
+
+	
+	for (const QSerialPortInfo &info : QSerialPortInfo::availablePorts()) {
+        AllAvailableSerialPortsQMap[info.portName()] = (info.isBusy() ? QObject::tr("Busy") : QObject::tr("Ready"));
+
+        if (!info.isBusy())
+        {
+            QSerialPort newSerialPort;
+            newSerialPort.setPortName(info.portName());
+            newSerialPort.setBaudRate(QSerialPort::Baud9600);
+            newSerialPort.setStopBits(QSerialPort::OneStop);
+            newSerialPort.setDataBits(QSerialPort::Data8);
+            newSerialPort.setParity(QSerialPort::NoParity);
+            newSerialPort.setFlowControl(QSerialPort::NoFlowControl);
+            newSerialPort.open(QIODevice::ReadWrite);
+            for (int i=0; i<commandlist.size() ; i++)
+            {
+                newSerialPort.write(command.toLocal8Bit());
+                newSerialPort.waitForReadyRead(300);
+
+                QByteArray data;
+                data = newSerialPort.readAll();
+                std::string result_tmp = data.toStdString();
+                QString data_tmp = QString::fromStdString(result_tmp);   //here should be name of devices, SN and so on.
+                
+				if (data_tmp.contains(respond, Qt::CaseInsensitive)){
+					AllAvailableSerialPortsQMap[info.portName()] = QString ("nameofdevice%1").arg(numberofdevice)
+				}
+				new connectDevice[numberofdevice](COMdllList[1]  /*nameofDLL*/, info.portName() /*COMPORT*/,nameofdevice /*APPA205*/);
+				// this com port will be busy, because we connected right now
+				numberofdevice++;
+            }
+			newSerialPort.close();
+			
+			
+        }
+        //qDebug() << info.portName() << ":" << AllAvailableSerialPortsQMap.value(info.portName());
+
+    }
+	
+	after that we will have 3-4 classCOM[1] .. [2]
+
+}
