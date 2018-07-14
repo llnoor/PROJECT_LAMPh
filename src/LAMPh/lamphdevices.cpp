@@ -245,6 +245,18 @@ LAMPhDevices::LAMPhDevices(QString loginQString)
     //connectDevice1.getFloat(2);
     getAllAvailableSerialPorts();
     showMaximized();
+
+    for (int r=0; r<20; r++)
+    {
+        connect(comboBox_Device[r], static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+                 [=](int index){
+                 update_comboBox_Device_Functions(r,index);
+            });
+    }
+
+    connect (d_sendAction, SIGNAL( triggered() ) , this, SLOT (send_readData()));
+    connect (d_getAction, SIGNAL( triggered() ) , this, SLOT (readData()));
+
 }
 
 void LAMPhDevices::getAllAvailableSerialPorts(){ // main
@@ -280,7 +292,8 @@ void LAMPhDevices::getAllAvailableSerialPorts(){ // main
     numberofdeviceInt=0;
 
     // COM PORT
-    for (int i=0; i<listDllCOM->size();i++)
+
+    /*for (int i=0; i<listDllCOM->size();i++)
     {
         QStringList receivedDataList;   //=outputTest
         // receivedDataList transfer to next Strings!!!
@@ -329,7 +342,8 @@ void LAMPhDevices::getAllAvailableSerialPorts(){ // main
                     //set COM PORT (this port will be Busy when info.isBusy() will check)
                     typedef bool (*Fct) (const int, const char*);
                     Fct fct = (Fct)(lib.resolve("setPORT"));
-                    fct(numberTHISdevice,info.portName().toLatin1());   /*if (fct) qDebug() << fct(numberTHISdevice,info.portName().toLatin1());*/
+                    fct(numberTHISdevice,info.portName().toLatin1());
+                    //if (fct) qDebug() << fct(numberTHISdevice,info.portName().toLatin1());
 
                     // get list of Functions
                     typedef const char* ( *FunctionData )();
@@ -338,17 +352,27 @@ void LAMPhDevices::getAllAvailableSerialPorts(){ // main
                     if( functionData ) { 
                         QString functionsQString = QString::fromLatin1(functionData()); //qDebug() << functionData();
                         AllAvailableDevicesQMap[numberofdeviceInt] = QString ("COM_Device%1:%2 Number:%3 DLL:%4 Functions:%5").arg(numberofdeviceInt).arg(nameofdeviceString).arg(numberTHISdevice).arg(listDllCOM->at(i)).arg(functionsQString);
+
                         QStringList FunctionsQStringList = QString::fromLatin1(functionData()).split(";");
                         AllFunctionsDevicesQMap[nameofdeviceString] = FunctionsQStringList;
+
+                        NameDeviceQMap[numberofdeviceInt] = nameofdeviceString;
+                        NumberDeviceQMap[numberofdeviceInt] = numberTHISdevice;
+                        DLLFileDeviceQMap[numberofdeviceInt] = QString ("%1").arg(listDllCOM->at(i));
+                        AllFunctionsDeviceQMap[numberofdeviceInt] = FunctionsQStringList;
+
                     }
-                    AllAvailableSerialPortsQMap[info.portName()] = QString ("COM_Device%1:%2 Number:%3 DLL:%4").arg(numberofdeviceInt++).arg(nameofdeviceString).arg(numberTHISdevice++).arg(listDllCOM->at(i));
+                    AllAvailableSerialPortsQMap[info.portName()] = QString ("COM_Device%1:%2 Number:%3 DLL:%4").arg(numberofdeviceInt).arg(nameofdeviceString).arg(numberTHISdevice).arg(listDllCOM->at(i));
+
+                    numberTHISdevice++;
+                    numberofdeviceInt++;
                 }
             }
             //qDebug() << info.portName() << ":" << AllAvailableSerialPortsQMap.value(info.portName());
             //qDebug() << info.portName() << "Device:" << AllAvailableDevicesQMap.value(numberofdeviceInt);
         }
     }
-
+*/
 
 
     // Socket
@@ -402,19 +426,56 @@ void LAMPhDevices::getAllAvailableSerialPorts(){ // main
             functionData = ( FunctionData ) lib.resolve( "getFunctions" );
             if( functionData ) {
                 QString functionsQString = QString::fromLatin1(functionData()); //qDebug() << functionData();
-                AllAvailableDevicesQMap[numberofdeviceInt] = QString ("USB_Device%1:%2 Number:%3 DLL:%4 Functions:%5").arg(numberofdeviceInt).arg(nameofdeviceString).arg(numberTHISdevice++).arg(listDllUSB->at(i)).arg(functionsQString);
+                AllAvailableDevicesQMap[numberofdeviceInt] = QString ("USB_Device%1:%2 Number:%3 DLL:%4 Functions:%5").arg(numberofdeviceInt).arg(nameofdeviceString).arg(numberTHISdevice).arg(listDllUSB->at(i)).arg(functionsQString);
                 QStringList FunctionsQStringList = QString::fromLatin1(functionData()).split(";");
                 AllFunctionsDevicesQMap[nameofdeviceString] = FunctionsQStringList;
+
+
+                NameDeviceQMap[numberofdeviceInt] = nameofdeviceString;
+                NumberDeviceQMap[numberofdeviceInt] = numberTHISdevice;
+                DLLFileDeviceQMap[numberofdeviceInt] = QString ("%1").arg(listDllUSB->at(i));
+                AllFunctionsDeviceQMap[numberofdeviceInt] = FunctionsQStringList;
+
+                numberTHISdevice++;
                 numberofdeviceInt++;
             }
         }
     }
 
-    for (int i=0; i<numberofdeviceInt; i++)  qDebug() << AllAvailableDevicesQMap.value(i);
+    for (int i=0; i<numberofdeviceInt; i++) {
+        //qDebug() << "AllAvailableDevicesQMap:" << AllAvailableDevicesQMap.value(i);
+        qDebug() << i;
+        qDebug() << "NameDeviceQMap:" << NameDeviceQMap.value(i);
+        qDebug() << "NumberDeviceQMap:" << NumberDeviceQMap.value(i);
+        qDebug() << "DLLFileDeviceQMap:" << DLLFileDeviceQMap.value(i);
+        qDebug() << "AllFunctionsDeviceQMap:" << AllFunctionsDeviceQMap.value(i);
+    }
 
 
 
+    // we have numberofdeviceInt devices
+    for (int r=0; r<20; r++)
+    {
+       for (int y=0; y<numberofdeviceInt; y++)
+       {
+           comboBox_Device[r]->addItem( QString ("Device %1").arg(y) );
 
+       }
+    comboBox_Device[r]->addItem("None");
+
+        if (r<numberofdeviceInt)
+        {
+            comboBox_Device[r]->setCurrentIndex(r);
+            //comboBox_DeviceQMap[r]=r;
+            comboBox_Device_Functions[r]->addItems(AllFunctionsDeviceQMap.value(r));
+            comboBox_Device_Functions[r]->addItem("None");
+
+            lineEdit_NameData[r]->setText(QString ("%1#%2").arg(NameDeviceQMap.value(r)).arg(NumberDeviceQMap.value(r)));
+        }
+        else comboBox_Device[r]->setCurrentIndex(numberofdeviceInt); //"None"
+        //comboBox_DeviceQMap[r]=numberofdeviceInt;
+
+    }
 }
 
 
@@ -427,6 +488,9 @@ QToolBar *LAMPhDevices::toolBar()
 
     d_connectAction = new QAction( QPixmap( start_xpm ), "Connect", toolBar );
     d_sendAction = new QAction( QPixmap( clear_xpm ), "Send/Set", toolBar );
+
+
+
 
     d_getAction = new QAction( QPixmap( zoom_xpm ), "Get/Test", toolBar );
 
@@ -518,9 +582,9 @@ QToolBar *LAMPhDevices::toolBar_GET()
 
 
         for (int l = 0; l < 5; ++l) {
-            comboBox_Device[i]->addItem(QString("Item %1").arg(l));
-            comboBox_Device_Functions[i]->addItem(QString("Item %1").arg(l));
-            comboBox_Function_Parameters[i]->addItem(QString("Item %1").arg(l));
+            //comboBox_Device[i]->addItem(QString("Item %1").arg(l));
+            //comboBox_Device_Functions[i]->addItem(QString("Item %1").arg(l));
+            //comboBox_Function_Parameters[i]->addItem(QString("Item %1").arg(l));
             comboBox_ColorData[i]->addItem(QString("Item %1").arg(l));
             comboBox_SizeData[i]->addItem(QString("Item %1").arg(l));
         }
@@ -593,6 +657,50 @@ QToolBar *LAMPhDevices::toolBar_GET()
 
     toolBar_GET->addWidget( hBox_GET );
     return toolBar_GET;
+}
+
+void LAMPhDevices::update_comboBox_Device_Functions(int r, int Index){
+    qDebug() << "r" << r;
+    qDebug() << "Index" << Index;
+
+    while (comboBox_Device_Functions[r]->count()>0) comboBox_Device_Functions[r]->removeItem(0);
+    comboBox_Device_Functions[r]->addItems(AllFunctionsDeviceQMap.value(comboBox_Device[r]->currentIndex()));
+    comboBox_Device_Functions[r]->addItem("None");
+    lineEdit_NameData[r]->setText(QString ("%1#%2").arg(NameDeviceQMap.value(comboBox_Device[r]->currentIndex())).arg(NumberDeviceQMap.value(comboBox_Device[r]->currentIndex())));
+}
+
+void LAMPhDevices::send_readData(){
+
+    for (int r=0;r<numberofdeviceInt;r++){
+        // if checkBoxes are "Enabled"
+        QLibrary lib (DLLFileDeviceQMap.value(comboBox_Device[r]->currentIndex()));
+
+        typedef void (*PleaseReadData) ();
+        PleaseReadData pleaseReadData = (PleaseReadData)(lib.resolve("readData"));
+        pleaseReadData();
+        qDebug() << QString ("%1").arg(comboBox_Device_Functions[r]->currentText());
+    }
+    qDebug() << "send";
+
+}
+
+void LAMPhDevices::readData(){
+    for (int r=0;r<numberofdeviceInt;r++){
+        // if checkBoxes are "Enabled"
+        QLibrary lib (DLLFileDeviceQMap.value(comboBox_Device[r]->currentIndex()));
+
+        typedef float (*GetData) (int);
+        //GetData getData = (GetData)(lib.resolve(QString ("%1").arg(comboBox_Device_Functions[r]->currentText()) ));
+
+        //GetData getData = (GetData)(lib.resolve(QString ("%1").arg(comboBox_Device_Functions[r]->currentText()).toLatin1() ));
+
+        GetData getData = (GetData)(lib.resolve("getFloat"));
+
+
+        float res = getData(NumberDeviceQMap.value(comboBox_Device[r]->currentIndex()));
+        qDebug() << res;
+    }
+    qDebug() << "get";
 }
 
 void LAMPhDevices::toolBar_GET_show_data()

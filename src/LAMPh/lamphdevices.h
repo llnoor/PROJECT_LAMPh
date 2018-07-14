@@ -20,6 +20,7 @@ class QPolygon;
 class QSerialPort;
 class QSerialPortInfo;
 
+
 QT_BEGIN_NAMESPACE
 class QGroupBox;
 QT_END_NAMESPACE
@@ -35,6 +36,8 @@ public:
     void getDataDll();
     void getAllAvailableSerialPorts();
 
+
+
 Q_SIGNALS:
 
     void showLAMPhPlot();
@@ -49,6 +52,17 @@ private Q_SLOTS:
     void toolBar_GET_show_data();
     void toolBar_GET_hide_data();
     void update_toolBar_PORTS();
+    void update_comboBox_Device_Functions(int r,int Index);
+    void send_readData();
+    void readData();
+
+    /*struct Foo {
+        void overloadedFunction();
+        void overloadedFunction(int, int);
+    };
+
+    QOverload<int, QString>::of(&Foo:overloadedFunction)*/
+
 
 private:
     QToolBar *toolBar(); //main
@@ -79,6 +93,15 @@ private:
     QMap<QString, QString> AllAvailableSerialPortsQMap;
     QMap<int, QString> AllAvailableDevicesQMap;
     QMap<QString, QStringList> AllFunctionsDevicesQMap;
+
+    QMap<int, QString> NameDeviceQMap;
+    QMap<int, int> NumberDeviceQMap;
+    QMap<int, QString> DLLFileDeviceQMap;
+    QMap<int, QStringList> AllFunctionsDeviceQMap;
+
+
+
+
 
 
     Counter *d_randomCount;
@@ -160,6 +183,8 @@ private:
     QLabel *label_ReceivedData[20];
     QComboBox *comboBox_Device[20];
     QComboBox *comboBox_Device_Functions[20]/*[20]*/;
+    QMap<int, int> comboBox_DeviceQMap; //number,last Item number
+
     QComboBox *comboBox_Function_Parameters[20];
     QLineEdit *lineEdit_NameData[20];
     QCheckBox *checkBox_Device_Show[20];

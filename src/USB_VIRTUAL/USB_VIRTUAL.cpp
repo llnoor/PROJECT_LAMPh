@@ -14,8 +14,16 @@
 #define COMMANDS "UBS_VIRTUAL,None,None"; //nameofdevice,KEYcommand,respond
 #define FOLDER  "Functions/"
 #define TXT "_functions.txt"
-#define FUNCTIONS "char checkPORT(char,char); void setPORT(char); float getFloat(); char getUnit(); char getValue(); char getSN()"
+#define FUNCTIONS "float getFloat();char getUnit();char getValue();char getSN()"
 #define INFO "The Lib for LAMPh to connect with VIRTUAL";
+
+/*For keithley
+ * if we choose "float get_R-4W" (in comboBox_Device_Functions), LAMPh should send "V" to this lib and this lib will change settings in device (keithley) like "write(":SENS:FUNC 'FRES'\r\n")"
+ * if we choose "float get_R" (in comboBox_Device_Functions), LAMPh should send "V" to this lib and this lib will change settings in device (keithley) like "write(":SENS:FUNC 'RES'\r\n")"
+ * and so on
+ *
+ * */
+
 
 char cNewLine = '\n';
 
@@ -27,6 +35,7 @@ private:
     char * value;
     int i_test=0;
     QByteArray data;
+    double first =QDateTime::currentDateTime().toTime_t();
 
 public:
     ClassLAMPh( /*QString comPort_, QString comInfo_*/ ) // конструктор класса
@@ -57,9 +66,10 @@ public:
         //result_float = data_tmp.toFloat();
         //qDebug() << data;
 
-        int timestamp=QDateTime::currentDateTime().toTime_t();
-        result_float = sin(timestamp);
+        double second=QDateTime::currentDateTime().toTime_t();
+        double x = second - first;
 
+        result_float = sin(x/10);
         return result_float;
 
     }
