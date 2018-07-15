@@ -47,6 +47,8 @@ Q_SIGNALS:
     void showLAMPhEdit();
     void showLAMPhSetting();
     void LAMPhExit();
+    void send_x_result(float);
+    void send_all_results(float,int);
 
 private Q_SLOTS:
     void toolBar_GET_show_data();
@@ -89,6 +91,7 @@ private:
     QStringList *listDllLAMPh;
 
     int numberofdeviceInt;
+    int numberofitemsdeviceInt;
 
     QMap<QString, QString> AllAvailableSerialPortsQMap;
     QMap<int, QString> AllAvailableDevicesQMap;

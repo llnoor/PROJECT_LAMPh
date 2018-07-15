@@ -2,6 +2,7 @@
 #define _INCREMENTALPLOT_H_ 1
 
 #include <qwt_plot.h>
+#define CurvCnt 20
 
 class QwtPlotCurve;
 class QwtPlotDirectPainter;
@@ -17,12 +18,15 @@ public:
     void appendPoint( const QPointF & );
     void clearPoints();
 
+    void appendPoint_S(int number, const QPointF & );
+    void clearPoints_S(int number);
+
 public Q_SLOTS:
     void showSymbols( bool );
 
 private:
-    int temp;
     QwtPlotCurve *d_curve;
+    QwtPlotCurve *d_curves[CurvCnt];
     QwtPlotDirectPainter *d_directPainter;
 };
 

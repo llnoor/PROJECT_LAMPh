@@ -15,6 +15,8 @@ const unsigned int c_rangeMax = 1000;
 double first =QDateTime::currentDateTime().toTime_t();
 
 
+
+
 MainPlot::MainPlot( QWidget *parent ):
     IncrementalPlot( parent ),
     d_timer( 0 ),
@@ -36,6 +38,8 @@ MainPlot::MainPlot( QWidget *parent ):
 
     replot();
 
+    x_result = 0;
+
     // enable zooming
 
     //( void ) new Zoomer( canvas() );
@@ -46,23 +50,38 @@ QSize MainPlot::sizeHint() const
     return QSize( 540, 400 );
 }
 
+void MainPlot::get_x_result(float result)
+{
+    x_result=result;
+}
+
+void MainPlot::get_all_results(float result, int new_int)
+{
+    all_results[new_int]=result;
+}
+
 void MainPlot::appendPoint()
 {
+    Q_EMIT running_writeData( true );
+
     double x;// = qrand() % c_rangeMax;
     //x += ( qrand() % 100 ) / 100;
 
     double y;// = qrand() % c_rangeMax;
     //y += ( qrand() % 100 ) / 100;
 
+    double second=QDateTime::currentDateTime().toTime_t();
+    x=second - first;
 
+    //y = sin(x/10);
 
-double second=QDateTime::currentDateTime().toTime_t();
-x=second - first;
+    qDebug() << "MainPlot: " << x_result;
 
-y = sin(x/10);
+    y=rand()%10;
+    y=y/10;
 
-
-    IncrementalPlot::appendPoint( QPointF( x, y ) );
+    IncrementalPlot::appendPoint( QPointF( x+y, x_result ) );
+    IncrementalPlot::appendPoint_S(1, QPointF( x+y, -x_result ) );
     //IncrementalPlot::appendPoint( QPointF( x, y ) );
 
     if ( --d_timerCount <= 0 )
@@ -105,5 +124,9 @@ void MainPlot::stop()
 void MainPlot::clear()
 {
     clearPoints();
+    for (int i=0; i<CurvCnt; i++)
+    {
+        clearPoints_S(i);
+    }
     replot();
 }

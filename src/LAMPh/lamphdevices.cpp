@@ -290,6 +290,7 @@ void LAMPhDevices::getAllAvailableSerialPorts(){ // main
     }
 
     numberofdeviceInt=0;
+    numberofitemsdeviceInt=0;
 
     // COM PORT
 
@@ -450,8 +451,6 @@ void LAMPhDevices::getAllAvailableSerialPorts(){ // main
         qDebug() << "DLLFileDeviceQMap:" << DLLFileDeviceQMap.value(i);
         qDebug() << "AllFunctionsDeviceQMap:" << AllFunctionsDeviceQMap.value(i);
     }
-
-
 
     // we have numberofdeviceInt devices
     for (int r=0; r<20; r++)
@@ -685,37 +684,52 @@ void LAMPhDevices::send_readData(){
 }
 
 void LAMPhDevices::readData(){
-    for (int r=0;r<numberofdeviceInt;r++){
+    for (int r=0;r<20;r++){
         // if checkBoxes are "Enabled"
-        QLibrary lib (DLLFileDeviceQMap.value(comboBox_Device[r]->currentIndex()));
+        if (!comboBox_Device[r]->currentText().contains("None", Qt::CaseInsensitive)){
+            QLibrary lib (DLLFileDeviceQMap.value(comboBox_Device[r]->currentIndex()));
 
-        typedef float (*GetData) (int);
-        //GetData getData = (GetData)(lib.resolve(QString ("%1").arg(comboBox_Device_Functions[r]->currentText()) ));
+            typedef float (*GetData) (int);
+            //GetData getData = (GetData)(lib.resolve(QString ("%1").arg(comboBox_Device_Functions[r]->currentText()) ));
 
-        //GetData getData = (GetData)(lib.resolve(QString ("%1").arg(comboBox_Device_Functions[r]->currentText()).toLatin1() ));
+            //GetData getData = (GetData)(lib.resolve(QString ("%1").arg(comboBox_Device_Functions[r]->currentText()).toLatin1() ));
 
-        GetData getData = (GetData)(lib.resolve("getFloat"));
+            if (!comboBox_Device_Functions[r]->currentText().contains("None", Qt::CaseInsensitive))
+            {
+                QString new_temp_text_del = QString ("%1").arg(comboBox_Device_Functions[r]->currentText()).split(" ").at(1) ;
+                new_temp_text_del = new_temp_text_del.split("(").at(0);
+
+                qDebug() <<  new_temp_text_del;
 
 
-        float res = getData(NumberDeviceQMap.value(comboBox_Device[r]->currentIndex()));
-        qDebug() << res;
+                GetData getData = (GetData)(lib.resolve(new_temp_text_del.toLatin1()));
+
+
+                float res = getData(NumberDeviceQMap.value(comboBox_Device[r]->currentIndex()));
+                //qDebug() << "LAMPhDevices: " << res;
+                send_all_results(res,r);
+                send_x_result(res);
+            }
+        }
     }
-    qDebug() << "get";
+    //qDebug() << "get";
 }
 
 void LAMPhDevices::toolBar_GET_show_data()
 {
-    label_ReceivedData[int_GET]->show();
-    comboBox_Device[int_GET]->show();
-    comboBox_Device_Functions[int_GET]->show();
-    comboBox_Function_Parameters[int_GET]->show();
-    lineEdit_NameData[int_GET]->show();
-    checkBox_Device_Show[int_GET]->show();
-    checkBox_Device_Text[int_GET]->show();
-    checkBox_Device_DB[int_GET]->show();
-    comboBox_ColorData[int_GET]->show();
-    comboBox_SizeData[int_GET]->show();
-    if (int_GET<20)int_GET++;
+    if (int_GET<20){
+        label_ReceivedData[int_GET]->show();
+        comboBox_Device[int_GET]->show();
+        comboBox_Device_Functions[int_GET]->show();
+        comboBox_Function_Parameters[int_GET]->show();
+        lineEdit_NameData[int_GET]->show();
+        checkBox_Device_Show[int_GET]->show();
+        checkBox_Device_Text[int_GET]->show();
+        checkBox_Device_DB[int_GET]->show();
+        comboBox_ColorData[int_GET]->show();
+        comboBox_SizeData[int_GET]->show();
+        int_GET++;
+    }
 }
 
 void LAMPhDevices::toolBar_GET_hide_data()

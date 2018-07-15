@@ -2,6 +2,11 @@
 
 #include <stdio.h>
 #include <cmath>
+#include <iostream>
+#include <ctime>
+#include <cstdlib>
+
+
 #include <QDateTime>
 
 #include <string>
@@ -14,7 +19,7 @@
 #define COMMANDS "UBS_VIRTUAL,None,None"; //nameofdevice,KEYcommand,respond
 #define FOLDER  "Functions/"
 #define TXT "_functions.txt"
-#define FUNCTIONS "float getFloat();char getUnit();char getValue();char getSN()"
+#define FUNCTIONS "float getFloat();char getUnit();char getValue();char getSN();float getSin();float getCos();float getSawtooth();float getLine();float getRand()"
 #define INFO "The Lib for LAMPh to connect with VIRTUAL";
 
 /*For keithley
@@ -74,6 +79,76 @@ public:
 
     }
 
+
+    float getSin(){
+
+        //result_float = data_tmp.toFloat();
+        //qDebug() << data;
+
+        double second=QDateTime::currentDateTime().toTime_t();
+        double x = second - first;
+
+
+        result_float = rand()%10;
+        result_float = result_float/100;
+
+        result_float = result_float+sin(x/10);
+
+
+
+        return result_float;
+
+    }
+
+    float getCos(){
+
+        //result_float = data_tmp.toFloat();
+        //qDebug() << data;
+
+        double second=QDateTime::currentDateTime().toTime_t();
+        double x = second - first;
+
+        result_float = cos(x/10);
+        return result_float;
+
+    }
+
+    float getSawtooth(){
+
+        //result_float = data_tmp.toFloat();
+        //qDebug() << data;
+
+        double second=QDateTime::currentDateTime().toTime_t();
+        double x = second - first;
+
+        result_float = modf(10,&x);
+        result_float = result_float/10;
+
+        return result_float;
+
+    }
+
+    float getLine(){
+
+        //result_float = data_tmp.toFloat();
+        //qDebug() << data;
+
+        double second=QDateTime::currentDateTime().toTime_t();
+        double x = second - first;
+
+        result_float = x;
+        return result_float;
+
+    }
+
+    float getRand(){
+
+        result_float = rand()%100;
+        result_float=result_float/100;
+        return result_float;
+
+    }
+
     const char* getUnit(){
         unit = "V";
         return unit;
@@ -127,6 +202,26 @@ bool setUSBPORT(int number_of_device, const char* const port ){
 
 float getFloat(int number_of_device){
     return classLAMPh[number_of_device].getFloat();
+}
+
+float getSin(int number_of_device){
+    return classLAMPh[number_of_device].getSin();
+}
+
+float getCos(int number_of_device){
+    return classLAMPh[number_of_device].getCos();
+}
+
+float getSawtooth(int number_of_device){
+    return classLAMPh[number_of_device].getSawtooth();
+}
+
+float getLine(int number_of_device){
+    return classLAMPh[number_of_device].getLine();
+}
+
+float getRand(int number_of_device){
+    return classLAMPh[number_of_device].getRand();
 }
 
 const char* getUnit(int number_of_device){

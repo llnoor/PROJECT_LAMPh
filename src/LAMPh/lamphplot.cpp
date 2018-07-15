@@ -255,6 +255,14 @@ LAMPhPlot::LAMPhPlot(QString loginQString)
     this->setWindowState(Qt::WindowMaximized);
     //show();
 
+    //d_plot->get_x_result();
+
+    connect( d_plot, SIGNAL( running_writeData( bool ) ), lamphDevices, SLOT( readData() ) );
+    connect(lamphDevices,SIGNAL(send_x_result(float)),d_plot,SLOT(get_x_result(float)));
+
+
+    connect(lamphDevices,SIGNAL(send_all_results(float,int)),d_plot,SLOT(get_all_results(float,int)));
+
 }
 
 QToolBar *LAMPhPlot::toolBar()
@@ -291,10 +299,10 @@ QToolBar *LAMPhPlot::toolBar()
 
     d_randomCount =
         new Counter( hBox, "Points", QString::null, 1, 100000, 100 );
-    d_randomCount->setValue( 1000 );
+    d_randomCount->setValue( 100000 );
 
     d_timerCount = new Counter( hBox, "Delay", "ms", 0, 100000, 100 );
-    d_timerCount->setValue( 0 );
+    d_timerCount->setValue( 500 );
 
     QHBoxLayout *layout = new QHBoxLayout( hBox );
     layout->setMargin( 0 );

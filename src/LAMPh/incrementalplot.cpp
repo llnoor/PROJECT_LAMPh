@@ -36,8 +36,8 @@ public:
 };
 
 IncrementalPlot::IncrementalPlot( QWidget *parent ):
-    QwtPlot( parent ),
-    d_curve( NULL )
+    QwtPlot( parent )
+    //,d_curve( NULL )
 {
     d_directPainter = new QwtPlotDirectPainter( this );
 
@@ -51,9 +51,20 @@ IncrementalPlot::IncrementalPlot( QWidget *parent ):
 
     d_curve = new QwtPlotCurve( "Test Curve" );
     d_curve->setData( new CurveData() );
+
+    for(int i = 0; i < CurvCnt; i++ )
+    {
+        d_curves[i] = new QwtPlotCurve( "Test Curve 1-10" );
+        d_curves[i]->setData( new CurveData() );
+    }
+
     showSymbols( true );
 
     d_curve->attach( this );
+    for(int i = 0; i < CurvCnt; i++ )
+    {
+        d_curves[i]->attach( this );
+    }
 
     setAutoReplot( false );
 }
@@ -61,8 +72,12 @@ IncrementalPlot::IncrementalPlot( QWidget *parent ):
 IncrementalPlot::~IncrementalPlot()
 {
     delete d_curve;
+    for(int i = 0; i < CurvCnt; i++ )
+    {
+        delete d_curves[i];
+    }
 }
-
+/*
 void IncrementalPlot::appendPoint( const QPointF &point )
 {
     CurveData *data = static_cast<CurveData *>( d_curve->data() );
@@ -71,12 +86,12 @@ void IncrementalPlot::appendPoint( const QPointF &point )
     const bool doClip = !canvas()->testAttribute( Qt::WA_PaintOnScreen );
     if ( doClip )
     {
-        /*
-           Depending on the platform setting a clip might be an important
-           performance issue. F.e. for Qt Embedded this reduces the
-           part of the backing store that has to be copied out - maybe
-           to an unaccelerated frame buffer device.
-         */
+        //
+          // Depending on the platform setting a clip might be an important
+          // performance issue. F.e. for Qt Embedded this reduces the
+          // part of the backing store that has to be copied out - maybe
+          // to an unaccelerated frame buffer device.
+         //
         const QwtScaleMap xMap = canvasMap( d_curve->xAxis() );
         const QwtScaleMap yMap = canvasMap( d_curve->yAxis() );
 
@@ -122,8 +137,8 @@ void IncrementalPlot::showSymbols( bool on )
 
     replot();
 }
+*/
 
-/*
 
 void IncrementalPlot::appendPoint( const QPointF &point )
 {
@@ -153,13 +168,8 @@ void IncrementalPlot::appendPoint( const QPointF &point )
     d_directPainter->drawSeries( d_curve,
         data->size() - 1, data->size() - 1 );
 
-    //temp++;
-    //if (10=temp)
-   // {
-   // replot();
-   // temp=0;
-   // }
-    //replot(); //x10
+    replot();
+
 }
 
 void IncrementalPlot::clearPoints()
@@ -170,15 +180,60 @@ void IncrementalPlot::clearPoints()
     replot();
 }
 
+
+void IncrementalPlot::appendPoint_S(int number, const QPointF &point )
+{
+    CurveData *data = static_cast<CurveData *>( d_curves[number]->data() );
+    data->append( point );
+
+    const bool doClip = !canvas()->testAttribute( Qt::WA_PaintOnScreen );
+    if ( doClip )
+    {
+        /*
+           Depending on the platform setting a clip might be an important
+           performance issue. F.e. for Qt Embedded this reduces the
+           part of the backing store that has to be copied out - maybe
+           to an unaccelerated frame buffer device.
+         */
+        const QwtScaleMap xMap = canvasMap( d_curves[number]->xAxis() );
+        const QwtScaleMap yMap = canvasMap( d_curves[number]->yAxis() );
+
+        QRegion clipRegion;
+
+        const QSize symbolSize = d_curves[number]->symbol()->size();
+        QRect r( 0, 0, symbolSize.width() + 2, symbolSize.height() + 2 );
+
+
+
+        const QPointF center =
+            QwtScaleMap::transform( xMap, yMap, point );
+        r.moveCenter( center.toPoint() );
+        clipRegion += r;
+
+        d_directPainter->setClipRegion( clipRegion );
+    }
+
+    d_directPainter->drawSeries( d_curves[number],
+        data->size() - 1, data->size() - 1 );
+}
+
+void IncrementalPlot::clearPoints_S(int number)
+{
+    CurveData *data = static_cast<CurveData *>( d_curves[number]->data() );
+    data->clear();
+
+    replot();
+}
+
 void IncrementalPlot::showSymbols( bool on )
 {
     if ( on )
     {
-
-
+        d_curve -> setPen( Qt::white );
+        //d_curve->setStyle( QwtPlotCurve::Lines );
         d_curve->setStyle( QwtPlotCurve::NoCurve );
         d_curve->setSymbol( new QwtSymbol( QwtSymbol::XCross,
-            Qt::NoBrush, QPen( Qt::white ), QSize( 4, 4 ) ) ); //5814 ms (375 ms)
+            Qt::NoBrush, QPen( Qt::white ), QSize( 1, 1 ) ) ); //5814 ms (375 ms)
 
 
         //d_curve->setStyle( QwtPlotCurve::NoCurve );
@@ -189,27 +244,42 @@ void IncrementalPlot::showSymbols( bool on )
         //d_curve->setPen( Qt::white );
         //d_curve->setStyle( QwtPlotCurve::Lines ); //23000 ms
         //d_curve->setRenderHint( QwtPlotItem::RenderAntialiased ); //37000 ms
+
+        for (int i=0; i<CurvCnt; i++)
+        {
+            d_curves[i]->setStyle( QwtPlotCurve::NoCurve );
+            d_curves[i]->setSymbol( new QwtSymbol( QwtSymbol::Ellipse,
+                QBrush(Qt::white), QPen( Qt::white ), QSize( 8, 8 ) ) );
+        }
+
     }
     else
     {
-        d_curve->setPen( Qt::white );
-        d_curve->setStyle( QwtPlotCurve::Dots );
-        d_curve->setSymbol( NULL );
+        //d_curve->setPen( Qt::white );
+        //d_curve->setStyle( QwtPlotCurve::Dots );
+        //d_curve->setSymbol( NULL );
 
         //d_curve -> setSymbol( new QwtSymbol( QwtSymbol::Cross, Qt::NoBrush,
-          //  QPen( Qt::black ), QSize( 5, 5 ) ) );
+       //     QPen( Qt::black ), QSize( 5, 5 ) ) );
         //d_curve -> setPen( Qt::darkGreen );
         //d_curve -> setStyle( QwtPlotCurve::Lines );
         //d_curve -> setCurveAttribute( QwtPlotCurve::Fitted );
 
 
-       // d_curve -> setPen( Qt::darkBlue );
+       //d_curve -> setPen( Qt::white );
        //d_curve -> setStyle( QwtPlotCurve::Lines );
 
-
-
+        d_curve->setStyle( QwtPlotCurve::NoCurve );
+        d_curve->setSymbol( new QwtSymbol( QwtSymbol::Ellipse,
+            QBrush(Qt::white), QPen( Qt::white ), QSize( 4, 4 ) ) );
+        for (int i=0; i<CurvCnt; i++)
+        {
+            d_curves[i]->setStyle( QwtPlotCurve::NoCurve );
+            d_curves[i]->setSymbol( new QwtSymbol( QwtSymbol::Ellipse,
+                QBrush(Qt::white), QPen( Qt::white ), QSize( 4, 4 ) ) );
+        }
     }
 
     replot();
 }
-*/
+

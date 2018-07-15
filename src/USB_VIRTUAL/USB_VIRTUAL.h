@@ -34,6 +34,13 @@ LAMPHLIBSHARED_EXPORT void readData();
 
 
 LAMPHLIBSHARED_EXPORT float getFloat(int number_of_device);
+LAMPHLIBSHARED_EXPORT float getSin(int number_of_device);
+LAMPHLIBSHARED_EXPORT float getCos(int number_of_device);
+LAMPHLIBSHARED_EXPORT float getSawtooth(int number_of_device);
+LAMPHLIBSHARED_EXPORT float getLine(int number_of_device);
+LAMPHLIBSHARED_EXPORT float getRand(int number_of_device);
+
+
 LAMPHLIBSHARED_EXPORT const char* getUnit(int number_of_device);
 LAMPHLIBSHARED_EXPORT const char* getValue(int number_of_device);  // Float + " " + Unit;
 LAMPHLIBSHARED_EXPORT const char* getSN(int number_of_device);
