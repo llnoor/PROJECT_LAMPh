@@ -34,7 +34,7 @@ public:
     LAMPhDevices(QString loginQString);
     //~LAMPhDevices();
     void getDataDll();
-    void getAllAvailableSerialPorts();
+
 
 
 
@@ -49,6 +49,7 @@ Q_SIGNALS:
     void LAMPhExit();
     void send_x_result(float);
     void send_all_results(float,int);
+    void setColorSize(int number, int color, int size);
 
 private Q_SLOTS:
     void toolBar_GET_show_data();
@@ -56,7 +57,9 @@ private Q_SLOTS:
     void update_toolBar_PORTS();
     void update_comboBox_Device_Functions(int r,int Index);
     void send_readData();
+    void sendColors();
     void readData();
+    void getAllAvailableSerialPorts();
 
     /*struct Foo {
         void overloadedFunction();
@@ -111,6 +114,7 @@ private:
     Counter *d_timerCount;
     QCheckBox *d_symbolType;
 
+    QAction *d_colorsAction;
     QAction *d_startAction;
     QAction *d_clearAction;
     QAction *d_zoomAction;
@@ -305,6 +309,9 @@ private:
     QPushButton     *newExpButton;
     QPushButton     *editExpButton;
     QPushButton     *tableButton;
+
+    QStringList colorsQStringList = { "white", "black", "cyan", "red", "magenta", "green", "yellow", "blue", "gray", "darkCyan", "darkRed", "darkMagenta", "darkGreen", "darkYellow", "darkBlue", "darkGray", "lightGray" };
+    QStringList sizeQStringList = {"line","1","2","4","8"};
 
    
 

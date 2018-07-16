@@ -76,6 +76,7 @@ IncrementalPlot::~IncrementalPlot()
     {
         delete d_curves[i];
     }
+
 }
 /*
 void IncrementalPlot::appendPoint( const QPointF &point )
@@ -215,6 +216,7 @@ void IncrementalPlot::appendPoint_S(int number, const QPointF &point )
 
     d_directPainter->drawSeries( d_curves[number],
         data->size() - 1, data->size() - 1 );
+    replot();
 }
 
 void IncrementalPlot::clearPoints_S(int number)
@@ -225,9 +227,32 @@ void IncrementalPlot::clearPoints_S(int number)
     replot();
 }
 
+void IncrementalPlot::setColorSize(int number, int color, int size){
+
+    d_curves[number]-> setPen(QColor(colorsQStringList.at(color)));
+    if (size=0) d_curves[number]-> setStyle( QwtPlotCurve::Lines );
+    else{
+        d_curves[number]-> setStyle( QwtPlotCurve::NoCurve );
+        d_curves[number]->setSymbol( new QwtSymbol( QwtSymbol::Ellipse,
+            QBrush(QColor(colorsQStringList.at(color))), QPen(QColor(colorsQStringList.at(color))), QSize( sizeQStringList.at(size).toInt(), sizeQStringList.at(size).toInt() ) ) );
+    }
+}
+
 void IncrementalPlot::showSymbols( bool on )
 {
-    if ( on )
+    /*d_curves[0]-> setPen(QColor(colorsQStringList.at(3)));
+    d_curves[0]-> setStyle( QwtPlotCurve::Lines );
+
+    d_curves[1]-> setPen(QColor(colorsQStringList.at(3)));
+    d_curves[1]-> setStyle( QwtPlotCurve::Lines );*/
+
+    d_curves[0] -> setPen( Qt::white );
+    d_curves[0]->setStyle( QwtPlotCurve::NoCurve );
+    d_curves[0]->setSymbol( new QwtSymbol( QwtSymbol::XCross,
+        Qt::NoBrush, QPen( Qt::white ), QSize( 1, 1 ) ) );
+
+
+    /*if ( on )
     {
         d_curve -> setPen( Qt::white );
         //d_curve->setStyle( QwtPlotCurve::Lines );
@@ -247,9 +272,10 @@ void IncrementalPlot::showSymbols( bool on )
 
         for (int i=0; i<CurvCnt; i++)
         {
-            d_curves[i]->setStyle( QwtPlotCurve::NoCurve );
-            d_curves[i]->setSymbol( new QwtSymbol( QwtSymbol::Ellipse,
-                QBrush(Qt::white), QPen( Qt::white ), QSize( 8, 8 ) ) );
+            d_curves[i]->setPen( Qt::white );
+            d_curve->setStyle( QwtPlotCurve::Lines );
+            //d_curves[i]->setSymbol( new QwtSymbol( QwtSymbol::Ellipse,
+             //   QBrush(Qt::white), QPen( Qt::white ), QSize( 8, 8 ) ) );
         }
 
     }
@@ -271,15 +297,15 @@ void IncrementalPlot::showSymbols( bool on )
 
         d_curve->setStyle( QwtPlotCurve::NoCurve );
         d_curve->setSymbol( new QwtSymbol( QwtSymbol::Ellipse,
-            QBrush(Qt::white), QPen( Qt::white ), QSize( 4, 4 ) ) );
+            QBrush(QColor("white")), QPen( QColor("white") ), QSize( 4, 4 ) ) );
         for (int i=0; i<CurvCnt; i++)
         {
             d_curves[i]->setStyle( QwtPlotCurve::NoCurve );
             d_curves[i]->setSymbol( new QwtSymbol( QwtSymbol::Ellipse,
-                QBrush(Qt::white), QPen( Qt::white ), QSize( 4, 4 ) ) );
+                QBrush(QColor("white")), QPen( QColor("white") ), QSize( 4, 4 ) ) );
         }
     }
 
-    replot();
+    replot();*/
 }
 

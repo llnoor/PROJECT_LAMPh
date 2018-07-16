@@ -73,15 +73,17 @@ void MainPlot::appendPoint()
     double second=QDateTime::currentDateTime().toTime_t();
     x=second - first;
 
-    //y = sin(x/10);
-
-    qDebug() << "MainPlot: " << x_result;
-
     y=rand()%10;
     y=y/10;
 
     IncrementalPlot::appendPoint( QPointF( x+y, x_result ) );
-    IncrementalPlot::appendPoint_S(1, QPointF( x+y, -x_result ) );
+
+    /*for (int r=0; r<3; r++)
+    {
+       IncrementalPlot::appendPoint_S(r, QPointF( x+y, all_results[r] ) );
+    }*/
+    IncrementalPlot::appendPoint_S(0, QPointF( x+y, all_results[0] ) );
+
     //IncrementalPlot::appendPoint( QPointF( x, y ) );
 
     if ( --d_timerCount <= 0 )

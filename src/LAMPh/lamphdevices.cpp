@@ -252,10 +252,22 @@ LAMPhDevices::LAMPhDevices(QString loginQString)
                  [=](int index){
                  update_comboBox_Device_Functions(r,index);
             });
+
+        connect(comboBox_ColorData[r], static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+                [=](int index){
+                setColorSize(r,index,comboBox_SizeData[r]->currentIndex());
+           });
+        connect(comboBox_SizeData[r], static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+                [=](int index){
+                setColorSize(r,comboBox_ColorData[r]->currentIndex(),index);
+           });
+
     }
 
     connect (d_sendAction, SIGNAL( triggered() ) , this, SLOT (send_readData()));
     connect (d_getAction, SIGNAL( triggered() ) , this, SLOT (readData()));
+    connect (d_colorsAction, SIGNAL( triggered() ) , this, SLOT (sendColors()));
+    connect (d_connectAction, SIGNAL( triggered() ) , this, SLOT (getAllAvailableSerialPorts()));
 
 }
 
@@ -291,6 +303,12 @@ void LAMPhDevices::getAllAvailableSerialPorts(){ // main
 
     numberofdeviceInt=0;
     numberofitemsdeviceInt=0;
+
+
+    for (int r=0; r<20; r++)
+    {
+        while (comboBox_Device[r]->count()>0) comboBox_Device[r]->removeItem(0);
+    }
 
     // COM PORT
 
@@ -485,18 +503,15 @@ QToolBar *LAMPhDevices::toolBar()
     toolBar->setAllowedAreas( Qt::TopToolBarArea | Qt::BottomToolBarArea );
     setToolButtonStyle( Qt::ToolButtonTextUnderIcon );
 
+    d_colorsAction = new QAction( QPixmap( start_xpm ), "Apply conf", toolBar );
     d_connectAction = new QAction( QPixmap( start_xpm ), "Connect", toolBar );
     d_sendAction = new QAction( QPixmap( clear_xpm ), "Send/Set", toolBar );
-
-
-
-
     d_getAction = new QAction( QPixmap( zoom_xpm ), "Get/Test", toolBar );
-
 
     QAction *whatsThisAction = QWhatsThis::createAction( toolBar );
     whatsThisAction->setText( "Help" );
 
+    toolBar->addAction( d_colorsAction );    //send colors to mainplot
     toolBar->addAction( d_connectAction ); //update AllAvailableDevices
     toolBar->addAction( d_sendAction );
     toolBar->addAction( d_getAction );
@@ -568,7 +583,7 @@ QToolBar *LAMPhDevices::toolBar_GET()
         label_ReceivedData[i]->setText(QString("DATA %1:").arg(i));
         comboBox_Device[i] = new QComboBox();
         comboBox_Device_Functions[i] = new QComboBox();
-        comboBox_Function_Parameters[i] = new QComboBox();
+        comboBox_Function_Parameters[i] = new QComboBox();  // !!!comboboxes with the editable field
         lineEdit_NameData[i] = new QLineEdit();
         lineEdit_NameData[i]->setText(QString("Name %1:").arg(i));
         //lineEdit_NameData[i]->setFixedWidth(60);
@@ -579,14 +594,11 @@ QToolBar *LAMPhDevices::toolBar_GET()
         comboBox_SizeData[i] = new QComboBox();
 
 
+        comboBox_ColorData[i]->addItems(colorsQStringList);
+        comboBox_SizeData[i]->addItems(sizeQStringList);
 
-        for (int l = 0; l < 5; ++l) {
-            //comboBox_Device[i]->addItem(QString("Item %1").arg(l));
-            //comboBox_Device_Functions[i]->addItem(QString("Item %1").arg(l));
-            //comboBox_Function_Parameters[i]->addItem(QString("Item %1").arg(l));
-            comboBox_ColorData[i]->addItem(QString("Item %1").arg(l));
-            comboBox_SizeData[i]->addItem(QString("Item %1").arg(l));
-        }
+        if (i<colorsQStringList.size()) comboBox_ColorData[i]->setCurrentIndex(i); else comboBox_ColorData[i]->setCurrentIndex(0);
+
         /*read list of devices name from file one by one and add as Item
          *new void function update_comboBox_Device_Functions()
          * {
@@ -668,24 +680,38 @@ void LAMPhDevices::update_comboBox_Device_Functions(int r, int Index){
     lineEdit_NameData[r]->setText(QString ("%1#%2").arg(NameDeviceQMap.value(comboBox_Device[r]->currentIndex())).arg(NumberDeviceQMap.value(comboBox_Device[r]->currentIndex())));
 }
 
+
+
+void LAMPhDevices::sendColors(){
+    for (int r=0; r<20; r++)
+    setColorSize(r,comboBox_ColorData[r]->currentIndex(), comboBox_SizeData[r]->currentIndex());
+}
+
+
 void LAMPhDevices::send_readData(){
-
-    for (int r=0;r<numberofdeviceInt;r++){
-        // if checkBoxes are "Enabled"
-        QLibrary lib (DLLFileDeviceQMap.value(comboBox_Device[r]->currentIndex()));
-
-        typedef void (*PleaseReadData) ();
-        PleaseReadData pleaseReadData = (PleaseReadData)(lib.resolve("readData"));
-        pleaseReadData();
-        qDebug() << QString ("%1").arg(comboBox_Device_Functions[r]->currentText());
+    for (int r=0;r<20;r++){
+        if (!comboBox_Device[r]->currentText().contains("None", Qt::CaseInsensitive)){
+            QLibrary lib (DLLFileDeviceQMap.value(comboBox_Device[r]->currentIndex()));
+            typedef void (*PleaseReadData) ();
+            PleaseReadData pleaseReadData = (PleaseReadData)(lib.resolve("readData"));
+            pleaseReadData();
+        }
     }
     qDebug() << "send";
-
 }
 
 void LAMPhDevices::readData(){
+
     for (int r=0;r<20;r++){
-        // if checkBoxes are "Enabled"
+        if (!comboBox_Device[r]->currentText().contains("None", Qt::CaseInsensitive)){
+            QLibrary lib (DLLFileDeviceQMap.value(comboBox_Device[r]->currentIndex()));
+            typedef void (*PleaseReadData) ();
+            PleaseReadData pleaseReadData = (PleaseReadData)(lib.resolve("readData"));
+            pleaseReadData();
+        }
+    }
+
+    for (int r=0;r<20;r++){
         if (!comboBox_Device[r]->currentText().contains("None", Qt::CaseInsensitive)){
             QLibrary lib (DLLFileDeviceQMap.value(comboBox_Device[r]->currentIndex()));
 
@@ -699,14 +725,9 @@ void LAMPhDevices::readData(){
                 QString new_temp_text_del = QString ("%1").arg(comboBox_Device_Functions[r]->currentText()).split(" ").at(1) ;
                 new_temp_text_del = new_temp_text_del.split("(").at(0);
 
-                qDebug() <<  new_temp_text_del;
-
-
+                //qDebug() <<  new_temp_text_del;
                 GetData getData = (GetData)(lib.resolve(new_temp_text_del.toLatin1()));
-
-
                 float res = getData(NumberDeviceQMap.value(comboBox_Device[r]->currentIndex()));
-                //qDebug() << "LAMPhDevices: " << res;
                 send_all_results(res,r);
                 send_x_result(res);
             }
