@@ -229,80 +229,67 @@ void IncrementalPlot::clearPoints_S(int number)
 
 void IncrementalPlot::setColorSize(int number, int color, int size){
 
+    d_curve-> setPen(QColor(colorsQStringList.at(color)));
+    if (size==0) d_curve-> setStyle( QwtPlotCurve::Lines );
+    else d_curve-> setStyle( QwtPlotCurve::NoCurve );
+
+    d_curve->setSymbol( new QwtSymbol( QwtSymbol::Ellipse,
+        QBrush(QColor(colorsQStringList.at(color))), QPen(QColor(colorsQStringList.at(color))), QSize( sizeQStringList.at(size).toInt(), sizeQStringList.at(size).toInt() ) ) );
+
+
+
     d_curves[number]-> setPen(QColor(colorsQStringList.at(color)));
-    if (size=0) d_curves[number]-> setStyle( QwtPlotCurve::Lines );
-    else{
-        d_curves[number]-> setStyle( QwtPlotCurve::NoCurve );
-        d_curves[number]->setSymbol( new QwtSymbol( QwtSymbol::Ellipse,
-            QBrush(QColor(colorsQStringList.at(color))), QPen(QColor(colorsQStringList.at(color))), QSize( sizeQStringList.at(size).toInt(), sizeQStringList.at(size).toInt() ) ) );
-    }
+    if (size==0) d_curves[number]-> setStyle( QwtPlotCurve::Lines );
+    else d_curves[number]-> setStyle( QwtPlotCurve::NoCurve );
+
+    d_curves[number]->setSymbol( new QwtSymbol( QwtSymbol::Ellipse,
+        QBrush(QColor(colorsQStringList.at(color))), QPen(QColor(colorsQStringList.at(color))), QSize( sizeQStringList.at(size).toInt(), sizeQStringList.at(size).toInt() ) ) );
+
+    //qDebug() << "number" << number;
+    //qDebug() << "color" << color;
+    //qDebug() << "size" << size;
+
 }
 
 void IncrementalPlot::showSymbols( bool on )
 {
-    /*d_curves[0]-> setPen(QColor(colorsQStringList.at(3)));
-    d_curves[0]-> setStyle( QwtPlotCurve::Lines );
-
-    d_curves[1]-> setPen(QColor(colorsQStringList.at(3)));
-    d_curves[1]-> setStyle( QwtPlotCurve::Lines );*/
-
-    d_curves[0] -> setPen( Qt::white );
-    d_curves[0]->setStyle( QwtPlotCurve::NoCurve );
-    d_curves[0]->setSymbol( new QwtSymbol( QwtSymbol::XCross,
-        Qt::NoBrush, QPen( Qt::white ), QSize( 1, 1 ) ) );
 
 
-    /*if ( on )
+
+/*
+
+    if ( on )
     {
-        d_curve -> setPen( Qt::white );
-        //d_curve->setStyle( QwtPlotCurve::Lines );
+        d_curve -> setPen(QColor(colorsQStringList.at(3)));
+        d_curve->setStyle( QwtPlotCurve::Lines );
         d_curve->setStyle( QwtPlotCurve::NoCurve );
-        d_curve->setSymbol( new QwtSymbol( QwtSymbol::XCross,
-            Qt::NoBrush, QPen( Qt::white ), QSize( 1, 1 ) ) ); //5814 ms (375 ms)
-
-
-        //d_curve->setStyle( QwtPlotCurve::NoCurve );
-        //d_curve->setSymbol( new QwtSymbol( QwtSymbol::Ellipse,
-            //QBrush(Qt::white), QPen( Qt::white ), QSize( 1, 1 ) ) ); //2844 ms
-
-
-        //d_curve->setPen( Qt::white );
-        //d_curve->setStyle( QwtPlotCurve::Lines ); //23000 ms
-        //d_curve->setRenderHint( QwtPlotItem::RenderAntialiased ); //37000 ms
+        d_curve->setSymbol( new QwtSymbol( QwtSymbol::Ellipse,
+                    QBrush(QColor(colorsQStringList.at(3))), QPen(QColor(colorsQStringList.at(3))), QSize( 4, 4 ) ) );
 
         for (int i=0; i<CurvCnt; i++)
         {
-            d_curves[i]->setPen( Qt::white );
-            d_curve->setStyle( QwtPlotCurve::Lines );
-            //d_curves[i]->setSymbol( new QwtSymbol( QwtSymbol::Ellipse,
-             //   QBrush(Qt::white), QPen( Qt::white ), QSize( 8, 8 ) ) );
-        }
+            int color_int=0; if (i<colorsQStringList.size()) color_int=i;
 
+            d_curves[i]->setPen(QColor(colorsQStringList.at(color_int)));
+            d_curves[i]->setStyle( QwtPlotCurve::Lines );
+            d_curves[i]->setStyle( QwtPlotCurve::NoCurve );
+            d_curves[i]->setSymbol( new QwtSymbol( QwtSymbol::Ellipse,
+                        QBrush(QColor(colorsQStringList.at(color_int))), QPen(QColor(colorsQStringList.at(color_int))), QSize( 4, 4 ) ) );
+        }
     }
     else
     {
-        //d_curve->setPen( Qt::white );
-        //d_curve->setStyle( QwtPlotCurve::Dots );
-        //d_curve->setSymbol( NULL );
-
-        //d_curve -> setSymbol( new QwtSymbol( QwtSymbol::Cross, Qt::NoBrush,
-       //     QPen( Qt::black ), QSize( 5, 5 ) ) );
-        //d_curve -> setPen( Qt::darkGreen );
-        //d_curve -> setStyle( QwtPlotCurve::Lines );
-        //d_curve -> setCurveAttribute( QwtPlotCurve::Fitted );
-
-
-       //d_curve -> setPen( Qt::white );
-       //d_curve -> setStyle( QwtPlotCurve::Lines );
-
-        d_curve->setStyle( QwtPlotCurve::NoCurve );
+        d_curve -> setPen( Qt::red );
+        d_curve -> setStyle( QwtPlotCurve::Lines );
         d_curve->setSymbol( new QwtSymbol( QwtSymbol::Ellipse,
-            QBrush(QColor("white")), QPen( QColor("white") ), QSize( 4, 4 ) ) );
+                    QBrush(Qt::red), QPen( Qt::red ), QSize( 0, 0 ) ) );
+
         for (int i=0; i<CurvCnt; i++)
         {
-            d_curves[i]->setStyle( QwtPlotCurve::NoCurve );
+            d_curves[i] -> setPen( Qt::red );
+            d_curves[i] -> setStyle( QwtPlotCurve::Lines );
             d_curves[i]->setSymbol( new QwtSymbol( QwtSymbol::Ellipse,
-                QBrush(QColor("white")), QPen( QColor("white") ), QSize( 4, 4 ) ) );
+                        QBrush(Qt::red), QPen( Qt::red ), QSize( 0, 0 ) ) );
         }
     }
 

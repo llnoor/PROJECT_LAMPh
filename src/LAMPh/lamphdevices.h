@@ -3,6 +3,7 @@
 
 #include <qmainwindow.h>
 #include <qaction.h>
+#define CurvCnt 20
 
 class QSpinBox;
 class QPushButton;
@@ -50,6 +51,7 @@ Q_SIGNALS:
     void send_x_result(float);
     void send_all_results(float,int);
     void setColorSize(int number, int color, int size);
+    void setNumberDevice_bool( bool , int );
 
 private Q_SLOTS:
     void toolBar_GET_show_data();
@@ -96,6 +98,9 @@ private:
     int numberofdeviceInt;
     int numberofitemsdeviceInt;
 
+    bool number_of_point[CurvCnt];
+    int number_of_point_X;
+
     QMap<QString, QString> AllAvailableSerialPortsQMap;
     QMap<int, QString> AllAvailableDevicesQMap;
     QMap<QString, QStringList> AllFunctionsDevicesQMap;
@@ -123,6 +128,9 @@ private:
     QAction *d_sendAction;
     QAction *d_getAction;
     QAction *d_helpAction;
+    QAction *d_saveAction;
+    QAction *d_loadAction;
+
     //QAction *d_exportAction;
 
     QAction *d_OpenWindow_Main;

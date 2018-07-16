@@ -102,28 +102,31 @@ public:
 
     float getCos(){
 
-        //result_float = data_tmp.toFloat();
-        //qDebug() << data;
 
         double second=QDateTime::currentDateTime().toTime_t();
         double x = second - first;
 
-        result_float = cos(x/10);
+
+        result_float = rand()%10;
+        result_float = result_float/100;
+
+        result_float = result_float+cos(x/10);
+
+
+
         return result_float;
 
     }
 
     float getSawtooth(){
-
-        //result_float = data_tmp.toFloat();
-        //qDebug() << data;
-
         double second=QDateTime::currentDateTime().toTime_t();
         double x = second - first;
 
-        result_float = modf(10,&x);
-        result_float = result_float/10;
 
+        result_float = rand()%10;
+        result_float = result_float/100;
+
+        result_float = result_float+cos(x/10)+0.5;
         return result_float;
 
     }

@@ -40,6 +40,9 @@ MainPlot::MainPlot( QWidget *parent ):
 
     x_result = 0;
 
+    for (int i=0; i<CurvCnt; i++)
+    number_of_point[i]=0;
+
     // enable zooming
 
     //( void ) new Zoomer( canvas() );
@@ -60,6 +63,14 @@ void MainPlot::get_all_results(float result, int new_int)
     all_results[new_int]=result;
 }
 
+void MainPlot::get_bool(bool new_bool, int new_int)
+{
+    number_of_point[new_int]=new_bool;
+    qDebug() << "get_bool bool" << new_bool;
+    qDebug() << "get_bool new_int" << new_int;
+
+}
+
 void MainPlot::appendPoint()
 {
     Q_EMIT running_writeData( true );
@@ -78,11 +89,17 @@ void MainPlot::appendPoint()
 
     IncrementalPlot::appendPoint( QPointF( x+y, x_result ) );
 
-    /*for (int r=0; r<3; r++)
+    for (int r=0; r<CurvCnt; r++)
     {
-       IncrementalPlot::appendPoint_S(r, QPointF( x+y, all_results[r] ) );
-    }*/
-    IncrementalPlot::appendPoint_S(0, QPointF( x+y, all_results[0] ) );
+       if (1==number_of_point[r])
+       IncrementalPlot::appendPoint_S(r, QPointF( x+y, all_results[r]+(r+1)/10 ) );
+    }
+
+
+
+
+
+    //IncrementalPlot::appendPoint_S(0, QPointF( x+y, all_results[0] ) );
 
     //IncrementalPlot::appendPoint( QPointF( x, y ) );
 

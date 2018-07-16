@@ -265,6 +265,8 @@ LAMPhPlot::LAMPhPlot(QString loginQString)
 
     connect(lamphDevices,SIGNAL(setColorSize(int,int,int)),d_plot,SLOT(setColorSize(int,int,int)));
 
+    connect(lamphDevices,SIGNAL(setNumberDevice_bool( bool ,int)),d_plot,SLOT(get_bool( bool ,int)));
+
 }
 
 QToolBar *LAMPhPlot::toolBar()

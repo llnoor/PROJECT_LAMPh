@@ -269,6 +269,15 @@ LAMPhDevices::LAMPhDevices(QString loginQString)
     connect (d_colorsAction, SIGNAL( triggered() ) , this, SLOT (sendColors()));
     connect (d_connectAction, SIGNAL( triggered() ) , this, SLOT (getAllAvailableSerialPorts()));
 
+
+    for (int i=0; i<CurvCnt; i++)
+    {
+        setNumberDevice_bool(0,i); //number_of_point[i]=0;
+        qDebug() << "setNumberDevice_bool bool" << 0;
+        qDebug() << "setNumberDevice_bool new_int" << i;
+    }
+
+    number_of_point_X = 20;
 }
 
 void LAMPhDevices::getAllAvailableSerialPorts(){ // main
@@ -488,6 +497,7 @@ void LAMPhDevices::getAllAvailableSerialPorts(){ // main
             comboBox_Device_Functions[r]->addItem("None");
 
             lineEdit_NameData[r]->setText(QString ("%1#%2").arg(NameDeviceQMap.value(r)).arg(NumberDeviceQMap.value(r)));
+            setNumberDevice_bool(1,r); //number_of_point[r]=1; //please check it!!!
         }
         else comboBox_Device[r]->setCurrentIndex(numberofdeviceInt); //"None"
         //comboBox_DeviceQMap[r]=numberofdeviceInt;
@@ -508,6 +518,9 @@ QToolBar *LAMPhDevices::toolBar()
     d_sendAction = new QAction( QPixmap( clear_xpm ), "Send/Set", toolBar );
     d_getAction = new QAction( QPixmap( zoom_xpm ), "Get/Test", toolBar );
 
+    d_saveAction = new QAction( QPixmap( start_xpm ), "Save conf", toolBar );
+    d_loadAction = new QAction( QPixmap( start_xpm ), "Load conf", toolBar );
+
     QAction *whatsThisAction = QWhatsThis::createAction( toolBar );
     whatsThisAction->setText( "Help" );
 
@@ -515,6 +528,8 @@ QToolBar *LAMPhDevices::toolBar()
     toolBar->addAction( d_connectAction ); //update AllAvailableDevices
     toolBar->addAction( d_sendAction );
     toolBar->addAction( d_getAction );
+    toolBar->addAction( d_saveAction );
+    toolBar->addAction( d_loadAction );
     toolBar->addAction( whatsThisAction );
     toolBar->addSeparator();
 
@@ -596,6 +611,7 @@ QToolBar *LAMPhDevices::toolBar_GET()
 
         comboBox_ColorData[i]->addItems(colorsQStringList);
         comboBox_SizeData[i]->addItems(sizeQStringList);
+        comboBox_SizeData[i]->setCurrentIndex(1);
 
         if (i<colorsQStringList.size()) comboBox_ColorData[i]->setCurrentIndex(i); else comboBox_ColorData[i]->setCurrentIndex(0);
 
@@ -678,6 +694,9 @@ void LAMPhDevices::update_comboBox_Device_Functions(int r, int Index){
     comboBox_Device_Functions[r]->addItems(AllFunctionsDeviceQMap.value(comboBox_Device[r]->currentIndex()));
     comboBox_Device_Functions[r]->addItem("None");
     lineEdit_NameData[r]->setText(QString ("%1#%2").arg(NameDeviceQMap.value(comboBox_Device[r]->currentIndex())).arg(NumberDeviceQMap.value(comboBox_Device[r]->currentIndex())));
+    if (!comboBox_Device[r]->currentText().contains("None", Qt::CaseInsensitive))
+        setNumberDevice_bool(1,r);//number_of_point[r]=1;
+    else setNumberDevice_bool(0,r);
 }
 
 
