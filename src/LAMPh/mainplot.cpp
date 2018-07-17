@@ -66,33 +66,43 @@ void MainPlot::get_all_results(float result, int new_int)
 void MainPlot::get_bool(bool new_bool, int new_int)
 {
     number_of_point[new_int]=new_bool;
-    qDebug() << "get_bool bool" << new_bool;
-    qDebug() << "get_bool new_int" << new_int;
+    //qDebug() << "get_bool bool" << new_bool;
+    //qDebug() << "get_bool new_int" << new_int;
 
+}
+void MainPlot::get_numberofdeviceInt(int numberofdeviceInt){
+    int number =numberofdeviceInt;
+    while (number>0) {
+       number_of_point[(number-1)]=1;
+        number--;
+    }
+    qDebug() << "get_numberofdeviceInt";
 }
 
 void MainPlot::appendPoint()
 {
     Q_EMIT running_writeData( true );
 
-    double x;// = qrand() % c_rangeMax;
+    //double x;// = qrand() % c_rangeMax;
     //x += ( qrand() % 100 ) / 100;
 
     double y;// = qrand() % c_rangeMax;
     //y += ( qrand() % 100 ) / 100;
 
-    double second=QDateTime::currentDateTime().toTime_t();
-    x=second - first;
+    //double second=QDateTime::currentDateTime().toTime_t();
+    //x=second - first;
 
-    y=rand()%10;
-    y=y/10;
+    y=rand()%300;
+    y=y/100;
 
-    IncrementalPlot::appendPoint( QPointF( x+y, x_result ) );
+    //IncrementalPlot::appendPoint( QPointF( x+10, x_result ) );
 
     for (int r=0; r<CurvCnt; r++)
     {
        if (1==number_of_point[r])
-       IncrementalPlot::appendPoint_S(r, QPointF( x+y, all_results[r]+(r+1)/10 ) );
+       IncrementalPlot::appendPoint_S(r, QPointF( x_result + y , all_results[r] ) );
+
+        //qDebug() << "number_of_point[number]" << r << ":" << number_of_point[r];
     }
 
 

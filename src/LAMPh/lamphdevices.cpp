@@ -269,15 +269,119 @@ LAMPhDevices::LAMPhDevices(QString loginQString)
     connect (d_colorsAction, SIGNAL( triggered() ) , this, SLOT (sendColors()));
     connect (d_connectAction, SIGNAL( triggered() ) , this, SLOT (getAllAvailableSerialPorts()));
 
+    for (int i=0;i<20;i++)
+    {
+        connect(checkBox_Devices_X[i], SIGNAL(toggled(bool)),this,SLOT(setCheckBox()) );
+        connect(checkBox_Devices_Y[i], SIGNAL(toggled(bool)),this,SLOT(setCheckBox()) );
+    }
 
-    for (int i=0; i<CurvCnt; i++)
+    /*for (int i=0; i<CurvCnt; i++)
     {
         setNumberDevice_bool(0,i); //number_of_point[i]=0;
         qDebug() << "setNumberDevice_bool bool" << 0;
         qDebug() << "setNumberDevice_bool new_int" << i;
-    }
+    }*/
 
     number_of_point_X = 20;
+}
+
+void LAMPhDevices::setCheckBox() //this automatically switches checkBoxes so that there is no controversy in the program
+{
+    int new_int=0;
+    for (int i=0;i<20;i++)
+    {
+        if (checkBox_Devices_X[i]->isChecked()) {
+            number_of_checkBox = i;
+            new_int++;
+        }
+    }
+
+    if (new_int>1)
+    {
+     for (int i=0;i<20;i++)
+     {
+         if (number_of_checkBox_tmp==i) {
+             checkBox_Devices_X[i]->setChecked(false);
+             checkBox_Devices_Y[i]->setChecked(true);
+             //checkBox_Devices_Show[i]->setChecked(true);
+             break;
+         }
+     }
+     number_of_checkBox=number_of_checkBox_tmp;
+    }
+    number_of_checkBox_tmp=number_of_checkBox;
+
+    for (int i=0;i<20;i++)
+    {
+        if (number_of_checkBox==i)
+        {
+            if (new_int!=0){
+                checkBox_Devices_Y[i]->setChecked(false);
+                //checkBox_Devices_Show[i]->setChecked(false);
+            }else {
+                checkBox_Devices_Y[i]->setChecked(true);
+                //checkBox_Devices_Show[i]->setChecked(true);
+                break;
+            }
+        }
+
+    }
+
+    // // // Simple and understandable explanation // // //
+
+    /*int new_int=0;
+
+    if (checkBox_A1_X->isChecked()) {number_of_checkBox = 1; new_int++;}
+    if (checkBox_A2_X->isChecked()) {number_of_checkBox = 2; new_int++;}
+    if (checkBox_A3_X->isChecked()) {number_of_checkBox = 3; new_int++;}
+    if (checkBox_A4_X->isChecked()) {number_of_checkBox = 4; new_int++;}
+
+    if (checkBox_K1_X->isChecked()) {number_of_checkBox = 11; new_int++;}
+    if (checkBox_K2_X->isChecked()) {number_of_checkBox = 12; new_int++;}
+    if (checkBox_K3_X->isChecked()) {number_of_checkBox = 13; new_int++;}
+    if (checkBox_K4_X->isChecked()) {number_of_checkBox = 14; new_int++;}
+
+    if (checkBox_L1_X->isChecked()) {number_of_checkBox = 21; new_int++;}
+    if (checkBox_L2_X->isChecked()) {number_of_checkBox = 22; new_int++;}
+    if (checkBox_L3_X->isChecked()) {number_of_checkBox = 23; new_int++;}
+    if (checkBox_L4_X->isChecked()) {number_of_checkBox = 24; new_int++;}
+
+    if (new_int>1)
+    {
+        switch (number_of_checkBox_tmp) {
+        case 1:checkBox_A1_X->setChecked(false);checkBox_A1_Y->setChecked(true);break;
+        case 2:checkBox_A2_X->setChecked(false);checkBox_A2_Y->setChecked(true);break;
+        case 3:checkBox_A3_X->setChecked(false);checkBox_A3_Y->setChecked(true);break;
+        case 4:checkBox_A4_X->setChecked(false);checkBox_A4_Y->setChecked(true);break;
+
+        case 11:checkBox_K1_X->setChecked(false);checkBox_K1_Y->setChecked(true);break;
+        case 12:checkBox_K2_X->setChecked(false);checkBox_K2_Y->setChecked(true);break;
+        case 13:checkBox_K3_X->setChecked(false);checkBox_K3_Y->setChecked(true);break;
+        case 14:checkBox_K4_X->setChecked(false);checkBox_K4_Y->setChecked(true);break;
+
+        case 21:checkBox_L1_X->setChecked(false);checkBox_L1_Y->setChecked(true);break;
+        case 22:checkBox_L2_X->setChecked(false);checkBox_L2_Y->setChecked(true);break;
+        case 23:checkBox_L3_X->setChecked(false);checkBox_L3_Y->setChecked(true);break;
+        case 24:checkBox_L4_X->setChecked(false);checkBox_L4_Y->setChecked(true);break;
+        }
+        number_of_checkBox=number_of_checkBox_tmp;
+    }
+        number_of_checkBox_tmp=number_of_checkBox;
+    switch (number_of_checkBox) {
+    case 1:if (new_int!=0)checkBox_A1_Y->setChecked(false);else checkBox_A1_Y->setChecked(true);break;
+    case 2:if (new_int!=0)checkBox_A2_Y->setChecked(false);else checkBox_A2_Y->setChecked(true);break;
+    case 3:if (new_int!=0)checkBox_A3_Y->setChecked(false);else checkBox_A3_Y->setChecked(true);break;
+    case 4:if (new_int!=0)checkBox_A4_Y->setChecked(false);else checkBox_A4_Y->setChecked(true);break;
+    case 11:if (new_int!=0)checkBox_K1_Y->setChecked(false);else checkBox_K1_Y->setChecked(true);break;
+    case 12:if (new_int!=0)checkBox_K2_Y->setChecked(false);else checkBox_K2_Y->setChecked(true);break;
+    case 13:if (new_int!=0)checkBox_K3_Y->setChecked(false);else checkBox_K3_Y->setChecked(true);break;
+    case 14:if (new_int!=0)checkBox_K4_Y->setChecked(false);else checkBox_K4_Y->setChecked(true);break;
+    case 21:if (new_int!=0)checkBox_L1_Y->setChecked(false);else checkBox_L1_Y->setChecked(true);break;
+    case 22:if (new_int!=0)checkBox_L2_Y->setChecked(false);else checkBox_L2_Y->setChecked(true);break;
+    case 23:if (new_int!=0)checkBox_L3_Y->setChecked(false);else checkBox_L3_Y->setChecked(true);break;
+    case 24:if (new_int!=0)checkBox_L4_Y->setChecked(false);else checkBox_L4_Y->setChecked(true);break;
+    }*/
+
 }
 
 void LAMPhDevices::getAllAvailableSerialPorts(){ // main
@@ -479,6 +583,8 @@ void LAMPhDevices::getAllAvailableSerialPorts(){ // main
         qDebug() << "AllFunctionsDeviceQMap:" << AllFunctionsDeviceQMap.value(i);
     }
 
+
+
     // we have numberofdeviceInt devices
     for (int r=0; r<20; r++)
     {
@@ -494,17 +600,42 @@ void LAMPhDevices::getAllAvailableSerialPorts(){ // main
             comboBox_Device[r]->setCurrentIndex(r);
             //comboBox_DeviceQMap[r]=r;
             comboBox_Device_Functions[r]->addItems(AllFunctionsDeviceQMap.value(r));
-            comboBox_Device_Functions[r]->addItem("None");
+            //comboBox_Device_Functions[r]->addItem("None");
 
             lineEdit_NameData[r]->setText(QString ("%1#%2").arg(NameDeviceQMap.value(r)).arg(NumberDeviceQMap.value(r)));
             setNumberDevice_bool(1,r); //number_of_point[r]=1; //please check it!!!
+            if (r==0) {
+                checkBox_Devices_X[r]->setChecked(true);
+                checkBox_Devices_Y[r]->setChecked(false);
+            }
+            else
+            {
+                checkBox_Devices_X[r]->setChecked(false);
+                checkBox_Devices_Y[r]->setChecked(true);
+            }
+
+            checkBox_Device_Text[r]->setChecked(true);
         }
         else comboBox_Device[r]->setCurrentIndex(numberofdeviceInt); //"None"
         //comboBox_DeviceQMap[r]=numberofdeviceInt;
 
     }
+
+
+
 }
 
+int LAMPhDevices::get_numberofdeviceInt()
+{
+    return numberofdeviceInt;
+}
+
+void LAMPhDevices::first(){
+    send_numberofdeviceInt(numberofdeviceInt);
+    for (int r=0; r<CurvCnt; r++)
+        update_comboBox_Device_Functions(r,0);
+
+}
 
 QToolBar *LAMPhDevices::toolBar()
 {
@@ -586,9 +717,11 @@ QToolBar *LAMPhDevices::toolBar_GET()
     label_comboBox_Device_Functions = new QLabel(tr("Functions"));
     label_comboBox_Function_Parameters = new QLabel(tr("Parameters"));
     label_lineEdit_NameData = new QLabel(tr("Name"));
+    label_checkBox_Device_Show_X = new QLabel(tr("X"));
+    label_checkBox_Device_Show_Y = new QLabel(tr("Y"));
     label_checkBox_Device_Show = new QLabel(tr("Plot"));
     label_checkBox_Device_Text = new QLabel(tr("Text"));
-    label_checkBox_Device_DB = new QLabel(tr("DB"));
+    //label_checkBox_Device_DB = new QLabel(tr("DB"));
     label_comboBox_ColorData = new QLabel(tr("Color"));
     label_comboBox_SizeData = new QLabel(tr("Size"));
 
@@ -603,15 +736,17 @@ QToolBar *LAMPhDevices::toolBar_GET()
         lineEdit_NameData[i]->setText(QString("Name %1:").arg(i));
         //lineEdit_NameData[i]->setFixedWidth(60);
         checkBox_Device_Show[i]  = new QCheckBox(tr(""));
+        checkBox_Devices_X[i]  = new QCheckBox(tr(""));
+        checkBox_Devices_Y[i]  = new QCheckBox(tr(""));
         checkBox_Device_Text[i]  = new QCheckBox(tr(""));
-        checkBox_Device_DB[i]  = new QCheckBox(tr(""));
+        //checkBox_Device_DB[i]  = new QCheckBox(tr(""));
         comboBox_ColorData[i] = new QComboBox();
         comboBox_SizeData[i] = new QComboBox();
 
 
         comboBox_ColorData[i]->addItems(colorsQStringList);
         comboBox_SizeData[i]->addItems(sizeQStringList);
-        comboBox_SizeData[i]->setCurrentIndex(1);
+        comboBox_SizeData[i]->setCurrentIndex(0);
 
         if (i<colorsQStringList.size()) comboBox_ColorData[i]->setCurrentIndex(i); else comboBox_ColorData[i]->setCurrentIndex(0);
 
@@ -637,8 +772,10 @@ QToolBar *LAMPhDevices::toolBar_GET()
         comboBox_Function_Parameters[i]->hide();
         lineEdit_NameData[i]->hide();
         checkBox_Device_Show[i]->hide();
+        checkBox_Devices_X[i]->hide();
+        checkBox_Devices_Y[i]->hide();
         checkBox_Device_Text[i]->hide();
-        checkBox_Device_DB[i]->hide();
+        //checkBox_Device_DB[i]->hide();
         comboBox_ColorData[i]->hide();
         comboBox_SizeData[i]->hide();
     }
@@ -655,11 +792,12 @@ QToolBar *LAMPhDevices::toolBar_GET()
     gridLayout->addWidget(label_comboBox_Device_Functions, 0, 2);
     gridLayout->addWidget(label_comboBox_Function_Parameters, 0, 3);
     gridLayout->addWidget(label_lineEdit_NameData, 0, 4);
-    gridLayout->addWidget(label_checkBox_Device_Show, 0, 5);
-    gridLayout->addWidget(label_checkBox_Device_Text, 0, 6);
-    gridLayout->addWidget(label_checkBox_Device_DB, 0, 7);
-    gridLayout->addWidget(label_comboBox_ColorData, 0, 8);
-    gridLayout->addWidget(label_comboBox_SizeData, 0, 9);
+    gridLayout->addWidget(label_checkBox_Device_Show_X, 0, 5);
+    gridLayout->addWidget(label_checkBox_Device_Show_Y, 0, 6);
+    gridLayout->addWidget(label_checkBox_Device_Text, 0, 7);
+    //gridLayout->addWidget(label_checkBox_Device_DB, 0, 8);
+    gridLayout->addWidget(label_comboBox_ColorData, 0, 9);
+    gridLayout->addWidget(label_comboBox_SizeData, 0, 10);
 
     for(int i=0; i<20; i++)
     {
@@ -668,11 +806,12 @@ QToolBar *LAMPhDevices::toolBar_GET()
         gridLayout->addWidget(comboBox_Device_Functions[i], i+1, 2);
         gridLayout->addWidget(comboBox_Function_Parameters[i], i+1, 3);
         gridLayout->addWidget(lineEdit_NameData[i], i+1, 4);
-        gridLayout->addWidget(checkBox_Device_Show[i], i+1, 5);
-        gridLayout->addWidget(checkBox_Device_Text[i], i+1, 6);
-        gridLayout->addWidget(checkBox_Device_DB[i], i+1, 7);
-        gridLayout->addWidget(comboBox_ColorData[i], i+1, 8);
-        gridLayout->addWidget(comboBox_SizeData[i], i+1, 9);
+        gridLayout->addWidget(checkBox_Devices_X[i], i+1, 5);
+        gridLayout->addWidget(checkBox_Devices_Y[i], i+1, 6);
+        gridLayout->addWidget(checkBox_Device_Text[i], i+1, 7);
+        //gridLayout->addWidget(checkBox_Device_DB[i], i+1, 8);
+        gridLayout->addWidget(comboBox_ColorData[i], i+1, 9);
+        gridLayout->addWidget(comboBox_SizeData[i], i+1, 10);
     }
 
     gridLayout->addWidget(button_ReceivedData_Close,22,2);
@@ -687,16 +826,51 @@ QToolBar *LAMPhDevices::toolBar_GET()
 }
 
 void LAMPhDevices::update_comboBox_Device_Functions(int r, int Index){
-    qDebug() << "r" << r;
-    qDebug() << "Index" << Index;
+    //qDebug() << "r" << r;
+    //qDebug() << "Index" << Index;
 
     while (comboBox_Device_Functions[r]->count()>0) comboBox_Device_Functions[r]->removeItem(0);
     comboBox_Device_Functions[r]->addItems(AllFunctionsDeviceQMap.value(comboBox_Device[r]->currentIndex()));
-    comboBox_Device_Functions[r]->addItem("None");
-    lineEdit_NameData[r]->setText(QString ("%1#%2").arg(NameDeviceQMap.value(comboBox_Device[r]->currentIndex())).arg(NumberDeviceQMap.value(comboBox_Device[r]->currentIndex())));
-    if (!comboBox_Device[r]->currentText().contains("None", Qt::CaseInsensitive))
-        setNumberDevice_bool(1,r);//number_of_point[r]=1;
-    else setNumberDevice_bool(0,r);
+    //comboBox_Device_Functions[r]->addItem("None");
+    //lineEdit_NameData[r]->setText(QString ("%1#%2").arg(NameDeviceQMap.value(comboBox_Device[r]->currentIndex())).arg(NumberDeviceQMap.value(comboBox_Device[r]->currentIndex())));
+    if (!comboBox_Device[r]->currentText().contains("None", Qt::CaseInsensitive)){
+        lineEdit_NameData[r]->setText(QString ("%1#%2").arg(NameDeviceQMap.value(comboBox_Device[r]->currentIndex())).arg(NumberDeviceQMap.value(comboBox_Device[r]->currentIndex())));
+
+        checkBox_Devices_X[r]->setCheckable(true);
+        checkBox_Devices_Y[r]->setCheckable(true);
+        checkBox_Device_Text[r]->setCheckable(true);
+
+        if (checkBox_Devices_Y[r]->isChecked()) {
+            checkBox_Devices_Y[r]->setChecked(true);
+            setNumberDevice_bool(1,r);
+        }
+        if (checkBox_Devices_X[r]->isChecked()) {
+            checkBox_Devices_X[r]->setChecked(true);
+            setNumberDevice_bool(0,r);
+
+        }else {
+            checkBox_Devices_Y[r]->setChecked(true);
+            setNumberDevice_bool(1,r);
+        }
+        checkBox_Device_Text[r]->setChecked(true);
+
+
+    }
+    else
+    {
+        lineEdit_NameData[r]->setText("None");
+        setNumberDevice_bool(0,r);
+
+
+        checkBox_Devices_X[r]->setChecked(false);
+        checkBox_Devices_Y[r]->setChecked(false);
+        checkBox_Device_Text[r]->setChecked(false);
+        checkBox_Devices_X[r]->setCheckable(false);
+        checkBox_Devices_Y[r]->setCheckable(false);
+        checkBox_Device_Text[r]->setCheckable(false);
+
+
+    }
 }
 
 
@@ -731,7 +905,8 @@ void LAMPhDevices::readData(){
     }
 
     for (int r=0;r<20;r++){
-        if (!comboBox_Device[r]->currentText().contains("None", Qt::CaseInsensitive)){
+
+          if ((checkBox_Devices_Y[r]->isChecked()) or (checkBox_Devices_X[r]->isChecked())){   //our choice + if (!comboBox_Device[r]->currentText().contains("None", Qt::CaseInsensitive)){
             QLibrary lib (DLLFileDeviceQMap.value(comboBox_Device[r]->currentIndex()));
 
             typedef float (*GetData) (int);
@@ -748,7 +923,8 @@ void LAMPhDevices::readData(){
                 GetData getData = (GetData)(lib.resolve(new_temp_text_del.toLatin1()));
                 float res = getData(NumberDeviceQMap.value(comboBox_Device[r]->currentIndex()));
                 send_all_results(res,r);
-                send_x_result(res);
+
+                if (checkBox_Devices_X[r]->isChecked()) send_x_result(res);
             }
         }
     }
@@ -763,9 +939,10 @@ void LAMPhDevices::toolBar_GET_show_data()
         comboBox_Device_Functions[int_GET]->show();
         comboBox_Function_Parameters[int_GET]->show();
         lineEdit_NameData[int_GET]->show();
-        checkBox_Device_Show[int_GET]->show();
+        checkBox_Devices_X[int_GET]->show();
+        checkBox_Devices_Y[int_GET]->show();
         checkBox_Device_Text[int_GET]->show();
-        checkBox_Device_DB[int_GET]->show();
+        //checkBox_Device_DB[int_GET]->show();
         comboBox_ColorData[int_GET]->show();
         comboBox_SizeData[int_GET]->show();
         int_GET++;
@@ -780,9 +957,10 @@ void LAMPhDevices::toolBar_GET_hide_data()
     comboBox_Device_Functions[int_GET]->hide();
     comboBox_Function_Parameters[int_GET]->hide();
     lineEdit_NameData[int_GET]->hide();
-    checkBox_Device_Show[int_GET]->hide();
+    checkBox_Devices_X[int_GET]->hide();
+    checkBox_Devices_Y[int_GET]->hide();
     checkBox_Device_Text[int_GET]->hide();
-    checkBox_Device_DB[int_GET]->hide();
+    //checkBox_Device_DB[int_GET]->hide();
     comboBox_ColorData[int_GET]->hide();
     comboBox_SizeData[int_GET]->hide();
 }

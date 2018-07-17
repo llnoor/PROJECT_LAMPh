@@ -35,6 +35,8 @@ public:
     LAMPhDevices(QString loginQString);
     //~LAMPhDevices();
     void getDataDll();
+    int get_numberofdeviceInt();
+    void first();
 
 
 
@@ -52,6 +54,7 @@ Q_SIGNALS:
     void send_all_results(float,int);
     void setColorSize(int number, int color, int size);
     void setNumberDevice_bool( bool , int );
+    void send_numberofdeviceInt(int);
 
 private Q_SLOTS:
     void toolBar_GET_show_data();
@@ -62,6 +65,7 @@ private Q_SLOTS:
     void sendColors();
     void readData();
     void getAllAvailableSerialPorts();
+    void setCheckBox();
 
     /*struct Foo {
         void overloadedFunction();
@@ -190,6 +194,8 @@ private:
     QLabel *label_comboBox_Function_Parameters;
     QLabel *label_lineEdit_NameData;
     QLabel *label_checkBox_Device_Show;
+    QLabel *label_checkBox_Device_Show_X;
+    QLabel *label_checkBox_Device_Show_Y;
     QLabel *label_checkBox_Device_Text;
     QLabel *label_checkBox_Device_DB;
     QLabel *label_comboBox_ColorData;
@@ -203,6 +209,8 @@ private:
     QComboBox *comboBox_Function_Parameters[20];
     QLineEdit *lineEdit_NameData[20];
     QCheckBox *checkBox_Device_Show[20];
+    QCheckBox *checkBox_Device_Show_X[20];
+    QCheckBox *checkBox_Device_Show_Y[20];
     QCheckBox *checkBox_Device_Text[20];
     QCheckBox *checkBox_Device_DB[20];
     QComboBox *comboBox_ColorData[20];

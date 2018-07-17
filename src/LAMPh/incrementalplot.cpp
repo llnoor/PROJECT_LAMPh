@@ -256,7 +256,7 @@ void IncrementalPlot::showSymbols( bool on )
 
 
 
-/*
+
 
     if ( on )
     {
@@ -272,9 +272,9 @@ void IncrementalPlot::showSymbols( bool on )
 
             d_curves[i]->setPen(QColor(colorsQStringList.at(color_int)));
             d_curves[i]->setStyle( QwtPlotCurve::Lines );
-            d_curves[i]->setStyle( QwtPlotCurve::NoCurve );
+            //d_curves[i]->setStyle( QwtPlotCurve::NoCurve );
             d_curves[i]->setSymbol( new QwtSymbol( QwtSymbol::Ellipse,
-                        QBrush(QColor(colorsQStringList.at(color_int))), QPen(QColor(colorsQStringList.at(color_int))), QSize( 4, 4 ) ) );
+                        QBrush(QColor(colorsQStringList.at(color_int))), QPen(QColor(colorsQStringList.at(color_int))), QSize( 0, 0 ) ) );
         }
     }
     else
@@ -293,6 +293,6 @@ void IncrementalPlot::showSymbols( bool on )
         }
     }
 
-    replot();*/
+    replot();
 }
 

@@ -267,6 +267,11 @@ LAMPhPlot::LAMPhPlot(QString loginQString)
 
     connect(lamphDevices,SIGNAL(setNumberDevice_bool( bool ,int)),d_plot,SLOT(get_bool( bool ,int)));
 
+    //d_plot->get_numberofdeviceInt(lamphDevices->get_numberofdeviceInt());
+    connect(lamphDevices,SIGNAL(send_numberofdeviceInt(int)),d_plot,SLOT(get_numberofdeviceInt(int)));
+
+    lamphDevices->first();
+
 }
 
 QToolBar *LAMPhPlot::toolBar()
@@ -365,7 +370,7 @@ QToolBar *LAMPhPlot::toolBar_Devices()
     label_Devices_All_Y = new QLabel(tr("Y"));
     label_Devices_All_Y2 = new QLabel(tr("Y2"));
     //label_Devices_All_Show = new QLabel(tr("Show"));
-    Button_Devices_ClearAll = new QPushButton(tr("Clear"));
+    Button_Devices_ClearAll = new QPushButton(tr("CLEAR"));
     Button_Devices_AutoScaleAll = new QPushButton(tr("AutoScale"));
     Button_Devices_ClearAll->setFixedWidth(40);
     Button_Devices_AutoScaleAll->setFixedWidth(70);
@@ -396,8 +401,8 @@ QToolBar *LAMPhPlot::toolBar_Devices()
     QGridLayout *mainLayout = new QGridLayout( hBox_Devices );
 
     mainLayout->addWidget(label_Devices_All, 0, 0);
-    mainLayout->addWidget(label_Devices_All_X, 0, 1);
-    mainLayout->addWidget(label_Devices_All_Y, 0, 2);
+    //mainLayout->addWidget(label_Devices_All_X, 0, 1);
+    //mainLayout->addWidget(label_Devices_All_Y, 0, 2);
     //mainLayout->addWidget(label_Devices_All_Y2, 0, 3);
     //mainLayout->addWidget(label_Devices_All_Show, 0, 4);
     mainLayout->addWidget(Button_Devices_ClearAll, 0, 5);
@@ -408,8 +413,8 @@ QToolBar *LAMPhPlot::toolBar_Devices()
     {
         mainLayout->addWidget(lineEdit_Devices[i], i+1, 0);
         //mainLayout->addWidget(label_Devices[i], 0, 0);
-        mainLayout->addWidget(checkBox_Devices_X[i], i+1, 1);
-        mainLayout->addWidget(checkBox_Devices_Y[i], i+1, 2);
+        //mainLayout->addWidget(checkBox_Devices_X[i], i+1, 1);
+        //mainLayout->addWidget(checkBox_Devices_Y[i], i+1, 2);
         //mainLayout->addWidget(checkBox_Devices_Y2[i], i+1, 3);
         //mainLayout->addWidget(checkBox_Devices_Show[i], i+1, 4);
         //mainLayout->addWidget(Button_Devices_Start[i], 0, 5);

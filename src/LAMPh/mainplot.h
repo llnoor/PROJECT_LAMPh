@@ -29,6 +29,7 @@ public Q_SLOTS:
     void get_all_results(float , int );
     void get_x_result(float );
     void get_bool( bool ,int);
+    void get_numberofdeviceInt(int);
 
     //void get_bool(bool , int );
     //void appendPoint_F1(float, float);
