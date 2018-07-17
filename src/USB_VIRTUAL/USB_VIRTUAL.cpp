@@ -178,6 +178,10 @@ const char* DLLMain() {
     return INFO;
 }
 
+const char* getName() {
+    return DEVICE;
+}
+
 const char* getFunctions() {
     createFile();
     return FUNCTIONS;

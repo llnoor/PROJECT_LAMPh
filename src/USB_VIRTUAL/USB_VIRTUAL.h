@@ -15,7 +15,7 @@ LAMPHLIBSHARED_EXPORT QString oddUpper(const QString& str);*/
 LAMPHLIBSHARED_EXPORT void setNewDevice (int number_of_devices);
 
 
-
+LAMPHLIBSHARED_EXPORT const char* getName(); 
 LAMPHLIBSHARED_EXPORT const char* getInfo(); //also create file with name of functions
 LAMPHLIBSHARED_EXPORT const char* DLLMain(); //the same
 LAMPHLIBSHARED_EXPORT const char* getFunctions();

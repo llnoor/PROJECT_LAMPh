@@ -425,7 +425,7 @@ void LAMPhDevices::getAllAvailableSerialPorts(){ // main
 
     // COM PORT
 
-    /*for (int i=0; i<listDllCOM->size();i++)
+    for (int i=0; i<listDllCOM->size();i++)
     {
         QStringList receivedDataList;   //=outputTest
         // receivedDataList transfer to next Strings!!!
@@ -504,7 +504,7 @@ void LAMPhDevices::getAllAvailableSerialPorts(){ // main
             //qDebug() << info.portName() << "Device:" << AllAvailableDevicesQMap.value(numberofdeviceInt);
         }
     }
-*/
+
 
 
     // Socket
@@ -530,21 +530,16 @@ void LAMPhDevices::getAllAvailableSerialPorts(){ // main
         QString respondString;
 
         QLibrary lib ( listDllUSB->at(i) );
-        /*typedef const char* ( *ReceivedData )();
-        ReceivedData receivedData;
 
-        receivedData = ( ReceivedData ) lib.resolve( "getUSBcommands" );
-        if( receivedData ) {
-            receivedDataList = QString::fromUtf8(receivedData()).split(",");
-            qDebug() << receivedData();
+        nameofdeviceString = "None_USB"; //sorry
+
+        typedef const char* ( *GetName )();
+        GetName getName;
+
+        getName = ( GetName ) lib.resolve( "getName" );
+        if( getName ) {
+            nameofdeviceString = QString::fromUtf8(getName());
         }
-
-        nameofdeviceString = receivedDataList.at(0);
-        commandString = receivedDataList.at(1);
-        respondString = receivedDataList.at(2);*/
-
-
-        nameofdeviceString = "d"; //sorry
 
         int numberTHISdevice=0; //sorry
 
