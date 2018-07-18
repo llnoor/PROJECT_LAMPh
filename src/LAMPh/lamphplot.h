@@ -10,6 +10,8 @@
 #include <lamphdevices.h>
 #include <lamphtemp.h>
 
+#define CurvCnt 20
+
 class QSpinBox;
 class QPushButton;
 class QLineEdit;

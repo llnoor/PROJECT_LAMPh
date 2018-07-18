@@ -29,7 +29,6 @@
  *
  * */
 
-
 char cNewLine = '\n';
 
 class ClassLAMPh
@@ -128,6 +127,11 @@ public:
     bool setCh(float float_data){
         if (result_float=result_float*float_data) true; else false;
     }
+	
+	const char* getUnit(){
+        unit = "Time";
+        return unit;
+    }
 };
 
 ClassLAMPh classLAMPh[5];
@@ -209,6 +213,10 @@ float getDays(int number_of_device){
 }
 float getDaysFromNull(int number_of_device){
 	return classLAMPh[number_of_device].getDaysFromNull();
+}
+
+const char* getUnit(int number_of_device){
+    return classLAMPh[number_of_device].getUnit();
 }
 
 

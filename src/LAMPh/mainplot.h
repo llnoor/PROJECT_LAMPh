@@ -1,8 +1,10 @@
 #ifndef _MAINPLOT_H_
-#define _MAINPLOT_H_ 1
+#define _MAINPLOT_H_
+
 
 #include "incrementalplot.h"
 #include <qdatetime.h>
+#define CurvCnt 20
 
 class QTimer;
 

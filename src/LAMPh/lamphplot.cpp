@@ -239,12 +239,12 @@ LAMPhPlot::LAMPhPlot(QString loginQString)
     connect( d_plot, SIGNAL( elapsed( int ) ), this, SLOT( showElapsed( int ) ) );
 
 
-    for (int i=0;i<20;i++)
+    /*for (int i=0;i<20;i++)
     {
         connect(checkBox_Devices_X[i], SIGNAL(toggled(bool)),this,SLOT(setCheckBox()) );
         connect(checkBox_Devices_Y[i], SIGNAL(toggled(bool)),this,SLOT(setCheckBox()) );
         //connect(checkBox_Devices_Show[i], SIGNAL(toggled(bool)),this,SLOT(setCheckBox()) );
-    }
+    }*/
 
     setWindowTitle(tr("LAMPh Plot - %1 ").arg(login->toLower()));
     //showFullScreen();
@@ -261,6 +261,8 @@ LAMPhPlot::LAMPhPlot(QString loginQString)
     connect(lamphDevices,SIGNAL(send_x_result(float)),d_plot,SLOT(get_x_result(float)));
 
 
+    connect( d_startAction, SIGNAL( toggled( bool ) ), lamphDevices, SLOT( appendPoints( bool ) ) );
+
     connect(lamphDevices,SIGNAL(send_all_results(float,int)),d_plot,SLOT(get_all_results(float,int)));
 
     connect(lamphDevices,SIGNAL(setColorSize(int,int,int)),d_plot,SLOT(setColorSize(int,int,int)));
@@ -269,6 +271,7 @@ LAMPhPlot::LAMPhPlot(QString loginQString)
 
     //d_plot->get_numberofdeviceInt(lamphDevices->get_numberofdeviceInt());
     connect(lamphDevices,SIGNAL(send_numberofdeviceInt(int)),d_plot,SLOT(get_numberofdeviceInt(int)));
+
 
     lamphDevices->first();
 
@@ -306,9 +309,8 @@ QToolBar *LAMPhPlot::toolBar()
     d_symbolType = new QCheckBox( "Symbols", hBox );
     d_symbolType->setChecked( true );
 
-    d_randomCount =
-        new Counter( hBox, "Points", QString::null, 1, 100000, 100 );
-    d_randomCount->setValue( 100000 );
+    //d_randomCount = new Counter( hBox, "Points", QString::null, 1, 100000, 100 );
+    //d_randomCount->setValue( 100000 );
 
     d_timerCount = new Counter( hBox, "Delay", "ms", 0, 100000, 100 );
     d_timerCount->setValue( 500 );
@@ -320,8 +322,8 @@ QToolBar *LAMPhPlot::toolBar()
     layout->addWidget( new QWidget( hBox ), 10 ); // spacer
     layout->addWidget( d_symbolType );
     layout->addSpacing( 5 );
-    layout->addWidget( d_randomCount );
-    layout->addSpacing( 5 );
+    //layout->addWidget( d_randomCount );
+    //layout->addSpacing( 5 );
     layout->addWidget( d_timerCount );
 
     showRunning( false );
@@ -534,15 +536,16 @@ void LAMPhPlot::setCheckBox() //this automatically switches checkBoxes so that t
 void LAMPhPlot::appendPoints( bool on )
 {
     if ( on )
-        d_plot->append( d_timerCount->value(),
-                        d_randomCount->value() );
+        d_plot->append( d_timerCount->value(),1000
+                        //,d_randomCount->value()
+                        );
     else
         d_plot->stop();
 }
 
 void LAMPhPlot::showRunning( bool running )
 {
-    d_randomCount->setEnabled( !running );
+   // d_randomCount->setEnabled( !running );
     d_timerCount->setEnabled( !running );
     d_startAction->setChecked( running );
     d_startAction->setText( running ? "Stop" : "Start" );
@@ -587,7 +590,7 @@ void LAMPhPlot::initWhatsThis()
     const char *text5 = "Remove all points.";
 
     d_plot->setWhatsThis( text1 );
-    d_randomCount->setWhatsThis( text2 );
+    //d_randomCount->setWhatsThis( text2 );
     d_timerCount->setWhatsThis( text3 );
     d_startAction->setWhatsThis( text4 );
     d_clearAction->setWhatsThis( text5 );

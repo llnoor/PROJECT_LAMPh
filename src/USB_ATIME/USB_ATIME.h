@@ -39,6 +39,7 @@ LAMPHLIBSHARED_EXPORT float getHoursfromNull(int number_of_device);
 LAMPHLIBSHARED_EXPORT float getDays(int number_of_device);
 LAMPHLIBSHARED_EXPORT float getDaysFromNull(int number_of_device);
 
+LAMPHLIBSHARED_EXPORT const char* getUnit(int number_of_device);
 
 
 

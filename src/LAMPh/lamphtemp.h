@@ -3,6 +3,7 @@
 
 #include <qmainwindow.h>
 #include <qaction.h>
+#define CurvCnt 20
 
 class QSpinBox;
 class QPushButton;

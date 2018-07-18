@@ -29,8 +29,6 @@
 #include <QLabel>
 #include <QScrollArea>
 
-/* #include <QtSerialPort/QSerialPortInfo> */
-
 #include <QSerialPort>
 #include <QSerialPortInfo>
 #include <QFile>
@@ -53,163 +51,37 @@ public:
     }
 };
 
-
-class ConnectComDevice
-{
-private: // спецификатор доступа private
-    QString nameDll;
-    QString comPort;
-    QString comInfo;
-    QString LIB_NAME;
-
-    //QLibrary lib;
-    float result_float;
-    double result_double;
-
-
-
-public: // спецификатор доступа public
-    ConnectComDevice(QString nameDll_, QString comPort_, QString comInfo_ ) // конструктор класса
-    {
-        nameDll=nameDll_;
-        comPort=comPort_;
-        comInfo=comInfo_;
-
-        static QString suffix = "";
-        #ifdef QT_DEBUG
-            suffix = "d";
-        #endif
-
-        /*static const QString */ LIB_NAME = nameDll + suffix;
-
-        QLibrary lib ( LIB_NAME );
-        if( !lib.load() ) {
-            qDebug() << "Loading failed!";
-        }
-
-
-        //checkCOM
-        //setCOM
-
-        /* !!! Important !!! Take attention !!!
-         * You should get TRUE from Ready, only after that you can transfer data from DLL
-        */
-    }
-
-    /*void getInfo()
-    {
-        QLibrary lib ( LIB_NAME );
-        typedef const char* ( *OutputTest )();
-        OutputTest outputTest;
-
-        outputTest = ( OutputTest ) lib.resolve( "getInfo" );
-        if( outputTest ) {
-            qDebug() << outputTest();
-        }
-    }*/
-
-    void getFloat(int number_of_device)
-    {
-        QLibrary lib ( LIB_NAME );
-
-
-        typedef bool ( *setCh )(int, const char * );
-        setCh setChd  =  ( setCh ) lib.resolve( "setPORT" );
-        if( setChd ) {
-            qDebug() << setChd(number_of_device, comPort.toStdString().c_str() );
-        }
-
-
-        typedef float ( *outputFloat )(int);
-        outputFloat outputFloatd  = ( outputFloat ) lib.resolve( "getFloat" );
-        for (int y=0; y<5; y++)
-        {
-            if( outputFloatd ) {
-                qDebug() << QString::number(outputFloatd(number_of_device));
-            }
-        }
-
-
-        /*for (int i=0; i<11; i++)
-                {
-                    if( outputFloatd ) {
-                        qDebug() << outputFloatd(number_of_device);
-                    }
-                }*/
-
-
-        /*for (int i=0; i<11; i++)
-        {
-            if( outputFloatd ) {
-                qDebug() << outputFloatd(number_of_device);
-            }
-        }
-
-        if( setChd ) {
-            qDebug() << setChd(number_of_device, 5 );
-        }
-
-        for (int i=0; i<11; i++)
-        {
-            if( outputFloatd ) {
-                qDebug() << outputFloatd(number_of_device);
-            }
-        }*/
-
-    }
-
-
-
-    /*void message() // функция (метод класса) выводящая сообщение на экран
-    {
-        cout << "\nwebsite: cppstudio.com\ntheme: Classes and Objects in C + +\n";
-    }
-
-    void getDate() // отобразить текущую дату
-    {
-        cout << "date: " << day << "." << month << "." << year << endl;
-    }*/
-};
-
-
-
 LAMPhDevices::LAMPhDevices(QString loginQString)
 {
-
     addToolBar(Qt::TopToolBarArea, toolBar()); //buttons
-
     addToolBar(Qt::LeftToolBarArea, toolBar_GET()); //these are fields for selecting functions of DEVICES
     /*addToolBar(Qt::LeftToolBarArea, toolBar_SEND());
     addToolBar(Qt::LeftToolBarArea, toolBar_COUNTERS());*/
-
     addToolBar(Qt::RightToolBarArea, toolBar_PORTS()); //All Available Serial Ports (COM+USB+LAN+Sockets and so on)
     //addToolBar(Qt::RightToolBarArea, toolBar_DEVICES());
-
 #ifndef QT_NO_STATUSBAR
     ( void )statusBar();
 #endif
-
 
     login = new QString(); // to transfer the user's login and delineation of rights
     *login = loginQString;
 
     labelPlotSettingS = new QLabel(tr(" ")); //free space in the center of the window, due to "mainwindow" features
 
-    /*QLabel       lbl("this is the example text");
-    QLibrary     lib("dynlibd");
-
-    typedef QString (*Fct) (const QString&);
-    Fct fct = (Fct)(lib.resolve("oddUpper"));
-    if (fct) {
-        labelPlotSettingS->setText("fct(lbl.text())");
-    }*/
+    W_File = new class_write_in_file();
 
     setCentralWidget( labelPlotSettingS ); //mainwindow does not work without this thing
 
-    //getDataDll();
     //initWhatsThis();
 
     setContextMenuPolicy( Qt::NoContextMenu );
+
+    setWindowTitle(tr("LAMPhDevices - %1 ").arg(login->toLower()));
+    showMinimized();
+
+    getAllAvailableSerialPorts();
+    showMaximized();
+
 
     // this is for switching between windows
     connect( d_OpenWindow_Main, SIGNAL( triggered() ), this, SIGNAL(showLAMPhPlot()) );
@@ -228,25 +100,12 @@ LAMPhDevices::LAMPhDevices(QString loginQString)
     //connect( d_OpenWindow_Exit, SIGNAL( triggered() ), this, SIGNAL(LAMPhExit()) );
     //connect( d_OpenWindow_Exit, SIGNAL( triggered() ), this, SLOT(close()) );
 
-    setWindowTitle(tr("LAMPhDevices - %1 ").arg(login->toLower()));
-    //showFullScreen();
+    connect (d_sendAction, SIGNAL( triggered() ) , this, SLOT (send_readData()));
+    connect (d_getAction, SIGNAL( triggered() ) , this, SLOT (readData()));
+    connect (d_colorsAction, SIGNAL( triggered() ) , this, SLOT (sendColors()));
+    connect (d_connectAction, SIGNAL( triggered() ) , this, SLOT (getAllAvailableSerialPorts()));
 
-    showMinimized();
-    //this->setWindowState(Qt::WindowMaximized);
-
-
-    //ConnectComDevice connectDevice("COM_APPA205","COM10","APPA205");
-    //connectDevice.getInfo();
-    //connectDevice.getFloat(1);
-
-
-    //ConnectComDevice connectDevice1("COM_APPA205","COM12","APPA205");
-    //connectDevice1.getInfo();
-    //connectDevice1.getFloat(2);
-    getAllAvailableSerialPorts();
-    showMaximized();
-
-    for (int r=0; r<20; r++)
+    for (int r=0; r<CurvCnt; r++)
     {
         connect(comboBox_Device[r], static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
                  [=](int index){
@@ -262,43 +121,43 @@ LAMPhDevices::LAMPhDevices(QString loginQString)
                 setColorSize(r,comboBox_ColorData[r]->currentIndex(),index);
            });
 
+        connect(checkBox_Devices_X[r], SIGNAL(toggled(bool)),this,SLOT(setCheckBox()) );
+        connect(checkBox_Devices_Y[r], SIGNAL(toggled(bool)),this,SLOT(setCheckBox()) );
+        connect(checkBox_Device_Text[r], SIGNAL(toggled(bool)),this,SLOT(setCheckBox()) );
     }
 
-    connect (d_sendAction, SIGNAL( triggered() ) , this, SLOT (send_readData()));
-    connect (d_getAction, SIGNAL( triggered() ) , this, SLOT (readData()));
-    connect (d_colorsAction, SIGNAL( triggered() ) , this, SLOT (sendColors()));
-    connect (d_connectAction, SIGNAL( triggered() ) , this, SLOT (getAllAvailableSerialPorts()));
 
-    for (int i=0;i<20;i++)
-    {
-        connect(checkBox_Devices_X[i], SIGNAL(toggled(bool)),this,SLOT(setCheckBox()) );
-        connect(checkBox_Devices_Y[i], SIGNAL(toggled(bool)),this,SLOT(setCheckBox()) );
-    }
-
-    /*for (int i=0; i<CurvCnt; i++)
-    {
-        setNumberDevice_bool(0,i); //number_of_point[i]=0;
-        qDebug() << "setNumberDevice_bool bool" << 0;
-        qDebug() << "setNumberDevice_bool new_int" << i;
-    }*/
-
-    number_of_point_X = 20;
 }
 
 void LAMPhDevices::setCheckBox() //this automatically switches checkBoxes so that there is no controversy in the program
 {
     int new_int=0;
-    for (int i=0;i<20;i++)
+    for (int i=0;i<CurvCnt;i++)
     {
         if (checkBox_Devices_X[i]->isChecked()) {
             number_of_checkBox = i;
             new_int++;
         }
+
+        if (checkBox_Devices_Y[i]->isChecked()) {
+            setNumberDevice_bool(1,i);
+        }
+        else{
+            setNumberDevice_bool(0,i);
+        }
+
+        if (checkBox_Device_Text[i]->isChecked()) {
+            W_File->get_bool(1,i);
+        }else
+        {
+            W_File->get_bool(0,i);
+        }
+
     }
 
     if (new_int>1)
     {
-     for (int i=0;i<20;i++)
+     for (int i=0;i<CurvCnt;i++)
      {
          if (number_of_checkBox_tmp==i) {
              checkBox_Devices_X[i]->setChecked(false);
@@ -311,7 +170,7 @@ void LAMPhDevices::setCheckBox() //this automatically switches checkBoxes so tha
     }
     number_of_checkBox_tmp=number_of_checkBox;
 
-    for (int i=0;i<20;i++)
+    for (int i=0;i<CurvCnt;i++)
     {
         if (number_of_checkBox==i)
         {
@@ -418,7 +277,7 @@ void LAMPhDevices::getAllAvailableSerialPorts(){ // main
     numberofitemsdeviceInt=0;
 
 
-    for (int r=0; r<20; r++)
+    for (int r=0; r<CurvCnt; r++)
     {
         while (comboBox_Device[r]->count()>0) comboBox_Device[r]->removeItem(0);
     }
@@ -448,7 +307,6 @@ void LAMPhDevices::getAllAvailableSerialPorts(){ // main
         //qDebug() << "name" << nameofdeviceString << "command" << commandString << "respond" << respondString;
         int numberTHISdevice=0;
         for (const QSerialPortInfo &info : QSerialPortInfo::availablePorts()) {
-            //AllAvailableSerialPortsQMap[info.portName()] = (info.isBusy() ? QObject::tr("Busy") : QObject::tr("Ready"));
             if (!info.isBusy())
             {
                 QSerialPort newSerialPort;
@@ -494,6 +352,15 @@ void LAMPhDevices::getAllAvailableSerialPorts(){ // main
                         AllFunctionsDeviceQMap[numberofdeviceInt] = FunctionsQStringList;
 
                     }
+                    typedef const char* ( *GetUnitF )(int);
+                    GetUnitF getUnitF;
+                    getUnitF = ( GetUnitF ) lib.resolve( "getUnit" );
+                    if( getUnitF ) {
+                        QString unitQString = QString::fromLatin1(getUnitF(numberTHISdevice));
+                        UnitDeviceQMap[numberofdeviceInt]=unitQString;
+                    }
+
+
                     AllAvailableSerialPortsQMap[info.portName()] = QString ("COM_Device%1:%2 Number:%3 DLL:%4").arg(numberofdeviceInt).arg(nameofdeviceString).arg(numberTHISdevice).arg(listDllCOM->at(i));
 
                     numberTHISdevice++;
@@ -563,9 +430,20 @@ void LAMPhDevices::getAllAvailableSerialPorts(){ // main
                 DLLFileDeviceQMap[numberofdeviceInt] = QString ("%1").arg(listDllUSB->at(i));
                 AllFunctionsDeviceQMap[numberofdeviceInt] = FunctionsQStringList;
 
-                numberTHISdevice++;
-                numberofdeviceInt++;
+
             }
+
+            typedef const char* ( *GetUnitF )(int);
+            GetUnitF getUnitF;
+            getUnitF = ( GetUnitF ) lib.resolve( "getUnit" );
+            if( getUnitF ) {
+                QString unitQString = QString::fromLatin1(getUnitF(numberTHISdevice));
+                UnitDeviceQMap[numberofdeviceInt]=unitQString;
+            }
+
+
+            numberTHISdevice++;
+            numberofdeviceInt++;
         }
     }
 
@@ -581,7 +459,7 @@ void LAMPhDevices::getAllAvailableSerialPorts(){ // main
 
 
     // we have numberofdeviceInt devices
-    for (int r=0; r<20; r++)
+    for (int r=0; r<CurvCnt; r++)
     {
        for (int y=0; y<numberofdeviceInt; y++)
        {
@@ -599,6 +477,7 @@ void LAMPhDevices::getAllAvailableSerialPorts(){ // main
 
             lineEdit_NameData[r]->setText(QString ("%1#%2").arg(NameDeviceQMap.value(r)).arg(NumberDeviceQMap.value(r)));
             setNumberDevice_bool(1,r); //number_of_point[r]=1; //please check it!!!
+            W_File->get_bool(1,r);
             if (r==0) {
                 checkBox_Devices_X[r]->setChecked(true);
                 checkBox_Devices_Y[r]->setChecked(false);
@@ -615,9 +494,6 @@ void LAMPhDevices::getAllAvailableSerialPorts(){ // main
         //comboBox_DeviceQMap[r]=numberofdeviceInt;
 
     }
-
-
-
 }
 
 int LAMPhDevices::get_numberofdeviceInt()
@@ -706,7 +582,6 @@ QToolBar *LAMPhDevices::toolBar_GET()
     toolBar_GET->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
     hBox_GET = new QWidget( toolBar_GET );
 
-
     label_label_ReceivedData = new QLabel(tr("DATA"));
     label_comboBox_Device = new QLabel(tr("Devices"));
     label_comboBox_Device_Functions = new QLabel(tr("Functions"));
@@ -720,7 +595,7 @@ QToolBar *LAMPhDevices::toolBar_GET()
     label_comboBox_ColorData = new QLabel(tr("Color"));
     label_comboBox_SizeData = new QLabel(tr("Size"));
 
-    for(int i=0; i<20; i++)
+    for(int i=0; i<CurvCnt; i++)
     {
         label_ReceivedData[i] = new QLabel();
         label_ReceivedData[i]->setText(QString("DATA %1:").arg(i));
@@ -737,7 +612,6 @@ QToolBar *LAMPhDevices::toolBar_GET()
         //checkBox_Device_DB[i]  = new QCheckBox(tr(""));
         comboBox_ColorData[i] = new QComboBox();
         comboBox_SizeData[i] = new QComboBox();
-
 
         comboBox_ColorData[i]->addItems(colorsQStringList);
         comboBox_SizeData[i]->addItems(sizeQStringList);
@@ -759,7 +633,7 @@ QToolBar *LAMPhDevices::toolBar_GET()
 
     int_GET=7;
 
-    for(int i=int_GET; i<20; i++)
+    for(int i=int_GET; i<CurvCnt; i++)
     {
         label_ReceivedData[i]->hide();
         comboBox_Device[i]->hide();
@@ -794,7 +668,7 @@ QToolBar *LAMPhDevices::toolBar_GET()
     gridLayout->addWidget(label_comboBox_ColorData, 0, 9);
     gridLayout->addWidget(label_comboBox_SizeData, 0, 10);
 
-    for(int i=0; i<20; i++)
+    for(int i=0; i<CurvCnt; i++)
     {
         gridLayout->addWidget(label_ReceivedData[i], i+1, 0);
         gridLayout->addWidget(comboBox_Device[i], i+1, 1);
@@ -821,40 +695,40 @@ QToolBar *LAMPhDevices::toolBar_GET()
 }
 
 void LAMPhDevices::update_comboBox_Device_Functions(int r, int Index){
-    //qDebug() << "r" << r;
-    //qDebug() << "Index" << Index;
-
     while (comboBox_Device_Functions[r]->count()>0) comboBox_Device_Functions[r]->removeItem(0);
     comboBox_Device_Functions[r]->addItems(AllFunctionsDeviceQMap.value(comboBox_Device[r]->currentIndex()));
-    //comboBox_Device_Functions[r]->addItem("None");
-    //lineEdit_NameData[r]->setText(QString ("%1#%2").arg(NameDeviceQMap.value(comboBox_Device[r]->currentIndex())).arg(NumberDeviceQMap.value(comboBox_Device[r]->currentIndex())));
-    if (!comboBox_Device[r]->currentText().contains("None", Qt::CaseInsensitive)){
+
+    if (!comboBox_Device[r]->currentText().contains("None", Qt::CaseInsensitive))
+    {
         lineEdit_NameData[r]->setText(QString ("%1#%2").arg(NameDeviceQMap.value(comboBox_Device[r]->currentIndex())).arg(NumberDeviceQMap.value(comboBox_Device[r]->currentIndex())));
 
         checkBox_Devices_X[r]->setCheckable(true);
         checkBox_Devices_Y[r]->setCheckable(true);
         checkBox_Device_Text[r]->setCheckable(true);
 
-        if (checkBox_Devices_Y[r]->isChecked()) {
-            checkBox_Devices_Y[r]->setChecked(true);
-            setNumberDevice_bool(1,r);
-        }
+        W_File->get_Name(QString ("%1#%2").arg(NameDeviceQMap.value(comboBox_Device[r]->currentIndex())).arg(NumberDeviceQMap.value(comboBox_Device[r]->currentIndex())),r);
+        W_File->get_Unit(QString ("%1").arg(UnitDeviceQMap.value(comboBox_Device[r]->currentIndex())),r);
+
         if (checkBox_Devices_X[r]->isChecked()) {
             checkBox_Devices_X[r]->setChecked(true);
             setNumberDevice_bool(0,r);
-
         }else {
             checkBox_Devices_Y[r]->setChecked(true);
-            setNumberDevice_bool(1,r);
+            setNumberDevice_bool(1,r);   
         }
+
         checkBox_Device_Text[r]->setChecked(true);
-
-
+        W_File->get_bool(1,r);
     }
     else
     {
         lineEdit_NameData[r]->setText("None");
+
+        W_File->get_Name("",r);
+        W_File->get_Unit("",r);
+
         setNumberDevice_bool(0,r);
+        W_File->get_bool(0,r);
 
 
         checkBox_Devices_X[r]->setChecked(false);
@@ -863,18 +737,13 @@ void LAMPhDevices::update_comboBox_Device_Functions(int r, int Index){
         checkBox_Devices_X[r]->setCheckable(false);
         checkBox_Devices_Y[r]->setCheckable(false);
         checkBox_Device_Text[r]->setCheckable(false);
-
-
     }
 }
 
-
-
 void LAMPhDevices::sendColors(){
-    for (int r=0; r<20; r++)
+    for (int r=0; r<CurvCnt; r++)
     setColorSize(r,comboBox_ColorData[r]->currentIndex(), comboBox_SizeData[r]->currentIndex());
 }
-
 
 void LAMPhDevices::send_readData(){
     for (int r=0;r<20;r++){
@@ -890,7 +759,7 @@ void LAMPhDevices::send_readData(){
 
 void LAMPhDevices::readData(){
 
-    for (int r=0;r<20;r++){
+    for (int r=0;r<CurvCnt;r++){
         if (!comboBox_Device[r]->currentText().contains("None", Qt::CaseInsensitive)){
             QLibrary lib (DLLFileDeviceQMap.value(comboBox_Device[r]->currentIndex()));
             typedef void (*PleaseReadData) ();
@@ -899,36 +768,52 @@ void LAMPhDevices::readData(){
         }
     }
 
-    for (int r=0;r<20;r++){
+    for (int r=0;r<CurvCnt;r++){
 
-          if ((checkBox_Devices_Y[r]->isChecked()) or (checkBox_Devices_X[r]->isChecked())){   //our choice + if (!comboBox_Device[r]->currentText().contains("None", Qt::CaseInsensitive)){
+        if (
+          ((checkBox_Devices_Y[r]->isChecked()) or (checkBox_Devices_X[r]->isChecked()))
+          or (checkBox_Device_Text[r]->isChecked())
+          )
+        {   //our choice + if (!comboBox_Device[r]->currentText().contains("None", Qt::CaseInsensitive)){
+
             QLibrary lib (DLLFileDeviceQMap.value(comboBox_Device[r]->currentIndex()));
-
             typedef float (*GetData) (int);
-            //GetData getData = (GetData)(lib.resolve(QString ("%1").arg(comboBox_Device_Functions[r]->currentText()) ));
 
-            //GetData getData = (GetData)(lib.resolve(QString ("%1").arg(comboBox_Device_Functions[r]->currentText()).toLatin1() ));
 
-            if (!comboBox_Device_Functions[r]->currentText().contains("None", Qt::CaseInsensitive))
+            QString new_temp_text_del = QString ("%1").arg(comboBox_Device_Functions[r]->currentText()).split(" ").at(1) ;
+            new_temp_text_del = new_temp_text_del.split("(").at(0);
+
+            //qDebug() <<  new_temp_text_del;
+            GetData getData = (GetData)(lib.resolve(new_temp_text_del.toLatin1()));
+            float res = getData(NumberDeviceQMap.value(comboBox_Device[r]->currentIndex()));
+
+            if ((checkBox_Devices_Y[r]->isChecked()) or (checkBox_Devices_X[r]->isChecked()))
             {
-                QString new_temp_text_del = QString ("%1").arg(comboBox_Device_Functions[r]->currentText()).split(" ").at(1) ;
-                new_temp_text_del = new_temp_text_del.split("(").at(0);
 
-                //qDebug() <<  new_temp_text_del;
-                GetData getData = (GetData)(lib.resolve(new_temp_text_del.toLatin1()));
-                float res = getData(NumberDeviceQMap.value(comboBox_Device[r]->currentIndex()));
                 send_all_results(res,r);
+                W_File->get_all_results(res,r);
 
-                if (checkBox_Devices_X[r]->isChecked()) send_x_result(res);
+
+                if (checkBox_Devices_X[r]->isChecked())
+                {
+                    send_x_result(res);
+                }
             }
+
+            if (checkBox_Device_Text[r]->isChecked())
+            {
+              W_File->get_x_result(res);
+            }
+
         }
     }
+    W_File->write_in_file();
     //qDebug() << "get";
 }
 
 void LAMPhDevices::toolBar_GET_show_data()
 {
-    if (int_GET<20){
+    if (int_GET<CurvCnt){
         label_ReceivedData[int_GET]->show();
         comboBox_Device[int_GET]->show();
         comboBox_Device_Functions[int_GET]->show();
@@ -970,7 +855,7 @@ QToolBar *LAMPhDevices::toolBar_PORTS()
     label_Ports = new QLabel(tr("PORTS"));
 
 
-    for(int i=0; i<20; i++)
+    for(int i=0; i<CurvCnt; i++)
     {
         label_Port[i] = new QLabel();
         label_Port[i]->setText(QString("PORT %1:").arg(i));
@@ -993,7 +878,7 @@ QToolBar *LAMPhDevices::toolBar_PORTS()
     //gridLayout->addWidget(label_comboBox_Device, 0, 1);
 
 
-    for(int i=0; i<20; i++)
+    for(int i=0; i<CurvCnt; i++)
     {
         gridLayout->addWidget(label_Port[i], i+1, 0);
         gridLayout->addWidget(button_Port_Setting[i], i+1, 1);
@@ -1012,10 +897,24 @@ QToolBar *LAMPhDevices::toolBar_PORTS()
     return toolBar_PORTS;
 }
 
+void LAMPhDevices::appendPoints( bool on )
+{
+    if ( on )
+    {
+        W_File->create_new_file();
+
+    }
+    else
+    {
+        //d_plot->stop();
+    }
+
+}
+
 void LAMPhDevices::update_toolBar_PORTS(){
 
 
-    for (int i=0; i<20; i++)
+    for (int i=0; i<CurvCnt; i++)
     {
 
         label_Port[i]->hide();
@@ -1070,244 +969,106 @@ QGroupBox *LAMPhDevices::groupLAMPhDevices()
    return groupBox;
 }
 
-/*QGroupBox *LAMPhDevices::groupLAMPhDATA()
-{
-    QGroupBox *groupBox = new QGroupBox(tr(""));
-    //groupBox->setStyleSheet("border: 0px solid white");
-
-    label_label_ReceivedData = new QLabel(tr("DATA"));
-    label_comboBox_Device = new QLabel(tr("Devices"));
-    label_comboBox_Device_Functions = new QLabel(tr("Functions"));
-    label_comboBox_Function_Parameters = new QLabel(tr("Parameters"));
-    label_lineEdit_NameData = new QLabel(tr("Name"));
-    label_checkBox_Device_Show = new QLabel(tr("Plot"));
-    label_checkBox_Device_Text = new QLabel(tr("Text"));
-    label_checkBox_Device_DB = new QLabel(tr("DB"));
-    label_comboBox_ColorData = new QLabel(tr("Color"));
-    label_comboBox_SizeData = new QLabel(tr("Size"));
-
-    for(int i=0; i<20; i++)
-    {
-        label_ReceivedData[i] = new QLabel(tr("DATA"));
-        comboBox_Device[i] = new QComboBox();
-        comboBox_Device_Functions[i] = new QComboBox();
-        comboBox_Function_Parameters[i] = new QComboBox();
-        lineEdit_NameData[i] = new QLineEdit(tr("Name"));
-        //lineEdit_NameData[i]->setFixedWidth(60);
-        checkBox_Device_Show[i]  = new QCheckBox(tr(""));
-        checkBox_Device_Text[i]  = new QCheckBox(tr(""));
-        checkBox_Device_DB[i]  = new QCheckBox(tr(""));
-        comboBox_ColorData[i] = new QComboBox();
-        comboBox_SizeData[i] = new QComboBox();
-    }
 
 
-    QGridLayout * gridLayout = new QGridLayout();
-
-    //gridLayout->addWidget(labelPlotSetting,0,0);
-    //gridLayout->addWidget(groupLAMPhDATA(),0,1);
-
-    gridLayout->addWidget(label_label_ReceivedData, 0, 0);
-    gridLayout->addWidget(label_comboBox_Device, 0, 1);
-    gridLayout->addWidget(label_comboBox_Device_Functions, 0, 2);
-    gridLayout->addWidget(label_comboBox_Function_Parameters, 0, 3);
-    gridLayout->addWidget(label_lineEdit_NameData, 0, 4);
-    gridLayout->addWidget(label_checkBox_Device_Show, 0, 5);
-    gridLayout->addWidget(label_checkBox_Device_Text, 0, 6);
-    gridLayout->addWidget(label_checkBox_Device_DB, 0, 7);
-    gridLayout->addWidget(label_comboBox_ColorData, 0, 8);
-    gridLayout->addWidget(label_comboBox_SizeData, 0, 9);
-
-
-    for(int i=0; i<20; i++)
-    {
-        gridLayout->addWidget(label_ReceivedData[i], i+1, 0);
-        gridLayout->addWidget(comboBox_Device[i], i+1, 1);
-        gridLayout->addWidget(comboBox_Device_Functions[i], i+1, 2);
-        gridLayout->addWidget(comboBox_Function_Parameters[i], i+1, 3);
-        gridLayout->addWidget(lineEdit_NameData[i], i+1, 4);
-        gridLayout->addWidget(checkBox_Device_Show[i], i+1, 5);
-        gridLayout->addWidget(checkBox_Device_Text[i], i+1, 6);
-        gridLayout->addWidget(checkBox_Device_DB[i], i+1, 7);
-        gridLayout->addWidget(comboBox_ColorData[i], i+1, 8);
-        gridLayout->addWidget(comboBox_SizeData[i], i+1, 9);
-
-    }
-    button_ReceivedData_Close = new QPushButton(tr("Close"));
-    button_ReceivedData_Add = new QPushButton(tr("Add"));
-
-
-    gridLayout->addWidget(button_ReceivedData_Close,22,0);
-    gridLayout->addWidget(button_ReceivedData_Add,23,0);
-
-    gridLayout->setContentsMargins(5,5,5,5);
-    gridLayout->setVerticalSpacing(5);
-    gridLayout->setHorizontalSpacing(5);
-
-
-    groupBox->setLayout(gridLayout);
-    return groupBox;
-}
-
-QGroupBox *LAMPhDevices::groupLAMPhPorts()
-{
-    QGroupBox *groupBox = new QGroupBox(tr(""));
-    //groupBox->setStyleSheet("border: 0px solid white");
-
-    // COM PORTS (Sockets, LAN)
-
-    label_label_COM_Port = new QLabel(tr("Ports"));
-    for(int i=0; i<20; i++) label_COM_Port[i] = new QLabel(tr("COM i  Device -> APPA205Lib"));
-
-    // DEVICES
-
-    label_label_Device = new QLabel(tr("Devices"));
-
-    for(int i=0; i<20; i++){
-        label_Device[i] = new QLabel(tr("I APPA205"));
-        label_Device_COM_Port[i] = new QLabel(tr("COM 1"));
-        button_Device_Info[i] = new QPushButton(tr("Info"));
-        button_Device_Setting[i] = new QPushButton(tr("Settings"));
-    }
-
-
-
-    QGridLayout * gridLayout = new QGridLayout();
-
-
-    gridLayout->addWidget(label_label_COM_Port, 0, 0);
-
-    for(int i=0; i<20; i++)
-    {
-        gridLayout->addWidget(label_COM_Port[i], i+1, 0);
-    }
-
-
-    gridLayout->addWidget(label_label_COM_Port, 22, 0);
-
-    for(int i=0; i<20; i++)
-    {
-        gridLayout->addWidget(label_Device[i], i+23, 0);
-        gridLayout->addWidget(label_Device_COM_Port[i], i+23, 1);
-        gridLayout->addWidget(button_Device_Info[i], i+23, 2);
-        gridLayout->addWidget(button_Device_Setting[i], i+23, 3);
-    }
-
-
-    groupBox->setLayout(gridLayout);
-
-     return groupBox;
-}*/
-
-void LAMPhDevices::getDataDll()
+/*void LAMPhDevices::getDataDll()
 {
 
-   /*
     static QString suffix = "";
     #ifdef QT_DEBUG
-        suffix = "d";
+    suffix = "d";
     #endif
 
-        //static const
-        QString LIB_NAME [20];
+    //static const
+    QString LIB_NAME [20];
 
-        LIB_NAME [0]= "COM_APPA205" + suffix;
-        LIB_NAME [1]= "COM_APPA205t" + suffix;
-        LIB_NAME [2]= "COM_APPA205" + suffix;
+    LIB_NAME [0]= "COM_APPA205" + suffix;
+    LIB_NAME [1]= "COM_APPA205t" + suffix;
+    LIB_NAME [2]= "COM_APPA205" + suffix;
 
-        QLibrary lib ( LIB_NAME[0] );
-        if( !lib.load() ) {
-            qDebug() << "Loading failed!";
+    QLibrary lib ( LIB_NAME[0] );
+    if( !lib.load() ) {
+        qDebug() << "Loading failed!";
+    }
+
+    QLibrary lib2 ( LIB_NAME[1] );
+    if( !lib2.load() ) {
+        qDebug() << "Loading failed!";
+    }
+
+    QLibrary lib3 ( LIB_NAME[2] );
+    if( !lib3.load() ) {
+        qDebug() << "Loading failed!";
+    }
+
+
+    typedef const char* ( *OutputTest )();
+    OutputTest outputTest[20];
+
+    outputTest[0] = ( OutputTest ) lib.resolve( "getInfo" );
+    if( outputTest[0] ) {
+        qDebug() << outputTest[0]();
+    }
+
+
+    typedef float ( *outputFloat )();
+    outputFloat outputFloatd[20];
+    for (int i=0; i<14; i++)
+    {
+        outputFloatd[0] = ( outputFloat ) lib.resolve( "getFloat" );
+        if( outputFloatd[0] ) {
+            qDebug() << outputFloatd[0]();
         }
+    }
 
-        QLibrary lib2 ( LIB_NAME[1] );
-        if( !lib2.load() ) {
-            qDebug() << "Loading failed!";
+    outputTest[1] = ( OutputTest ) lib.resolve( "getUnit" );
+    if( outputTest[1] ) {
+        qDebug() << outputTest[1]();
+    }
+
+    outputTest[2] = ( OutputTest ) lib.resolve( "getValue" );
+    if( outputTest[2] ) {
+        qDebug() << outputTest[2]();
+    }
+
+    typedef float ( *outputFloat2 )();
+    outputFloat2 outputFloatd2[20];
+    for (int i=0; i<20; i++)
+    {
+        outputFloatd2[0] = ( outputFloat2 ) lib2.resolve( "getFloat" );
+        if( outputFloatd2[0] ) {
+            qDebug() << outputFloatd2[0]();
         }
+    }
 
-        QLibrary lib3 ( LIB_NAME[2] );
-        if( !lib3.load() ) {
-            qDebug() << "Loading failed!";
+    for (int i=0; i<14; i++)
+    {
+        outputFloatd2[0] = ( outputFloat2 ) lib3.resolve( "getFloat" );
+        if( outputFloatd2[0] ) {
+            qDebug() << outputFloatd2[0]();
         }
+    }
 
 
-        typedef const char* ( *OutputTest )();
-        OutputTest outputTest[20];
+    typedef void ( *InputTest )( const char* const );
+    InputTest inputTest = ( InputTest ) lib.resolve( "inputTest" );
+    if( inputTest ) {
+        inputTest( "Hello to MyLib!" );
+    }
 
-        outputTest[0] = ( OutputTest ) lib.resolve( "getInfo" );
-        if( outputTest[0] ) {
-            qDebug() << outputTest[0]();
-        }
+    typedef const char* ( *OutputTest )();
+    OutputTest outputTest = ( OutputTest ) lib.resolve( "outputTest" );
+    if( outputTest ) {
+        qDebug() << outputTest();
+        //labelPlotSettingS->setText( outputTest()  );
+    }
 
-
-        typedef float ( *outputFloat )();
-        outputFloat outputFloatd[20];
-        for (int i=0; i<14; i++)
-        {
-            outputFloatd[0] = ( outputFloat ) lib.resolve( "getFloat" );
-            if( outputFloatd[0] ) {
-                qDebug() << outputFloatd[0]();
-            }
-        }
-
-        outputTest[1] = ( OutputTest ) lib.resolve( "getUnit" );
-        if( outputTest[1] ) {
-            qDebug() << outputTest[1]();
-        }
-
-        outputTest[2] = ( OutputTest ) lib.resolve( "getValue" );
-        if( outputTest[2] ) {
-            qDebug() << outputTest[2]();
-        }
-
-        typedef float ( *outputFloat2 )();
-        outputFloat2 outputFloatd2[20];
-        for (int i=0; i<20; i++)
-        {
-            outputFloatd2[0] = ( outputFloat2 ) lib2.resolve( "getFloat" );
-            if( outputFloatd2[0] ) {
-                qDebug() << outputFloatd2[0]();
-            }
-        }
-
-        for (int i=0; i<14; i++)
-        {
-            outputFloatd2[0] = ( outputFloat2 ) lib3.resolve( "getFloat" );
-            if( outputFloatd2[0] ) {
-                qDebug() << outputFloatd2[0]();
-            }
-        }
-
-*/
-
-
-
-
-
-        /*typedef void ( *InputTest )( const char* const );
-        InputTest inputTest = ( InputTest ) lib.resolve( "inputTest" );
-        if( inputTest ) {
-            inputTest( "Hello to MyLib!" );
-        }
-
-        typedef const char* ( *OutputTest )();
-        OutputTest outputTest = ( OutputTest ) lib.resolve( "outputTest" );
-        if( outputTest ) {
-            qDebug() << outputTest();
-            //labelPlotSettingS->setText( outputTest()  );
-        }
-
-        typedef QString (*Fct) ();
-        Fct fct = (Fct)(lib.resolve("getInfo"));
-        if (fct) {
-            //labelPlotSettingS->setText(fct("SEND TEXT send text"));
-        }*/
-
-
-
-
-
-}
+    typedef QString (*Fct) ();
+    Fct fct = (Fct)(lib.resolve("getInfo"));
+    if (fct) {
+        //labelPlotSettingS->setText(fct("SEND TEXT send text"));
+    }
+}*/
 
 
 

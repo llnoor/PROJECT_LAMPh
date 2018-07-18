@@ -83,38 +83,17 @@ void MainPlot::appendPoint()
 {
     Q_EMIT running_writeData( true );
 
-    //double x;// = qrand() % c_rangeMax;
-    //x += ( qrand() % 100 ) / 100;
-
-    double y;// = qrand() % c_rangeMax;
-    //y += ( qrand() % 100 ) / 100;
-
-    //double second=QDateTime::currentDateTime().toTime_t();
-    //x=second - first;
-
-    y=rand()%300;
-    y=y/100;
-
     //IncrementalPlot::appendPoint( QPointF( x+10, x_result ) );
 
     for (int r=0; r<CurvCnt; r++)
     {
        if (1==number_of_point[r])
-       IncrementalPlot::appendPoint_S(r, QPointF( x_result + y , all_results[r] ) );
-
-        //qDebug() << "number_of_point[number]" << r << ":" << number_of_point[r];
+       IncrementalPlot::appendPoint_S(r, QPointF( x_result , all_results[r] ) );
     }
 
 
-
-
-
-    //IncrementalPlot::appendPoint_S(0, QPointF( x+y, all_results[0] ) );
-
-    //IncrementalPlot::appendPoint( QPointF( x, y ) );
-
-    if ( --d_timerCount <= 0 )
-        stop();
+    /*if ( --d_timerCount <= 0 )
+        stop();*/
 }
 
 void MainPlot::append( int timeout, int count )

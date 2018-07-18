@@ -3,6 +3,7 @@
 
 #include <qmainwindow.h>
 #include <qaction.h>
+#include <class_write_in_file.h>
 #define CurvCnt 20
 
 class QSpinBox;
@@ -20,12 +21,11 @@ class Plot;
 class QPolygon;
 class QSerialPort;
 class QSerialPortInfo;
-
+class class_write_in_file;
 
 QT_BEGIN_NAMESPACE
 class QGroupBox;
 QT_END_NAMESPACE
-
 
 class LAMPhDevices : public QMainWindow
 {
@@ -34,12 +34,8 @@ class LAMPhDevices : public QMainWindow
 public:
     LAMPhDevices(QString loginQString);
     //~LAMPhDevices();
-    void getDataDll();
     int get_numberofdeviceInt();
     void first();
-
-
-
 
 Q_SIGNALS:
 
@@ -57,6 +53,7 @@ Q_SIGNALS:
     void send_numberofdeviceInt(int);
 
 private Q_SLOTS:
+    void appendPoints( bool );
     void toolBar_GET_show_data();
     void toolBar_GET_hide_data();
     void update_toolBar_PORTS();
@@ -66,14 +63,6 @@ private Q_SLOTS:
     void readData();
     void getAllAvailableSerialPorts();
     void setCheckBox();
-
-    /*struct Foo {
-        void overloadedFunction();
-        void overloadedFunction(int, int);
-    };
-
-    QOverload<int, QString>::of(&Foo:overloadedFunction)*/
-
 
 private:
     QToolBar *toolBar(); //main
@@ -85,12 +74,7 @@ private:
     QToolBar *toolBar_PORTS();
     QToolBar *toolBar_DEVICES();
 
-    //void initWhatsThis();
-
-
-private:
     //void showInfo( QString text = QString::null );
-
     //getAllAvailableSerialPorts:
     QStringList *listDll;
     QStringList *listDllCOM;
@@ -110,14 +94,10 @@ private:
     QMap<QString, QStringList> AllFunctionsDevicesQMap;
 
     QMap<int, QString> NameDeviceQMap;
+    QMap<int, QString> UnitDeviceQMap;
     QMap<int, int> NumberDeviceQMap;
     QMap<int, QString> DLLFileDeviceQMap;
     QMap<int, QStringList> AllFunctionsDeviceQMap;
-
-
-
-
-
 
     Counter *d_randomCount;
     Counter *d_timerCount;
@@ -134,9 +114,6 @@ private:
     QAction *d_helpAction;
     QAction *d_saveAction;
     QAction *d_loadAction;
-
-    //QAction *d_exportAction;
-
     QAction *d_OpenWindow_Main;
     QAction *d_OpenWindow_Devices;
     QAction *d_OpenWindow_Temp;
@@ -144,9 +121,9 @@ private:
     QAction *d_OpenWindow_Edit;
     QAction *d_OpenWindow_Setting;
     QAction *d_OpenWindow_Exit;
-    //QAction *d_OpenWindow_
 
     MainPlot *d_plot;
+    class_write_in_file *W_File;
 
     QwtPlotZoomer *d_zoomer[2];
     QwtPlotPicker *d_picker;
@@ -158,7 +135,6 @@ private:
     QWidget *hBox_PlotSize;
 
     QWidget *hBox_DATA;
-
 
     QWidget *hBox_GET;
     QWidget *hBox_SEND;
@@ -175,7 +151,6 @@ private:
     QPushButton *Button_Temp;
     QComboBox *combobox_Temp;
 
-
     QLabel *label_Devices_All;
     QLabel *label_Devices_All_X;
     QLabel *label_Devices_All_Y;
@@ -184,10 +159,8 @@ private:
     QPushButton *Button_Devices_ClearAll;
     QPushButton *Button_Devices_AutoScaleAll;
 
-
     // GET
     int int_GET;
-
     QLabel *label_label_ReceivedData;
     QLabel *label_comboBox_Device;
     QLabel *label_comboBox_Device_Functions;
@@ -218,7 +191,6 @@ private:
 
     QPushButton *button_ReceivedData_Close;
     QPushButton *button_ReceivedData_Add;
-
 
     // SEND
     int int_SEND;
@@ -284,11 +256,6 @@ private:
     QLabel *label_Device_COM_Port[20];
     QPushButton *button_Device_Info[20];
     QPushButton *button_Device_Setting[20];
-
-
-
-
-
     QPushButton *Button_Devices_Start[20];
     QPushButton *Button_Devices_Clear[20];
     QPushButton *Button_Devices_AutoScale[20];
@@ -308,12 +275,7 @@ private:
     QPushButton *Button_PlotSize_multiply;
     QPushButton *Button_PlotSize_divide;
 
-
-
-private:
     QGroupBox       *groupLAMPhDevices();
-
-
     QGroupBox       *groupLAMPhDATA();
     QGroupBox       *groupLAMPhPorts();
 
@@ -328,10 +290,6 @@ private:
 
     QStringList colorsQStringList = { "white", "black", "cyan", "red", "magenta", "green", "yellow", "blue", "gray", "darkCyan", "darkRed", "darkMagenta", "darkGreen", "darkYellow", "darkBlue", "darkGray", "lightGray" };
     QStringList sizeQStringList = {"line","1","2","4","8"};
-
-   
-
-
 };
 
 #endif // LAMPHDEVICES_H
