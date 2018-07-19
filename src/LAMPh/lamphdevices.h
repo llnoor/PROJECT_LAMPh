@@ -63,6 +63,8 @@ private Q_SLOTS:
     void readData();
     void getAllAvailableSerialPorts();
     void setCheckBox();
+    void saveConf();
+    void loadConf();
 
 private:
     QToolBar *toolBar(); //main

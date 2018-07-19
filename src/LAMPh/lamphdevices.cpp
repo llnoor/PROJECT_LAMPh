@@ -104,6 +104,9 @@ LAMPhDevices::LAMPhDevices(QString loginQString)
     connect (d_getAction, SIGNAL( triggered() ) , this, SLOT (readData()));
     connect (d_colorsAction, SIGNAL( triggered() ) , this, SLOT (sendColors()));
     connect (d_connectAction, SIGNAL( triggered() ) , this, SLOT (getAllAvailableSerialPorts()));
+    connect (d_saveAction,SIGNAL( triggered() ) , this, SLOT(saveConf()));
+    connect (d_loadAction,SIGNAL( triggered() ) , this, SLOT(loadConf()));
+
 
     for (int r=0; r<CurvCnt; r++)
     {
@@ -125,6 +128,7 @@ LAMPhDevices::LAMPhDevices(QString loginQString)
         connect(checkBox_Devices_Y[r], SIGNAL(toggled(bool)),this,SLOT(setCheckBox()) );
         connect(checkBox_Device_Text[r], SIGNAL(toggled(bool)),this,SLOT(setCheckBox()) );
     }
+
 
 
 }
@@ -743,6 +747,44 @@ void LAMPhDevices::update_comboBox_Device_Functions(int r, int Index){
 void LAMPhDevices::sendColors(){
     for (int r=0; r<CurvCnt; r++)
     setColorSize(r,comboBox_ColorData[r]->currentIndex(), comboBox_SizeData[r]->currentIndex());
+}
+
+void LAMPhDevices::saveConf(){
+
+    QString filePath = QFileDialog::getSaveFileName( this, trUtf8( "Save conf" ), "./conf", trUtf8( "Data (*.txt)" ) );
+
+    QFile file(filePath);
+
+    file.open(QIODevice::Append | QIODevice::Text);
+            //(QIODevice::WriteOnly | QIODevice::Text);
+
+    //remove all info in file
+
+    QTextStream output(&file);
+
+    output << "Test" << "\n" << "test2";
+
+    file.flush();
+    file.close();
+
+
+
+
+    //std::string F_name = filePath.toStdString();
+
+    //QFile file(QString::fromStdString(F_name));
+}
+
+void LAMPhDevices::loadConf(){
+
+    QString filePath = QFileDialog::getOpenFileName( this, trUtf8( "Open file" ), "./conf", trUtf8( "Data (*.txt)" ) );
+
+    //get conf of all devices
+    //refresh data of devices
+    //if we can't find device which was in conf, we should check (update_allDevices) and ask user "Skip this device"?
+    //refresh comboBox_Device (update_comboBox_Device_Functions(r,0))
+    //then for each device (which wasn't missed) update comboBox_Device_Functions!!!
+
 }
 
 void LAMPhDevices::send_readData(){
