@@ -124,6 +124,12 @@ LAMPhDevices::LAMPhDevices(QString loginQString)
                 setColorSize(r,comboBox_ColorData[r]->currentIndex(),index);
            });
 
+
+        connect(comboBox_Function_Parameters[r], static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+                 [=](int index){
+                 update_comboBox_Function_Parameters(r,index);
+            });
+
         connect(checkBox_Devices_X[r], SIGNAL(toggled(bool)),this,SLOT(setCheckBox()) );
         connect(checkBox_Devices_Y[r], SIGNAL(toggled(bool)),this,SLOT(setCheckBox()) );
         connect(checkBox_Device_Text[r], SIGNAL(toggled(bool)),this,SLOT(setCheckBox()) );
@@ -377,7 +383,6 @@ void LAMPhDevices::getAllAvailableSerialPorts(){ // main
     }
 
 
-
     // Socket
     for (int i=0; i<listDllSocket->size();i++)
     {
@@ -498,7 +503,36 @@ void LAMPhDevices::getAllAvailableSerialPorts(){ // main
         //comboBox_DeviceQMap[r]=numberofdeviceInt;
 
     }
+
+    for (int r=0; r<CurvCnt; r++)
+    {
+        QStringList parametersQStringList = {"Float","None","DATA1","DATA2","DATA3","DATA4","DATA5","GET1","GET2","GET3","GET4","GET5","COUNTER1","COUNTER2","COUNTER3","COUNTER4","COUNTER5"};
+        comboBox_Function_Parameters[r]->addItems(parametersQStringList);
+        comboBox_Function_Parameters[r]->setCurrentIndex(1); // "None"
+
+
+    }
 }
+
+void LAMPhDevices::update_comboBox_Function_Parameters(int r, int Index)
+{
+    if (0==Index)
+    {
+        comboBox_Function_Parameters[r]->setEditable(true);
+        comboBox_Function_Parameters[r]->lineEdit()->setText( "Only Float" );
+
+        QDoubleValidator *dblVal = new QDoubleValidator(-99999, 99999, 1000);
+        dblVal->setNotation(QDoubleValidator::StandardNotation);
+        dblVal->setLocale(QLocale::C);
+        comboBox_Function_Parameters[r]->lineEdit()->setValidator(dblVal);
+
+    }
+    else
+    {
+        comboBox_Function_Parameters[r]->setEditable(false);
+    }
+}
+
 
 int LAMPhDevices::get_numberofdeviceInt()
 {
@@ -764,6 +798,20 @@ void LAMPhDevices::saveConf(){
 
     output << "Test" << "\n" << "test2";
 
+
+
+    /*
+        numberofdeviceInt
+        Device 0: Name, number, dll
+        Device 1: Name, number, dll
+        Device 2: None, None None
+
+        DATA 0: Device 0, function, parameter, X, Y, Text, Color, Size
+        DATA 1:	Device 1, function, parameter, X, Y, Text, Color, Size
+        DATA 2:	Device 0, function, parameter, X, Y, Text, Color, Size
+        DATA 3:	None, none, parameter, X, Y, Text, Color, Size
+     */
+
     file.flush();
     file.close();
 
@@ -819,15 +867,40 @@ void LAMPhDevices::readData(){
         {   //our choice + if (!comboBox_Device[r]->currentText().contains("None", Qt::CaseInsensitive)){
 
             QLibrary lib (DLLFileDeviceQMap.value(comboBox_Device[r]->currentIndex()));
-            typedef float (*GetData) (int);
 
 
-            QString new_temp_text_del = QString ("%1").arg(comboBox_Device_Functions[r]->currentText()).split(" ").at(1) ;
-            new_temp_text_del = new_temp_text_del.split("(").at(0);
 
-            //qDebug() <<  new_temp_text_del;
-            GetData getData = (GetData)(lib.resolve(new_temp_text_del.toLatin1()));
-            float res = getData(NumberDeviceQMap.value(comboBox_Device[r]->currentIndex()));
+            QString new_lib_text = QString ("%1").arg(comboBox_Device_Functions[r]->currentText()).split(" ").at(1) ;
+            QString new_parameter = new_lib_text.split("(").at(1);
+            new_parameter = new_parameter.split(")").at(0); //parameter, should be "float"
+            new_lib_text = new_lib_text.split("(").at(0);   //dll
+
+            qDebug() << "new_lib_text" << new_lib_text;
+            qDebug() << "new_parameter" << new_parameter;
+            float res=0;
+
+            if (new_parameter.contains("float", Qt::CaseInsensitive))
+            {
+                typedef float (*GetData) (int, float);
+                GetData getData = (GetData)(lib.resolve(new_lib_text.toLatin1()));
+
+                float parameter_float =0;
+                switch (comboBox_Function_Parameters[r]->currentIndex()) {
+                case 0:
+                    parameter_float = comboBox_Function_Parameters[r]->currentText().toFloat();
+                    break;
+                default:
+                    break;
+                }
+                res = getData(NumberDeviceQMap.value(comboBox_Device[r]->currentIndex()),parameter_float);
+            }
+            else
+            {
+                typedef float (*GetData) (int);
+                GetData getData = (GetData)(lib.resolve(new_lib_text.toLatin1()));
+                res = getData(NumberDeviceQMap.value(comboBox_Device[r]->currentIndex()));
+            }
+
 
             if ((checkBox_Devices_Y[r]->isChecked()) or (checkBox_Devices_X[r]->isChecked()))
             {

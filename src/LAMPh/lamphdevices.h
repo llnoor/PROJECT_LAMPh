@@ -66,6 +66,8 @@ private Q_SLOTS:
     void saveConf();
     void loadConf();
 
+    void update_comboBox_Function_Parameters(int r,int Index);
+
 private:
     QToolBar *toolBar(); //main
     QToolBar *toolBar_Actions();

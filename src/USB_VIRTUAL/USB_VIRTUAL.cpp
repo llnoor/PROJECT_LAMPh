@@ -19,7 +19,7 @@
 #define COMMANDS "UBS_VIRTUAL,None,None"; //nameofdevice,KEYcommand,respond
 #define FOLDER  "Functions/"
 #define TXT "_functions.txt"
-#define FUNCTIONS "float getFloat();char getUnit();char getValue();char getSN();float getSin();float getCos();float getSawtooth();float getLine();float getRand()"
+#define FUNCTIONS "float getFloat();char getUnit();char getValue();char getSN();float getSin();float getCos();float getSawtooth();float getLine();float getRand();float getSinP(float);"
 #define INFO "The Lib for LAMPh to connect with VIRTUAL";
 
 /*For keithley
@@ -98,6 +98,25 @@ public:
 
         return result_float;
 
+    }
+
+    float getSinP(float parameter){
+
+        //result_float = data_tmp.toFloat();
+        //qDebug() << data;
+
+        double second=QDateTime::currentDateTime().toTime_t();
+        double x = second - first;
+
+
+        result_float = rand()%10;
+        result_float = result_float/100;
+
+        result_float = result_float+sin(x/10);
+
+        result_float = result_float + parameter;
+
+        return result_float;
     }
 
     float getCos(){
@@ -215,6 +234,10 @@ float getSin(int number_of_device){
     return classLAMPh[number_of_device].getSin();
 }
 
+float getSinP(int number_of_device, float parameter){
+    return classLAMPh[number_of_device].getSinP(parameter);
+}
+
 float getCos(int number_of_device){
     return classLAMPh[number_of_device].getCos();
 }
@@ -238,6 +261,8 @@ const char* getUnit(int number_of_device){
 const char* getValue(int number_of_device){
     return classLAMPh[number_of_device].getValue();
 }
+
+
 
 bool setCh(int number_of_device, float float_data){
     return classLAMPh[number_of_device].setCh(float_data);

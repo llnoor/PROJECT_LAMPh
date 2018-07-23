@@ -10,7 +10,7 @@ class_write_in_file::class_write_in_file()
 {
 
     QDateTime date=QDateTime::currentDateTime();
-    str1 = "DATA/";
+    str1 = "./DATA/";
     dir = date.toString("yyyy.MM.dd");
     dir.prepend(str1);
     dirconf.mkpath(dir);
