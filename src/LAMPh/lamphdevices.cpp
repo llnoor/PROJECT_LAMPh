@@ -361,6 +361,31 @@ void LAMPhDevices::getAllAvailableSerialPorts(){ // main
                         DLLFileDeviceQMap[numberofdeviceInt] = QString ("%1").arg(listDllCOM->at(i));
                         AllFunctionsDeviceQMap[numberofdeviceInt] = FunctionsQStringList;
 
+                        for (int k=0; k<(AllFunctionsDeviceQMap[numberofdeviceInt].size()-1);k++)
+                        {
+                            QString new_function_text = AllFunctionsDeviceQMap[numberofdeviceInt].at(k);
+
+                            QString new_type_text = new_function_text.split(" ").at(0);
+
+                            QRegExp exp("\\(float\\)");
+
+                            if (new_type_text.contains("float", Qt::CaseInsensitive))
+                            {
+                                AllFunctionsFloatDeviceQMap[numberofdeviceInt].append(AllFunctionsDeviceQMap[numberofdeviceInt].at(k));
+
+                                if (0<exp.indexIn(AllFunctionsDeviceQMap[numberofdeviceInt].at(k)))
+                                AllFunctionsFloatParameterDeviceQMap[numberofdeviceInt].append("float");
+                                else AllFunctionsFloatParameterDeviceQMap[numberofdeviceInt].append("none");
+                            }
+                            if (new_type_text.contains("void", Qt::CaseInsensitive))
+                            {
+                                AllFunctionsVoidDeviceQMap[numberofdeviceInt].append(AllFunctionsDeviceQMap[numberofdeviceInt].at(k));
+                                if (0<exp.indexIn(AllFunctionsDeviceQMap[numberofdeviceInt].at(k)))
+                                AllFunctionsVoidParameterDeviceQMap[numberofdeviceInt].append("float");
+                                else AllFunctionsVoidParameterDeviceQMap[numberofdeviceInt].append("none");
+                            }
+                        }
+
                     }
                     typedef const char* ( *GetUnitF )(int);
                     GetUnitF getUnitF;
@@ -439,7 +464,30 @@ void LAMPhDevices::getAllAvailableSerialPorts(){ // main
                 DLLFileDeviceQMap[numberofdeviceInt] = QString ("%1").arg(listDllUSB->at(i));
                 AllFunctionsDeviceQMap[numberofdeviceInt] = FunctionsQStringList;
 
+                for (int k=0; k<(AllFunctionsDeviceQMap[numberofdeviceInt].size()-1);k++)
+                {
+                    QString new_function_text = AllFunctionsDeviceQMap[numberofdeviceInt].at(k);
 
+                    QString new_type_text = new_function_text.split(" ").at(0);
+
+                    QRegExp exp("\\(float\\)");
+
+                    if (new_type_text.contains("float", Qt::CaseInsensitive))
+                    {
+                        AllFunctionsFloatDeviceQMap[numberofdeviceInt].append(AllFunctionsDeviceQMap[numberofdeviceInt].at(k));
+
+                        if (0<exp.indexIn(AllFunctionsDeviceQMap[numberofdeviceInt].at(k)))
+                        AllFunctionsFloatParameterDeviceQMap[numberofdeviceInt].append("float");
+                        else AllFunctionsFloatParameterDeviceQMap[numberofdeviceInt].append("none");
+                    }
+                    if (new_type_text.contains("void", Qt::CaseInsensitive))
+                    {
+                        AllFunctionsVoidDeviceQMap[numberofdeviceInt].append(AllFunctionsDeviceQMap[numberofdeviceInt].at(k));
+                        if (0<exp.indexIn(AllFunctionsDeviceQMap[numberofdeviceInt].at(k)))
+                        AllFunctionsVoidParameterDeviceQMap[numberofdeviceInt].append("float");
+                        else AllFunctionsVoidParameterDeviceQMap[numberofdeviceInt].append("none");
+                    }
+                }
             }
 
             typedef const char* ( *GetUnitF )(int);
@@ -456,6 +504,8 @@ void LAMPhDevices::getAllAvailableSerialPorts(){ // main
         }
     }
 
+    qDebug() << "numberofdeviceInt" << numberofdeviceInt;
+
     for (int i=0; i<numberofdeviceInt; i++) {
         //qDebug() << "AllAvailableDevicesQMap:" << AllAvailableDevicesQMap.value(i);
         qDebug() << i;
@@ -463,9 +513,12 @@ void LAMPhDevices::getAllAvailableSerialPorts(){ // main
         qDebug() << "NumberDeviceQMap:" << NumberDeviceQMap.value(i);
         qDebug() << "DLLFileDeviceQMap:" << DLLFileDeviceQMap.value(i);
         qDebug() << "AllFunctionsDeviceQMap:" << AllFunctionsDeviceQMap.value(i);
+        qDebug() << "AllFunctionsFloatDeviceQMap:" << AllFunctionsFloatDeviceQMap.value(i);
+        qDebug() << "AllFunctionsFloatParameterDeviceQMap:" << AllFunctionsFloatParameterDeviceQMap.value(i);
+        qDebug() << "AllFunctionsVoidDeviceQMap:" << AllFunctionsVoidDeviceQMap.value(i);
+        qDebug() << "AllFunctionsVoidParameterDeviceQMap:" << AllFunctionsVoidParameterDeviceQMap.value(i);
+
     }
-
-
 
     // we have numberofdeviceInt devices
     for (int r=0; r<CurvCnt; r++)
@@ -473,7 +526,6 @@ void LAMPhDevices::getAllAvailableSerialPorts(){ // main
        for (int y=0; y<numberofdeviceInt; y++)
        {
            comboBox_Device[r]->addItem( QString ("Device %1").arg(y) );
-
        }
     comboBox_Device[r]->addItem("None");
 
@@ -481,7 +533,9 @@ void LAMPhDevices::getAllAvailableSerialPorts(){ // main
         {
             comboBox_Device[r]->setCurrentIndex(r);
             //comboBox_DeviceQMap[r]=r;
-            comboBox_Device_Functions[r]->addItems(AllFunctionsDeviceQMap.value(r));
+            //comboBox_Device_Functions[r]->addItems(AllFunctionsDeviceQMap.value(r));
+            comboBox_Device_Functions[r]->addItems(AllFunctionsFloatDeviceQMap.value(r));
+
             //comboBox_Device_Functions[r]->addItem("None");
 
             lineEdit_NameData[r]->setText(QString ("%1#%2").arg(NameDeviceQMap.value(r)).arg(NumberDeviceQMap.value(r)));
@@ -496,7 +550,6 @@ void LAMPhDevices::getAllAvailableSerialPorts(){ // main
                 checkBox_Devices_X[r]->setChecked(false);
                 checkBox_Devices_Y[r]->setChecked(true);
             }
-
             checkBox_Device_Text[r]->setChecked(true);
         }
         else comboBox_Device[r]->setCurrentIndex(numberofdeviceInt); //"None"
@@ -734,7 +787,11 @@ QToolBar *LAMPhDevices::toolBar_GET()
 
 void LAMPhDevices::update_comboBox_Device_Functions(int r, int Index){
     while (comboBox_Device_Functions[r]->count()>0) comboBox_Device_Functions[r]->removeItem(0);
-    comboBox_Device_Functions[r]->addItems(AllFunctionsDeviceQMap.value(comboBox_Device[r]->currentIndex()));
+    //comboBox_Device_Functions[r]->addItems(AllFunctionsDeviceQMap.value(comboBox_Device[r]->currentIndex()));
+
+    comboBox_Device_Functions[r]->addItems(AllFunctionsFloatDeviceQMap.value(comboBox_Device[r]->currentIndex()));
+
+
 
     if (!comboBox_Device[r]->currentText().contains("None", Qt::CaseInsensitive))
     {
@@ -870,19 +927,19 @@ void LAMPhDevices::readData(){
 
 
 
-            QString new_lib_text = QString ("%1").arg(comboBox_Device_Functions[r]->currentText()).split(" ").at(1) ;
-            QString new_parameter = new_lib_text.split("(").at(1);
+            QString new_function_text = QString ("%1").arg(comboBox_Device_Functions[r]->currentText()).split(" ").at(1) ;
+            QString new_parameter = new_function_text.split("(").at(1);
             new_parameter = new_parameter.split(")").at(0); //parameter, should be "float"
-            new_lib_text = new_lib_text.split("(").at(0);   //dll
+            new_function_text = new_function_text.split("(").at(0);   //function
 
-            qDebug() << "new_lib_text" << new_lib_text;
+            qDebug() << "new_function_text" << new_function_text;
             qDebug() << "new_parameter" << new_parameter;
             float res=0;
 
             if (new_parameter.contains("float", Qt::CaseInsensitive))
             {
                 typedef float (*GetData) (int, float);
-                GetData getData = (GetData)(lib.resolve(new_lib_text.toLatin1()));
+                GetData getData = (GetData)(lib.resolve(new_function_text.toLatin1()));
 
                 float parameter_float =0;
                 switch (comboBox_Function_Parameters[r]->currentIndex()) {
@@ -897,7 +954,7 @@ void LAMPhDevices::readData(){
             else
             {
                 typedef float (*GetData) (int);
-                GetData getData = (GetData)(lib.resolve(new_lib_text.toLatin1()));
+                GetData getData = (GetData)(lib.resolve(new_function_text.toLatin1()));
                 res = getData(NumberDeviceQMap.value(comboBox_Device[r]->currentIndex()));
             }
 
@@ -1083,8 +1140,6 @@ QGroupBox *LAMPhDevices::groupLAMPhDevices()
 
    return groupBox;
 }
-
-
 
 /*void LAMPhDevices::getDataDll()
 {

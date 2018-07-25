@@ -97,11 +97,21 @@ private:
     QMap<int, QString> AllAvailableDevicesQMap;
     QMap<QString, QStringList> AllFunctionsDevicesQMap;
 
+
+
+
     QMap<int, QString> NameDeviceQMap;
     QMap<int, QString> UnitDeviceQMap;
     QMap<int, int> NumberDeviceQMap;
     QMap<int, QString> DLLFileDeviceQMap;
     QMap<int, QStringList> AllFunctionsDeviceQMap;
+    QMap<int, QStringList> AllFunctionsParameterDeviceQMap;
+
+    QMap<int, QStringList> AllFunctionsFloatDeviceQMap;
+    QMap<int, QStringList> AllFunctionsVoidDeviceQMap;
+
+    QMap<int, QStringList> AllFunctionsFloatParameterDeviceQMap;
+    QMap<int, QStringList> AllFunctionsVoidParameterDeviceQMap;
 
     Counter *d_randomCount;
     Counter *d_timerCount;
