@@ -41,6 +41,8 @@ LAMPHLIBSHARED_EXPORT float getLine(int number_of_device);
 LAMPHLIBSHARED_EXPORT float getRand(int number_of_device);
 LAMPHLIBSHARED_EXPORT float getSinP(int number_of_device, float parameter = 0);
 
+LAMPHLIBSHARED_EXPORT void setAlfa(int number_of_device, float parameter = 0);
+
 
 LAMPHLIBSHARED_EXPORT const char* getUnit(int number_of_device);
 LAMPHLIBSHARED_EXPORT const char* getValue(int number_of_device);  // Float + " " + Unit;

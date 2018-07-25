@@ -67,6 +67,7 @@ private Q_SLOTS:
     void loadConf();
 
     void update_comboBox_Function_Parameters(int r,int Index);
+    void update_comboBoxes_Function_Parameters(int r,int Index);
 
 private:
     QToolBar *toolBar(); //main
@@ -108,10 +109,13 @@ private:
     QMap<int, QStringList> AllFunctionsParameterDeviceQMap;
 
     QMap<int, QStringList> AllFunctionsFloatDeviceQMap;
-    QMap<int, QStringList> AllFunctionsVoidDeviceQMap;
-
     QMap<int, QStringList> AllFunctionsFloatParameterDeviceQMap;
+    QMap<int, QStringList> AllFunctionsVoidDeviceQMap;
     QMap<int, QStringList> AllFunctionsVoidParameterDeviceQMap;
+
+    QMap<int, QStringList> AllFunctionsFloatVoidDeviceQMap;
+    QMap<int, QStringList> AllFunctionsFloatVoidParameterDeviceQMap;
+    QMap<int, QStringList> AllFunctionsFloatVoidTypeDeviceQMap;
 
     Counter *d_randomCount;
     Counter *d_timerCount;
@@ -304,6 +308,8 @@ private:
 
     QStringList colorsQStringList = { "white", "black", "cyan", "red", "magenta", "green", "yellow", "blue", "gray", "darkCyan", "darkRed", "darkMagenta", "darkGreen", "darkYellow", "darkBlue", "darkGray", "lightGray" };
     QStringList sizeQStringList = {"line","1","2","4","8"};
+    QStringList parametersQStringList = {"Float","None","DATA1","DATA2","DATA3","DATA4","DATA5","SEND1","SEND2","COUNTER1","COUNTER2","COUNTER3","COUNTER4","COUNTER5"};
+
 };
 
 #endif // LAMPHDEVICES_H

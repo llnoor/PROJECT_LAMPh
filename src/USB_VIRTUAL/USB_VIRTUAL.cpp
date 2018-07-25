@@ -19,7 +19,7 @@
 #define COMMANDS "UBS_VIRTUAL,None,None"; //nameofdevice,KEYcommand,respond
 #define FOLDER  "Functions/"
 #define TXT "_functions.txt"
-#define FUNCTIONS "float getFloat();char getUnit();char getValue();char getSN();float getSin();float getCos();float getSawtooth();float getLine();float getRand();float getSinP(float);"
+#define FUNCTIONS "float getFloat();char getUnit();char getValue();char getSN();float getSin();float getCos();float getSawtooth();float getLine();float getRand();float getSinP(float);void setAlfa(float)"
 #define INFO "The Lib for LAMPh to connect with VIRTUAL";
 
 /*For keithley
@@ -39,6 +39,7 @@ private:
     char * unit;
     char * value;
     int i_test=0;
+    float alfa=0;
     QByteArray data;
     double first =QDateTime::currentDateTime().toTime_t();
 
@@ -94,7 +95,7 @@ public:
 
         result_float = result_float+sin(x/10);
 
-
+        result_float = result_float + alfa;
 
         return result_float;
 
@@ -114,9 +115,14 @@ public:
 
         result_float = result_float+sin(x/10);
 
-        result_float = result_float + parameter;
+        result_float = result_float + parameter + alfa;
 
         return result_float;
+    }
+
+    void setAlfa(float parameter){
+
+        alfa = parameter;
     }
 
     float getCos(){
@@ -131,7 +137,7 @@ public:
 
         result_float = result_float+cos(x/10);
 
-
+        result_float = result_float + alfa;
 
         return result_float;
 
@@ -253,6 +259,11 @@ float getLine(int number_of_device){
 float getRand(int number_of_device){
     return classLAMPh[number_of_device].getRand();
 }
+
+void setAlfa(int number_of_device, float parameter){
+    classLAMPh[number_of_device].setAlfa(parameter);
+}
+
 
 const char* getUnit(int number_of_device){
     return classLAMPh[number_of_device].getUnit();
