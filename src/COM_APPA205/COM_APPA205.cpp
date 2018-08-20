@@ -9,16 +9,11 @@
 
 #define NAME  "COM_APPA205"
 #define DEVICE "APPA205"
-#define COMMANDS "APPA205,byte:00;00;55;55;AA,APPA205"; //nameofdevice,KEYcommand,respond
+#define COMMANDS "APPA205,byte:55;55;00;00;AA,byte:55;55;00"; //nameofdevice,KEYcommand,respond
 #define FOLDER  "Functions/"
 #define TXT "_functions.txt"
-FILE *file;
-if ((file = fopen(FOLDER NAME TXT,"w+")) == NULL) return false;
-fprintf(file,"%s%c", FUNCTIONS, cNewLine);
-fclose(file);
-return true;
-#define FUNCTIONS "char checkPORT(char,char); void setPORT(char); float getFloat(); char getUnit(); char getValue(); char getSN()"
-#define TYPE_FUNCTIONS "char checkPORT(char,char); void setPORT(char); float getFloat(); char getUnit(); char getValue(); char getSN()"
+#define FUNCTIONS "float getSeconds();char checkPORT(char,char);void setPORT(char);float getFloat();char getUnit();char getValue();char getSN()"
+#define TYPE_FUNCTIONS "char checkPORT(char,char);void setPORT(char);float getFloat();char getUnit();char getValue();char getSN()"
 #define INFO "The Lib for LAMPh to connect with APPA205";
 
 char cNewLine = '\n';
@@ -79,20 +74,58 @@ public:
     }
 
     float getFloat(){
-        serialPortAPPA205.write("00005555AA");
+
+        QByteArray ba;
+        ba.resize(5);
+        ba[0] = 0x55;
+        ba[1] = 0x55;
+        ba[2] = 0x00;
+        ba[3] = 0x00;
+        ba[4] = 0xaa;
+        serialPortAPPA205.write(ba);
         //readData();
-
-        //serialPortAPPA205.waitForBytesWritten(500);
-        serialPortAPPA205.waitForReadyRead(500);
         QByteArray data = serialPortAPPA205.readAll();
-        std::string result_tmp = data.toStdString();
-        QString data_tmp = QString::fromStdString(result_tmp);
-        data_tmp.remove("\n");
-        data_tmp.remove("\r");
-        result_float = data_tmp.toFloat();
-        qDebug() << data;
+        serialPortAPPA205.waitForReadyRead(300);
+        char *buff = data.data();
+        int buff_int[60];
+        for (int l=0; l<60; l++){
+            buff_int[l]=buff[l];
+        }
 
-        return result_float;
+        int buff_int_34=buff_int[34];
+        int buff_int_35=buff_int[35];
+        if (buff_int[34]<0)
+        {
+            buff_int_34= buff_int[34]+ 256;
+        }
+        if (buff_int[35]<0)
+        {
+            buff_int_35= buff_int[35]+ 256;
+        }
+
+        result_float= buff_int_34 +(buff_int_35*256);
+
+        if (buff_int[36]<0)
+        {
+            result_float=result_float*(-1);
+        }
+
+        switch (buff_int[37])
+        {
+        case 0: break;
+        case 1: result_float=result_float*(0.1);break;
+        case 2: result_float=result_float*(0.01);break;
+        case 4: result_float=result_float*(0.001);break;
+        case 8: result_float=result_float*(0.0001);break;
+        }
+
+        if (serialPortAPPA205.isOpen())
+        {
+            return result_float;
+        }else
+        {
+            return 0;
+        }
 
     }
 
@@ -165,25 +198,43 @@ bool setCh(int number_of_device, float float_data){
 }
 
 
-
-
-
-
-
-
-
-
-
-const char* checkCOM( const char* const port, const char* const info ){
+/*const char* checkCOM( const char* const port, const char* const info ){
     std::string str = info;
     if (0 != str.find(DEVICE) ){
         //setCOM(port);
         return DEVICE;
     }
 
+}*/
+
+bool checkPORT(const char* const port ){
+
+    QSerialPort serialPortAPPA205;
+    serialPortAPPA205.setPortName(port);
+    serialPortAPPA205.setBaudRate(QSerialPort::Baud9600);
+    serialPortAPPA205.setStopBits(QSerialPort::OneStop);
+    serialPortAPPA205.setDataBits(QSerialPort::Data8);
+    serialPortAPPA205.setParity(QSerialPort::NoParity);
+    serialPortAPPA205.setFlowControl(QSerialPort::NoFlowControl);
+    serialPortAPPA205.open(QIODevice::ReadWrite);
+    QByteArray ba;
+    ba.resize(5);
+    ba[0] = 0x55;
+    ba[1] = 0x55;
+    ba[2] = 0x00;
+    ba[3] = 0x00;
+    ba[4] = 0xaa;
+    serialPortAPPA205.write(ba);
+
+    serialPortAPPA205.waitForReadyRead(300);
+    QByteArray data = serialPortAPPA205.readAll();
+
+    qDebug() << "COM_APPA205:data" << data;
+
+    serialPortAPPA205.close();
+
+    return true;
 }
-
-
 
 
 void readData(){

@@ -230,6 +230,30 @@ void LAMPhDevices::sendData(int number)
 
 void LAMPhDevices::readData()
 {
+    QByteArray ba;
+    ba.resize(5);
+    ba[0] = 0x55;
+    ba[1] = 0x55;
+    ba[2] = 0x00;
+    ba[3] = 0x00;
+    ba[4] = 0xaa;
+
+    qDebug()  << "ba" << ba;
+
+
+
+
+    QString appaQString = "byte:55;55;00;00;AA";
+
+    appaQString.remove("byte:");
+
+    QByteArray text = QByteArray::fromHex(appaQString.toLocal8Bit());
+
+    qDebug()  << "text" << text;
+
+    text.size();
+
+
     for(int i=0; i<5;i++)
     {
         while (! comSerialPort[i]->atEnd()) {

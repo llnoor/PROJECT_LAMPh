@@ -70,6 +70,8 @@ LAMPhDevices::LAMPhDevices(QString loginQString)
 
     W_File = new class_write_in_file();
 
+    QSerialCOM = new qserialcomport();
+
     setCentralWidget( labelPlotSettingS ); //mainwindow does not work without this thing
 
     //initWhatsThis();
@@ -302,9 +304,9 @@ void LAMPhDevices::getAllAvailableSerialPorts(){ // main
     {
         QStringList receivedDataList;   //=outputTest
         // receivedDataList transfer to next Strings!!!
-        QString nameofdeviceString; // = "APPA205";
-        QString commandString; //= "byte:00;00;55;55;AA";
-        QString respondString; //= "APPA205";
+        QString nameofdeviceString; // = "APPA205";         //from APPA205
+        QString commandString; //= "byte:55;55;00;00;AA";   //from APPA205
+        QString respondString; //= "byte:55;55;00";         //from APPA205
 
         QLibrary lib ( listDllCOM->at(i) );
         typedef const char* ( *ReceivedData )();
@@ -318,35 +320,41 @@ void LAMPhDevices::getAllAvailableSerialPorts(){ // main
         nameofdeviceString = receivedDataList.at(0);
         commandString = receivedDataList.at(1);
         respondString = receivedDataList.at(2);
+
+
         //qDebug() << "name" << nameofdeviceString << "command" << commandString << "respond" << respondString;
         int numberTHISdevice=0;
-        for (const QSerialPortInfo &info : QSerialPortInfo::availablePorts()) {
+
+
+
+
+        for (const QSerialPortInfo &info : QSerialPortInfo::availablePorts()){
             if (!info.isBusy())
             {
-                QSerialPort newSerialPort;
-                newSerialPort.setPortName(info.portName());
-                newSerialPort.setBaudRate(QSerialPort::Baud9600);
-                newSerialPort.setStopBits(QSerialPort::OneStop);
-                newSerialPort.setDataBits(QSerialPort::Data8);
-                newSerialPort.setParity(QSerialPort::NoParity);
-                newSerialPort.setFlowControl(QSerialPort::NoFlowControl);
-                newSerialPort.open(QIODevice::ReadWrite);
-                newSerialPort.write(commandString.toLocal8Bit());
-                newSerialPort.waitForReadyRead(300);
 
-                QByteArray data;
-                data = newSerialPort.readAll();
-                std::string result_tmp = data.toStdString();
-                QString data_tmp = QString::fromStdString(result_tmp);   //here should be name of devices, SN and so on.
 
-                newSerialPort.close();
+                /*typedef bool (*FcheckPORT) (const char*);
+                FcheckPORT checkPORT = (FcheckPORT)(lib.resolve("checkPORT"));
+
+                if (checkPORT(info.portName().toLatin1()) )*/
+
+
+                if (QSerialCOM->checkPort(info.portName().toLatin1(),commandString,respondString))
+                {
+                    qDebug() << "true";
+                }else
+                {
+                    qDebug() << "false";
+                }
+
+                QString data_tmp = respondString;
 
                 if (data_tmp.contains(respondString, Qt::CaseInsensitive)){
 
                     //set COM PORT (this port will be Busy when info.isBusy() will check)
                     typedef bool (*Fct) (const int, const char*);
                     Fct fct = (Fct)(lib.resolve("setPORT"));
-                    fct(numberTHISdevice,info.portName().toLatin1());
+                    fct(numberTHISdevice, info.portName().toLatin1());
                     //if (fct) qDebug() << fct(numberTHISdevice,info.portName().toLatin1());
 
                     // get list of Functions

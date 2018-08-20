@@ -4,6 +4,7 @@
 #include <qmainwindow.h>
 #include <qaction.h>
 #include <class_write_in_file.h>
+#include <qserialcomport.h>
 #define CurvCnt 20
 
 class QSpinBox;
@@ -22,6 +23,7 @@ class QPolygon;
 class QSerialPort;
 class QSerialPortInfo;
 class class_write_in_file;
+class qserialcomport;
 
 QT_BEGIN_NAMESPACE
 class QGroupBox;
@@ -117,6 +119,9 @@ private:
     QMap<int, QStringList> AllFunctionsFloatVoidParameterDeviceQMap;
     QMap<int, QStringList> AllFunctionsFloatVoidTypeDeviceQMap;
 
+    QMap<int, QString> notBusyCOMDevicesQMap;
+
+
     Counter *d_randomCount;
     Counter *d_timerCount;
     QCheckBox *d_symbolType;
@@ -142,6 +147,7 @@ private:
 
     MainPlot *d_plot;
     class_write_in_file *W_File;
+    qserialcomport *QSerialCOM;
 
     QwtPlotZoomer *d_zoomer[2];
     QwtPlotPicker *d_picker;

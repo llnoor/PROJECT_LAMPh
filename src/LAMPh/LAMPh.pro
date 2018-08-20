@@ -30,7 +30,8 @@ HEADERS       = window.h \
     datatable.h \
     lamphdevices.h \
     lamphtemp.h \
-    class_write_in_file.h
+    class_write_in_file.h \
+    qserialcomport.h
 SOURCES       = window.cpp \
                 main.cpp \
     logowindow.cpp \
@@ -49,7 +50,8 @@ SOURCES       = window.cpp \
     datatable.cpp \
     lamphdevices.cpp \
     lamphtemp.cpp \
-    class_write_in_file.cpp
+    class_write_in_file.cpp \
+    qserialcomport.cpp
 
 
 DISTFILES += \
