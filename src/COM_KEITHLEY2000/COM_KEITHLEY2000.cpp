@@ -9,10 +9,10 @@
 
 #define NAME  "COM_KEITHLEY2000"
 #define DEVICE "KEITHLEY2000"
-#define COMMANDS "KEITHLEY2000,*IDN?,KEITHLEY2000"; //nameofdevice,KEYcommand,respond
+#define COMMANDS "KEITHLEY2000,*IDN?,KEITHLEY"; //nameofdevice,KEYcommand,respond
 #define FOLDER  "Functions/"
 #define TXT "_functions.txt"
-#define FUNCTIONS "char checkPORT(char,char); void setPORT(char); float getFloat(); char getUnit(); char getValue(); char getSN()"
+#define FUNCTIONS "float getFloat(); char getUnit(); char getValue(); char getSN()"
 #define INFO "The Lib for LAMPh to connect with KEITHLEY2000";
 
 char cNewLine = '\n';
@@ -73,11 +73,11 @@ public:
     }
 
     float getFloat(){
-        serialPortKEITHLEY2000.write("00005555AA");
+        serialPortKEITHLEY2000.write(":READ?\r\n");
         //readData();
 
         //serialPortKEITHLEY2000.waitForBytesWritten(500);
-        serialPortKEITHLEY2000.waitForReadyRead(500);
+        serialPortKEITHLEY2000.waitForReadyRead(300);
         QByteArray data = serialPortKEITHLEY2000.readAll();
         std::string result_tmp = data.toStdString();
         QString data_tmp = QString::fromStdString(result_tmp);

@@ -34,7 +34,7 @@ MainPlot::MainPlot( QWidget *parent ):
     setCanvasBackground( QColor( 29, 100, 141 ) ); // nice blue
 
     setAxisScale( xBottom, 0, 1000);
-    setAxisScale( yLeft, -2, 2 );
+    setAxisScale( yLeft, -100, 100 );
 
     replot();
 

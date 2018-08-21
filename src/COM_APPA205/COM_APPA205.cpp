@@ -12,8 +12,8 @@
 #define COMMANDS "APPA205,byte:55;55;00;00;AA,byte:55;55;00"; //nameofdevice,KEYcommand,respond
 #define FOLDER  "Functions/"
 #define TXT "_functions.txt"
-#define FUNCTIONS "float getSeconds();char checkPORT(char,char);void setPORT(char);float getFloat();char getUnit();char getValue();char getSN()"
-#define TYPE_FUNCTIONS "char checkPORT(char,char);void setPORT(char);float getFloat();char getUnit();char getValue();char getSN()"
+#define FUNCTIONS "float getFloat();char getUnit();char getValue();char getSN()"
+#define TYPE_FUNCTIONS "float getFloat();char getUnit();char getValue();char getSN()"
 #define INFO "The Lib for LAMPh to connect with APPA205";
 
 char cNewLine = '\n';
@@ -39,12 +39,12 @@ public:
 
     void readData()
     {
-        while (! serialPortAPPA205.atEnd()) {
+        /*while (! serialPortAPPA205.atEnd()) {
                 QByteArray dataByteArray = serialPortAPPA205.read(100);
                 std::string result_tmp = dataByteArray.toStdString();
                 QString data_tmp = QString::fromStdString(result_tmp);
                 result_float = data_tmp.toFloat();
-        }
+        }*/
     }
 
 
@@ -83,9 +83,10 @@ public:
         ba[3] = 0x00;
         ba[4] = 0xaa;
         serialPortAPPA205.write(ba);
-        //readData();
+
+        //serialPortAPPA205.waitForReadyRead(10);
         QByteArray data = serialPortAPPA205.readAll();
-        serialPortAPPA205.waitForReadyRead(300);
+        serialPortAPPA205.waitForReadyRead(10);
         char *buff = data.data();
         int buff_int[60];
         for (int l=0; l<60; l++){
@@ -103,21 +104,29 @@ public:
             buff_int_35= buff_int[35]+ 256;
         }
 
-        result_float= buff_int_34 +(buff_int_35*256);
-
-        if (buff_int[36]<0)
+        if (5<data.size())
         {
-            result_float=result_float*(-1);
+
+            result_float= buff_int_34 +(buff_int_35*256);
+
+            if (buff_int[36]<0)
+            {
+                result_float=result_float*(-1);
+            }
+
+            switch (buff_int[37])
+            {
+            case 0: break;
+            case 1: result_float=result_float*(0.1);break;
+            case 2: result_float=result_float*(0.01);break;
+            case 4: result_float=result_float*(0.001);break;
+            case 8: result_float=result_float*(0.0001);break;
+            }
         }
 
-        switch (buff_int[37])
-        {
-        case 0: break;
-        case 1: result_float=result_float*(0.1);break;
-        case 2: result_float=result_float*(0.01);break;
-        case 4: result_float=result_float*(0.001);break;
-        case 8: result_float=result_float*(0.0001);break;
-        }
+        //qDebug().noquote() << "respondQByteArray: " << data.size() << " values: " << data.toHex();
+
+        qDebug() << "data.size()" << data.size();
 
         if (serialPortAPPA205.isOpen())
         {

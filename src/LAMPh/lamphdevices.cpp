@@ -57,7 +57,7 @@ LAMPhDevices::LAMPhDevices(QString loginQString)
     addToolBar(Qt::LeftToolBarArea, toolBar_GET()); //these are fields for selecting functions of DEVICES
     /*addToolBar(Qt::LeftToolBarArea, toolBar_SEND());
     addToolBar(Qt::LeftToolBarArea, toolBar_COUNTERS());*/
-    addToolBar(Qt::RightToolBarArea, toolBar_PORTS()); //All Available Serial Ports (COM+USB+LAN+Sockets and so on)
+    addToolBar(Qt::LeftToolBarArea, toolBar_PORTS()); //All Available Serial Ports (COM+USB+LAN+Sockets and so on)
     //addToolBar(Qt::RightToolBarArea, toolBar_DEVICES());
 #ifndef QT_NO_STATUSBAR
     ( void )statusBar();
@@ -69,6 +69,7 @@ LAMPhDevices::LAMPhDevices(QString loginQString)
     labelPlotSettingS = new QLabel(tr(" ")); //free space in the center of the window, due to "mainwindow" features
 
     W_File = new class_write_in_file();
+    W_File->create_new_file();
 
     QSerialCOM = new qserialcomport();
 
@@ -331,18 +332,9 @@ void LAMPhDevices::getAllAvailableSerialPorts(){ // main
         for (const QSerialPortInfo &info : QSerialPortInfo::availablePorts()){
             if (!info.isBusy())
             {
-
                 if (QSerialCOM->checkPort(info.portName().toLatin1(),commandString,respondString))
                 {
                     qDebug() << "true";
-                }else
-                {
-                    qDebug() << "false";
-                }
-
-                QString data_tmp = respondString;
-
-                if (data_tmp.contains(respondString, Qt::CaseInsensitive)){
 
                     //set COM PORT (this port will be Busy when info.isBusy() will check)
                     typedef bool (*Fct) (const int, const char*);
@@ -420,6 +412,10 @@ void LAMPhDevices::getAllAvailableSerialPorts(){ // main
 
                     numberTHISdevice++;
                     numberofdeviceInt++;
+                }
+                else
+                {
+                    qDebug() << "false";
                 }
             }
             //qDebug() << info.portName() << ":" << AllAvailableSerialPortsQMap.value(info.portName());
@@ -958,12 +954,12 @@ void LAMPhDevices::loadConf(){
 }
 
 void LAMPhDevices::send_readData(){
-    for (int r=0;r<20;r++){
+    for (int r=0;r<CurvCnt;r++){
         if (!comboBox_Device[r]->currentText().contains("None", Qt::CaseInsensitive)){
             QLibrary lib (DLLFileDeviceQMap.value(comboBox_Device[r]->currentIndex()));
-            typedef void (*PleaseReadData) ();
+            typedef void (*PleaseReadData) (int);
             PleaseReadData pleaseReadData = (PleaseReadData)(lib.resolve("readData"));
-            pleaseReadData();
+            pleaseReadData(NumberDeviceQMap.value(comboBox_Device[r]->currentIndex()));
         }
     }
     qDebug() << "send";
@@ -974,11 +970,12 @@ void LAMPhDevices::readData(){
     for (int r=0;r<CurvCnt;r++){
         if (!comboBox_Device[r]->currentText().contains("None", Qt::CaseInsensitive)){
             QLibrary lib (DLLFileDeviceQMap.value(comboBox_Device[r]->currentIndex()));
-            typedef void (*PleaseReadData) ();
+            typedef void (*PleaseReadData) (int);
             PleaseReadData pleaseReadData = (PleaseReadData)(lib.resolve("readData"));
-            pleaseReadData();
+            pleaseReadData(NumberDeviceQMap.value(comboBox_Device[r]->currentIndex()));
         }
     }
+
 
     for (int r=0;r<CurvCnt;r++){
 
@@ -997,8 +994,8 @@ void LAMPhDevices::readData(){
             new_parameter = new_parameter.split(")").at(0); //parameter, should be "float"
             new_function_text = new_function_text.split("(").at(0);   //function
 
-            qDebug() << "new_function_text" << new_function_text;
-            qDebug() << "new_parameter" << new_parameter;
+            //qDebug() << "new_function_text" << new_function_text;
+            //qDebug() << "new_parameter" << new_parameter;
             float res=0;
 
 
@@ -1066,7 +1063,7 @@ void LAMPhDevices::readData(){
 
         }
     }
-    W_File->write_in_file();
+    //W_File->write_in_file();
     //qDebug() << "get";
 }
 
