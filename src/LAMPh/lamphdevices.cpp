@@ -332,13 +332,6 @@ void LAMPhDevices::getAllAvailableSerialPorts(){ // main
             if (!info.isBusy())
             {
 
-
-                /*typedef bool (*FcheckPORT) (const char*);
-                FcheckPORT checkPORT = (FcheckPORT)(lib.resolve("checkPORT"));
-
-                if (checkPORT(info.portName().toLatin1()) )*/
-
-
                 if (QSerialCOM->checkPort(info.portName().toLatin1(),commandString,respondString))
                 {
                     qDebug() << "true";

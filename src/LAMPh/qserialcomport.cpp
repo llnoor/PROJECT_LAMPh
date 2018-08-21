@@ -9,54 +9,60 @@ qserialcomport::qserialcomport()
 bool qserialcomport::checkPort(QString portQString, QString sendQString, QString respondQString)
 {
     portCOM->setPortName(portQString);
-
-
     portCOM->setBaudRate(QSerialPort::Baud9600);
     portCOM->setStopBits(QSerialPort::OneStop);
     portCOM->setDataBits(QSerialPort::Data8);
     portCOM->setParity(QSerialPort::NoParity);
     portCOM->setFlowControl(QSerialPort::NoFlowControl);
-
-    portCOM->
-
     portCOM->open(QIODevice::ReadWrite);
+
+
+    QByteArray sendQByteArray;
+    QByteArray respondQByteArray;
 
     if (portCOM->isOpen())
     {
-        QByteArray ba;
-        ba.resize(5);
-        ba[0] = 0x55;
-        ba[1] = 0x55;
-        ba[2] = 0x00;
-        ba[3] = 0x00;
-        ba[4] = 0xaa;
-        portCOM->write(ba);
-        portCOM->waitForReadyRead(200);
-        QByteArray data = portCOM->readAll();
-        char *buff = data.data();
-        //int buff_int[60];
-        int buff_int_char[60];
-        for (int l=0; l<30; l++){
-            //buff_int[l]=buff[l];
-            buff_int_char[l]=0;
-            buff_int_char[l]= buff[l]  - '0';
+
+        if (sendQString.contains("byte:", Qt::CaseInsensitive))
+        {
+            sendQString.remove("byte:");
+            sendQByteArray = QByteArray::fromHex(sendQString.toLocal8Bit());
+            portCOM->write(sendQByteArray);
+
+        }else
+        {
+            portCOM->write(sendQString.toLatin1());
         }
-        int sn_appa =
-                buff_int_char[12]* 10000000+
-                buff_int_char[13]* 1000000+
-                buff_int_char[14]* 100000+
-                buff_int_char[15]* 10000+
-                buff_int_char[16]* 1000+
-                buff_int_char[17]* 100+
-                buff_int_char[18]* 10+
-                buff_int_char[19];
-        QString str= QString::number(sn_appa);
-        std::string result_string = str.toStdString();
 
-        qDebug() << "data" << data;
-        qDebug() << "str" << str;
+        portCOM->waitForReadyRead(200);
+
+        QByteArray data = portCOM->readAll();
+        while (portCOM->waitForReadyRead(10))
+            data += portCOM->readAll();
+
+        qDebug().noquote() << "bytes: " << data.size() << " values: " << data.toHex();
+
+        portCOM->close();
+
+        if (respondQString.contains("byte:", Qt::CaseInsensitive))
+        {
+            respondQString.remove("byte:");
+            respondQByteArray = QByteArray::fromHex(respondQString.toLocal8Bit());
+
+            qDebug().noquote() << "respondQByteArray: " << respondQByteArray.size() << " values: " << respondQByteArray.toHex();
+
+            for (int i=0; i<respondQByteArray.size(); i++)
+            {
+                if (respondQByteArray[i]!=data[i]) return false;
+            }
+            return true;
+        }
+        else
+        {
+            const QString dataQString = QString::fromUtf8(data);
+            if (dataQString.contains(respondQString, Qt::CaseInsensitive))
+            return true;
+            else return false;
+        }
     }
-    portCOM->close();
-
-    return true;
 }
