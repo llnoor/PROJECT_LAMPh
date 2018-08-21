@@ -8,6 +8,13 @@ qserialcomport::qserialcomport()
 
 bool qserialcomport::checkPort(QString portQString, QString sendQString, QString respondQString)
 {
+
+
+    if (sendQString.contains("byte:2A", Qt::CaseInsensitive))
+    {
+        int eteter =1;
+    }
+
     portCOM->setPortName(portQString);
     portCOM->setBaudRate(QSerialPort::Baud9600);
     portCOM->setStopBits(QSerialPort::OneStop);
@@ -27,10 +34,12 @@ bool qserialcomport::checkPort(QString portQString, QString sendQString, QString
         {
             sendQString.remove("byte:");
             sendQByteArray = QByteArray::fromHex(sendQString.toLocal8Bit());
+            portCOM->waitForBytesWritten(200);
             portCOM->write(sendQByteArray);
 
         }else
         {
+            portCOM->waitForBytesWritten(200);
             portCOM->write(sendQString.toLatin1());
         }
 
@@ -65,4 +74,5 @@ bool qserialcomport::checkPort(QString portQString, QString sendQString, QString
             else return false;
         }
     }
+    portCOM->close();
 }

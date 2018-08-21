@@ -9,7 +9,9 @@
 
 #define NAME  "COM_KEITHLEY2000"
 #define DEVICE "KEITHLEY2000"
-#define COMMANDS "KEITHLEY2000,*IDN?,KEITHLEY"; //nameofdevice,KEYcommand,respond
+//#define COMMANDS "KEITHLEY2000,*IDN?,KEITHLEY"; //nameofdevice,KEYcommand,respond
+#define COMMANDS "KEITHLEY2000,byte:2A;49;44;4E;3F;0D;0A,byte:4B;45;49;54";
+
 #define FOLDER  "Functions/"
 #define TXT "_functions.txt"
 #define FUNCTIONS "float getFloat(); char getUnit(); char getValue(); char getSN()"
@@ -38,12 +40,20 @@ public:
 
     void readData()
     {
-        while (! serialPortKEITHLEY2000.atEnd()) {
-                QByteArray dataByteArray = serialPortKEITHLEY2000.read(100);
-                std::string result_tmp = dataByteArray.toStdString();
-                QString data_tmp = QString::fromStdString(result_tmp);
-                result_float = data_tmp.toFloat();
-        }
+        serialPortKEITHLEY2000.write(":READ?\r\n");
+        serialPortKEITHLEY2000.waitForReadyRead(10);
+        QByteArray data = serialPortKEITHLEY2000.readAll();
+
+        std::string result_tmp = data.toStdString();
+        QString data_tmp = QString::fromStdString(result_tmp);
+        //data_tmp.remove("\n");
+        //data_tmp.remove("\r");
+
+
+        qDebug() << "data_tmp" << data_tmp;
+        result_float = data_tmp.toFloat();
+
+
     }
 
 
@@ -64,7 +74,30 @@ public:
         serialPortKEITHLEY2000.setFlowControl(QSerialPort::NoFlowControl);
         serialPortKEITHLEY2000.open(QIODevice::ReadWrite);
 
+
+        serialPortKEITHLEY2000.waitForReadyRead(100);
+
+        //serialPortKEITHLEY2000.write("*RST\r\n");
+        //serialPortKEITHLEY2000.write(":SENS:FUNC 'VOLT:DC'\r\n");
+
+
+
+        QByteArray data;
+
+        //port_keithley->write("*RST\r\n");
+
+        //port_keithley->waitForBytesWritten(500);
+
+
+        serialPortKEITHLEY2000.write("*RST\r\n");
+        serialPortKEITHLEY2000.write(":SENS:FUNC 'VOLT:DC'\r\n");
+        serialPortKEITHLEY2000.write(":SENS:FRES:DIG 6\r\n");
+        data = serialPortKEITHLEY2000.readAll();
+
+        //qDebug() << "KEITHLEY2000 setCOM";
         if (serialPortKEITHLEY2000.isOpen()) return true; else false;
+
+
     }
 
 
@@ -73,19 +106,20 @@ public:
     }
 
     float getFloat(){
-        serialPortKEITHLEY2000.write(":READ?\r\n");
+        /*serialPortKEITHLEY2000.write(":READ?\r\n");
         //readData();
 
-        //serialPortKEITHLEY2000.waitForBytesWritten(500);
-        serialPortKEITHLEY2000.waitForReadyRead(300);
+        serialPortKEITHLEY2000.waitForBytesWritten(100);
+        serialPortKEITHLEY2000.waitForReadyRead(100);
         QByteArray data = serialPortKEITHLEY2000.readAll();
         std::string result_tmp = data.toStdString();
         QString data_tmp = QString::fromStdString(result_tmp);
         data_tmp.remove("\n");
         data_tmp.remove("\r");
         result_float = data_tmp.toFloat();
-        qDebug() << data;
+        qDebug() << data;*/
 
+        //qDebug() << "KEITHLEY2000 getFloat";
         return result_float;
 
     }
@@ -180,19 +214,10 @@ const char* checkCOM( const char* const port, const char* const info ){
 
 
 
-void readData(){
-    /*QByteArray ba;
-    ba.resize(5);
-    ba[0] = 0x55;
-    ba[1] = 0x55;
-    ba[2] = 0x00;
-    ba[3] = 0x00;
-    ba[4] = 0xaa;
-    port_appa->write(ba);
-    port_appa->waitForBytesWritten(300);
-
-    data = port_appa->readAll();*/
+void readData(int number_of_device){
+   classLAMPh[number_of_device].readData();
 }
+
 
 const char* getSN(int number_of_device){
 

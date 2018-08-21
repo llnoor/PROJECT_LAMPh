@@ -25,7 +25,8 @@ LAMPHLIBSHARED_EXPORT const char* getCOMcommands();
 
 LAMPHLIBSHARED_EXPORT const char* checkPORT( const char* const port, const char* const info );
 LAMPHLIBSHARED_EXPORT bool setPORT(int number_of_device, const char* const str );
-LAMPHLIBSHARED_EXPORT void readData();
+
+LAMPHLIBSHARED_EXPORT void readData(int number_of_devices);
 
 
 //LAMPHLIBSHARED_EXPORT void tuning( const char* const str );
