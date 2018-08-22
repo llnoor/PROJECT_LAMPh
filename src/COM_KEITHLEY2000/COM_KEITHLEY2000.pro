@@ -8,6 +8,8 @@
 QT       -= gui
 QT += serialport
 
+CONFIG += C++11
+
 include( ../../common.pri )
 include( ../../lib.pri )
 

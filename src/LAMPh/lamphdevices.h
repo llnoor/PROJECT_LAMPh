@@ -6,6 +6,7 @@
 #include <class_write_in_file.h>
 #include <qserialcomport.h>
 #define CurvCnt 20
+#define CurvCounter 5
 
 class QSpinBox;
 class QPushButton;
@@ -198,20 +199,20 @@ private:
     QLabel *label_comboBox_ColorData;
     QLabel *label_comboBox_SizeData;
 
-    QLabel *label_ReceivedData[20];
-    QComboBox *comboBox_Device[20];
-    QComboBox *comboBox_Device_Functions[20]/*[20]*/;
+    QLabel *label_ReceivedData[CurvCnt];
+    QComboBox *comboBox_Device[CurvCnt];
+    QComboBox *comboBox_Device_Functions[CurvCnt]/*[CurvCnt]*/;
     QMap<int, int> comboBox_DeviceQMap; //number,last Item number
 
-    QComboBox *comboBox_Function_Parameters[20];
-    QLineEdit *lineEdit_NameData[20];
-    QCheckBox *checkBox_Device_Show[20];
-    QCheckBox *checkBox_Device_Show_X[20];
-    QCheckBox *checkBox_Device_Show_Y[20];
-    QCheckBox *checkBox_Device_Text[20];
-    QCheckBox *checkBox_Device_DB[20];
-    QComboBox *comboBox_ColorData[20];
-    QComboBox *comboBox_SizeData[20];
+    QComboBox *comboBox_Function_Parameters[CurvCnt];
+    QLineEdit *lineEdit_NameData[CurvCnt];
+    QCheckBox *checkBox_Device_Show[CurvCnt];
+    QCheckBox *checkBox_Device_Show_X[CurvCnt];
+    QCheckBox *checkBox_Device_Show_Y[CurvCnt];
+    QCheckBox *checkBox_Device_Text[CurvCnt];
+    QCheckBox *checkBox_Device_DB[CurvCnt];
+    QComboBox *comboBox_ColorData[CurvCnt];
+    QComboBox *comboBox_SizeData[CurvCnt];
 
     QPushButton *button_ReceivedData_Close;
     QPushButton *button_ReceivedData_Add;
@@ -230,16 +231,16 @@ private:
     QLabel *label_comboBox_SendData_ColorData;
     QLabel *label_comboBox_SendData_SizeData;
 
-    QLabel *label_SendData[20];
-    QComboBox *comboBox_SendData_Device[20];
-    QComboBox *comboBox_SendData_Device_Functions[20]/*[20]*/;
-    QComboBox *comboBox_SendData_Function_Parameters[20];
-    QLineEdit *lineEdit_SendData_NameData[20];
-    QCheckBox *checkBox_SendData_Device_Show[20];
-    QCheckBox *checkBox_SendData_Device_Text[20];
-    QCheckBox *checkBox_SendData_Device_DB[20];
-    QComboBox *comboBox_SendData_ColorData[20];
-    QComboBox *comboBox_SendData_SizeData[20];
+    QLabel *label_SendData[CurvCnt];
+    QComboBox *comboBox_SendData_Device[CurvCnt];
+    QComboBox *comboBox_SendData_Device_Functions[CurvCnt]/*[CurvCnt]*/;
+    QComboBox *comboBox_SendData_Function_Parameters[CurvCnt];
+    QLineEdit *lineEdit_SendData_NameData[CurvCnt];
+    QCheckBox *checkBox_SendData_Device_Show[CurvCnt];
+    QCheckBox *checkBox_SendData_Device_Text[CurvCnt];
+    QCheckBox *checkBox_SendData_Device_DB[CurvCnt];
+    QComboBox *comboBox_SendData_ColorData[CurvCnt];
+    QComboBox *comboBox_SendData_SizeData[CurvCnt];
 
     QPushButton *button_SendData_Close;
     QPushButton *button_SendData_Add;
@@ -248,18 +249,35 @@ private:
     int int_COUNTERS;
 
     QLabel *label_label_Counter;
-    QLabel *label_label_Counter_Line1;
-    QLabel *label_lineEdit_Counter_Line1;
-    QLabel *label_label_Counter_Line2;
-    QLabel *label_lineEdit_Counter_Line2;
-    QLabel *label_label_Counter_Line3;
+    QLabel *label_lineEdit_Counter_From;
+    QLabel *label_lineEdit_Counter_To;
+    QLabel *label_lineEdit_Counter_Step;
+    QLabel *label_lineEdit_Counter_Acceleration;
+    QLabel *label_lineEdit_Counter_Frequency;
+    QLabel *label_lineEdit_Counter_Period;
+    QLabel *label_lineEdit_Counter_Value;
+    QLabel *label_checkBox_Counter_Show_X;
+    QLabel *label_checkBox_Counter_Show_Y;
+    QLabel *label_checkBox_Counter_Text;
+    QLabel *label_comboBox_Counter_DB;
+    QLabel *label_comboBox_Counter_ColorData;
+    QLabel *label_comboBox_Counter_SizeData;
 
-    QLabel *label_Counter[20];
-    QLabel *label_Counter_Line1[20];
-    QLineEdit *lineEdit_Counter_Line1[20];
-    QLabel *label_Counter_Line2[20];
-    QLineEdit *lineEdit_Counter_Line2[20];
-    QLabel *label_Counter_Line3[20];
+
+    QLabel *label_Counter[CurvCounter];
+    QLineEdit *lineEdit_Counter_From[CurvCounter];
+    QLineEdit *lineEdit_Counter_To[CurvCounter];
+    QLineEdit *lineEdit_Counter_Step[CurvCounter];
+    QLineEdit *lineEdit_Counter_Acceleration[CurvCounter];
+    QLineEdit *lineEdit_Counter_Frequency[CurvCounter];
+    QLineEdit *lineEdit_Counter_Period[CurvCounter];
+    QLineEdit *lineEdit_Counter_Value[CurvCounter];
+    QCheckBox *checkBox_Counter_Show_X[CurvCounter];
+    QCheckBox *checkBox_Counter_Show_Y[CurvCounter];
+    QCheckBox *checkBox_Counter_Text[CurvCounter];
+    QCheckBox *comboBox_Counter_DB[CurvCounter];
+    QComboBox *comboBox_Counter_ColorData[CurvCounter];
+    QComboBox *comboBox_Counter_SizeData[CurvCounter];
 
     QPushButton *button_Counter_Close;
     QPushButton *button_Counter_Add;

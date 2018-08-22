@@ -55,6 +55,8 @@ LAMPhDevices::LAMPhDevices(QString loginQString)
 {
     addToolBar(Qt::TopToolBarArea, toolBar()); //buttons
     addToolBar(Qt::LeftToolBarArea, toolBar_GET()); //these are fields for selecting functions of DEVICES
+    addToolBar(Qt::LeftToolBarArea, toolBar_COUNTERS());
+
     /*addToolBar(Qt::LeftToolBarArea, toolBar_SEND());
     addToolBar(Qt::LeftToolBarArea, toolBar_COUNTERS());*/
     addToolBar(Qt::LeftToolBarArea, toolBar_PORTS()); //All Available Serial Ports (COM+USB+LAN+Sockets and so on)
@@ -974,6 +976,126 @@ QToolBar *LAMPhDevices::toolBar_GET()
     toolBar_GET->addWidget( hBox_GET );
     return toolBar_GET;
 }
+
+QToolBar *LAMPhDevices::toolBar_COUNTERS()
+{
+    MyToolBar *toolBar_COUNTERS = new MyToolBar( this );
+    toolBar_COUNTERS->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+    hBox_COUNTERS = new QWidget( toolBar_COUNTERS );
+
+
+    label_label_Counter = new QLabel(tr("COUNTER"));
+    label_lineEdit_Counter_From = new QLabel(tr("From"));
+    label_lineEdit_Counter_To = new QLabel(tr("To"));
+    label_lineEdit_Counter_Step = new QLabel(tr("Step"));
+    label_lineEdit_Counter_Acceleration = new QLabel(tr("Acceleration"));
+    label_lineEdit_Counter_Frequency = new QLabel(tr("Frequency"));
+    label_lineEdit_Counter_Period = new QLabel(tr("Period"));
+    label_lineEdit_Counter_Value = new QLabel(tr("Value"));
+    label_checkBox_Counter_Show_X = new QLabel(tr("X"));
+    label_checkBox_Counter_Show_Y = new QLabel(tr("Y"));
+    label_checkBox_Counter_Text = new QLabel(tr("Text"));
+    //label_comboBox_Counter_DB = new QLabel(tr("DB"));
+    label_comboBox_Counter_ColorData = new QLabel(tr("Color"));
+    label_comboBox_Counter_SizeData = new QLabel(tr("Size"));
+
+
+    for(int i=0; i<CurvCounter; i++)
+    {
+        label_Counter[i] = new QLabel();
+        label_Counter[i]->setText(QString("COUNTER %1:").arg(i));
+
+        lineEdit_Counter_From[i] = new QLineEdit();
+        lineEdit_Counter_From[i]->setText(QString("1"));
+        lineEdit_Counter_From[i]->setFixedWidth(50);
+
+        lineEdit_Counter_To[i] = new QLineEdit();
+        lineEdit_Counter_To[i]->setText(QString("1"));
+        lineEdit_Counter_To[i]->setFixedWidth(50);
+
+        lineEdit_Counter_Step[i] = new QLineEdit();
+        lineEdit_Counter_Step[i]->setText(QString("1"));
+        lineEdit_Counter_Step[i]->setFixedWidth(50);
+
+        lineEdit_Counter_Acceleration[i] = new QLineEdit();
+        lineEdit_Counter_Acceleration[i]->setText(QString("1"));
+        lineEdit_Counter_Acceleration[i]->setFixedWidth(80);
+
+        lineEdit_Counter_Frequency[i] = new QLineEdit();
+        lineEdit_Counter_Frequency[i]->setText(QString("1"));
+        lineEdit_Counter_Frequency[i]->setFixedWidth(70);
+
+        lineEdit_Counter_Period[i] = new QLineEdit();
+        lineEdit_Counter_Period[i]->setText(QString("1"));
+        lineEdit_Counter_Period[i]->setFixedWidth(50);
+
+        lineEdit_Counter_Value[i] = new QLineEdit();
+        lineEdit_Counter_Value[i]->setText(QString("1"));
+        //lineEdit_Counter_Value[i]->setFixedWidth(50);
+
+        checkBox_Counter_Show_X[i]  = new QCheckBox(tr(""));
+        checkBox_Counter_Show_Y[i]  = new QCheckBox(tr(""));
+        checkBox_Counter_Text[i]  = new QCheckBox(tr(""));
+        //comboBox_Counter_DB[i]  = new QCheckBox(tr(""));
+
+
+        comboBox_Counter_ColorData[i] = new QComboBox();
+        comboBox_Counter_SizeData[i] = new QComboBox();
+
+        comboBox_Counter_ColorData[i]->addItems(colorsQStringList);
+        comboBox_Counter_ColorData[i]->setCurrentIndex(3);  //red
+        comboBox_Counter_SizeData[i]->addItems(sizeQStringList);
+        comboBox_Counter_SizeData[i]->setCurrentIndex(0); //line
+    }
+    //go on
+
+    QGridLayout *gridLayout = new QGridLayout( hBox_COUNTERS);
+
+    gridLayout->addWidget(label_label_Counter, 0, 0);
+    gridLayout->addWidget(label_lineEdit_Counter_From, 0, 1);
+    gridLayout->addWidget(label_lineEdit_Counter_To, 0, 2);
+    gridLayout->addWidget(label_lineEdit_Counter_Step, 0, 3);
+    gridLayout->addWidget(label_lineEdit_Counter_Acceleration, 0, 4);
+    gridLayout->addWidget(label_lineEdit_Counter_Frequency, 0, 5);
+    gridLayout->addWidget(label_lineEdit_Counter_Period, 0, 6);
+    gridLayout->addWidget(label_lineEdit_Counter_Value, 0, 7);
+    gridLayout->addWidget(label_checkBox_Counter_Show_X, 0, 8);
+    gridLayout->addWidget(label_checkBox_Counter_Show_Y, 0, 9);
+    gridLayout->addWidget(label_checkBox_Counter_Text, 0, 10);
+    //gridLayout->addWidget(label_comboBox_Counter_DB, 0, 11);
+    gridLayout->addWidget(label_comboBox_Counter_ColorData, 0, 12);
+    gridLayout->addWidget(label_comboBox_Counter_SizeData, 0, 13);
+
+
+    for(int i=0; i<CurvCounter; i++)
+    {
+
+        gridLayout->addWidget(label_Counter[i], i+1, 0);
+        gridLayout->addWidget(lineEdit_Counter_From[i], i+1, 1);
+        gridLayout->addWidget(lineEdit_Counter_To[i], i+1, 2);
+        gridLayout->addWidget(lineEdit_Counter_Step[i], i+1, 3);
+        gridLayout->addWidget(lineEdit_Counter_Acceleration[i], i+1, 4);
+        gridLayout->addWidget(lineEdit_Counter_Frequency[i], i+1, 5);
+        gridLayout->addWidget(lineEdit_Counter_Period[i], i+1, 6);
+        gridLayout->addWidget(lineEdit_Counter_Value[i], i+1, 7);
+        gridLayout->addWidget(checkBox_Counter_Show_X[i], i+1, 8);
+        gridLayout->addWidget(checkBox_Counter_Show_Y[i], i+1, 9);
+        gridLayout->addWidget(checkBox_Counter_Text[i], i+1, 10);
+        //gridLayout->addWidget(comboBox_Counter_DB[i], i+1, 11);
+        gridLayout->addWidget(comboBox_Counter_ColorData[i], i+1, 12);
+        gridLayout->addWidget(comboBox_Counter_SizeData[i], i+1, 13);
+    }
+
+    gridLayout->setContentsMargins(5,5,5,5);
+    gridLayout->setVerticalSpacing(5);
+    gridLayout->setHorizontalSpacing(5);
+
+    toolBar_COUNTERS->addWidget( hBox_COUNTERS );
+    return toolBar_COUNTERS;
+}
+
+
+
 
 void LAMPhDevices::update_comboBox_Device_Functions(int r, int Index){
     while (comboBox_Device_Functions[r]->count()>0) comboBox_Device_Functions[r]->removeItem(0);
