@@ -3,7 +3,8 @@
 #include <stdio.h>
 
 #include <string>
-#include <QtSerialPort/QSerialPort>
+#include <QSerialPort>
+#include <QSerialPortInfo>
 
 #include <QDebug>
 
@@ -102,18 +103,61 @@ public:
         }
     }
 
-    bool setCOM( const char* const port ){        
-        serialPortAPPA205.setPortName(port);
-        serialPortAPPA205.setBaudRate(QSerialPort::Baud9600);
-        serialPortAPPA205.setStopBits(QSerialPort::OneStop);
-        serialPortAPPA205.setDataBits(QSerialPort::Data8);
-        serialPortAPPA205.setParity(QSerialPort::NoParity);
-        serialPortAPPA205.setFlowControl(QSerialPort::NoFlowControl);
-        serialPortAPPA205.open(QIODevice::ReadWrite);
+    bool setCOM(){
 
-        if (serialPortAPPA205.isOpen()) return true; else false;
+        for (const QSerialPortInfo &info : QSerialPortInfo::availablePorts()){
+            qDebug() << info.portName();
+            if (!info.isBusy())
+            {
+                qDebug() << info.portName();
+                serialPortAPPA205.setPortName(info.portName());
+                serialPortAPPA205.setBaudRate(QSerialPort::Baud9600);
+                serialPortAPPA205.setStopBits(QSerialPort::OneStop);
+                serialPortAPPA205.setDataBits(QSerialPort::Data8);
+                serialPortAPPA205.setParity(QSerialPort::NoParity);
+                serialPortAPPA205.setFlowControl(QSerialPort::NoFlowControl);
+                serialPortAPPA205.open(QIODevice::ReadWrite);
+
+                QByteArray ba;
+                ba.resize(5);
+                ba[0] = 0x55;
+                ba[1] = 0x55;
+                ba[2] = 0x00;
+                ba[3] = 0x00;
+                ba[4] = 0xaa;
+
+                QByteArray ba_check;
+                ba_check.resize(3);
+                ba_check[0] = 0x55;
+                ba_check[1] = 0x55;
+                ba_check[2] = 0x00;
+
+                serialPortAPPA205.waitForBytesWritten(100);
+
+                serialPortAPPA205.write(ba);
+
+                serialPortAPPA205.waitForReadyRead(100);
+
+                QByteArray data = serialPortAPPA205.readAll();
+                while (serialPortAPPA205.waitForReadyRead(10))
+                    data += serialPortAPPA205.readAll();
+
+                qDebug().noquote() << "bytes: " << data.size() << " values: " << data.toHex();
+
+                bool match_bool =true;
+                for (int i=0; i<3 /*ba_check.size()*/; i++)
+                {
+                    if (ba_check[i]!=data[i]){
+                        serialPortAPPA205.close();
+                        match_bool = false;
+                    }
+                }
+                if (match_bool) return true;
+
+            }
+        }
+        return false;
     }
-
 
     const char* getSN(){
         return "APPA205TEST";
@@ -174,13 +218,16 @@ const char* getCOMcommands() {
     return COMMANDS;
 }
 
+const char* getName() {
+    return DEVICE;
+}
 
 void setNewDevice(int number_of_devices){
     //delete this function
 }
 
-bool setPORT(int number_of_device, const char* const port ){
-    return classLAMPh[number_of_device].setCOM(port);
+bool setPORT(int number_of_device){
+    return classLAMPh[number_of_device].setCOM();
 }
 
 float getFloat(int number_of_device){

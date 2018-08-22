@@ -3,7 +3,8 @@
 #include <stdio.h>
 
 #include <string>
-#include <QtSerialPort/QSerialPort>
+#include <QSerialPort>
+#include <QSerialPortInfo>
 
 #include <QDebug>
 
@@ -65,41 +66,79 @@ public:
         }
     }
 
-    bool setCOM( const char* const port ){        
-        serialPortKEITHLEY2000.setPortName(port);
-        serialPortKEITHLEY2000.setBaudRate(QSerialPort::Baud9600);
-        serialPortKEITHLEY2000.setStopBits(QSerialPort::OneStop);
-        serialPortKEITHLEY2000.setDataBits(QSerialPort::Data8);
-        serialPortKEITHLEY2000.setParity(QSerialPort::NoParity);
-        serialPortKEITHLEY2000.setFlowControl(QSerialPort::NoFlowControl);
-        serialPortKEITHLEY2000.open(QIODevice::ReadWrite);
+
+    bool setCOM(){
+
+        for (const QSerialPortInfo &info : QSerialPortInfo::availablePorts()){
+            qDebug() << "serialPortKEITHLEY2000" << info.portName();
+            if (!info.isBusy())
+            {
+                qDebug() << info.portName();
+                serialPortKEITHLEY2000.setPortName(info.portName());
+                serialPortKEITHLEY2000.setBaudRate(QSerialPort::Baud9600);
+                serialPortKEITHLEY2000.setStopBits(QSerialPort::OneStop);
+                serialPortKEITHLEY2000.setDataBits(QSerialPort::Data8);
+                serialPortKEITHLEY2000.setParity(QSerialPort::NoParity);
+                serialPortKEITHLEY2000.setFlowControl(QSerialPort::NoFlowControl);
+                serialPortKEITHLEY2000.open(QIODevice::ReadWrite);
+
+                QByteArray ba;
+                ba.resize(7);
+                ba[0] = 0x2a;
+                ba[1] = 0x49;
+                ba[2] = 0x44;
+                ba[3] = 0x4e;
+                ba[4] = 0x3f;
+                ba[5] = 0x0d;
+                ba[6] = 0x0a; // "*IDN?"
+
+                QByteArray ba_check;
+                ba_check.resize(4);
+                ba_check[0] = 0x4b;
+                ba_check[1] = 0x45;
+                ba_check[2] = 0x49;
+                ba_check[3] = 0x54;
 
 
-        serialPortKEITHLEY2000.waitForReadyRead(100);
+                serialPortKEITHLEY2000.waitForBytesWritten(300);
 
-        //serialPortKEITHLEY2000.write("*RST\r\n");
-        //serialPortKEITHLEY2000.write(":SENS:FUNC 'VOLT:DC'\r\n");
+                serialPortKEITHLEY2000.write("*IDN?\r\n");
 
+                serialPortKEITHLEY2000.waitForReadyRead(300);
 
-
-        QByteArray data;
-
-        //port_keithley->write("*RST\r\n");
-
-        //port_keithley->waitForBytesWritten(500);
+                QByteArray data;
+                data= serialPortKEITHLEY2000.readAll();
+                while (serialPortKEITHLEY2000.waitForReadyRead(10))
+                    data += serialPortKEITHLEY2000.readAll();
 
 
-        serialPortKEITHLEY2000.write("*RST\r\n");
-        serialPortKEITHLEY2000.write(":SENS:FUNC 'VOLT:DC'\r\n");
-        serialPortKEITHLEY2000.write(":SENS:FRES:DIG 6\r\n");
-        data = serialPortKEITHLEY2000.readAll();
+                std::string result_tmp = data.toStdString();
+                QString data_tmp = QString::fromStdString(result_tmp);
+                qDebug() << "data_tmp: "  << data_tmp;
 
-        //qDebug() << "KEITHLEY2000 setCOM";
-        if (serialPortKEITHLEY2000.isOpen()) return true; else false;
+                qDebug().noquote() << "bytes: " << data.size() << " values: " << data.toHex();
 
+                bool match_bool =true;
+                for (int i=0; i<ba_check.size(); i++)
+                {
+                    if (ba_check[i]!=data[i]){
+                        serialPortKEITHLEY2000.close();
+                        match_bool = false;
+                    }
+                }
+                if (match_bool)
+                {
+                    serialPortKEITHLEY2000.write("*RST\r\n");
+                    serialPortKEITHLEY2000.write(":SENS:FUNC 'VOLT:DC'\r\n");
+                    serialPortKEITHLEY2000.write(":SENS:FRES:DIG 6\r\n");
+                    serialPortKEITHLEY2000.write(":READ?\r\n");
+                    return true;
+                }
 
+            }
+        }
+        return false;
     }
-
 
     const char* getSN(){
         return "KEITHLEY2000TEST";
@@ -167,13 +206,16 @@ const char* getCOMcommands() {
     return COMMANDS;
 }
 
+const char* getName() {
+    return DEVICE;
+}
 
 void setNewDevice(int number_of_devices){
     //delete this function
 }
 
-bool setPORT(int number_of_device, const char* const port ){
-    return classLAMPh[number_of_device].setCOM(port);
+bool setPORT(int number_of_device){
+    return classLAMPh[number_of_device].setCOM();
 }
 
 float getFloat(int number_of_device){

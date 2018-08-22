@@ -303,7 +303,7 @@ void LAMPhDevices::getAllAvailableSerialPorts(){ // main
     for (int i=0; i<listDllUSB->size();i++)
     {
         QStringList receivedDataList;
-        QString nameofdeviceString;
+        QString nameofdeviceString ;
         QString commandString;
         QString respondString;
 
@@ -400,6 +400,125 @@ void LAMPhDevices::getAllAvailableSerialPorts(){ // main
     // COM PORT
 
     for (int i=0; i<listDllCOM->size();i++)
+    {
+        QString nameofdeviceString = "NoneCOMPort";
+
+
+        QLibrary lib ( listDllCOM->at(i) );
+
+        typedef const char* ( *GetName )();
+        GetName getName;
+
+        getName = ( GetName ) lib.resolve( "getName" );
+        if( getName ) {
+            nameofdeviceString = QString::fromUtf8(getName());
+        }
+
+        int numberTHISdevice=0;
+
+        //set COM PORT (this port will be Busy when info.isBusy() will check)
+        typedef bool (*Fct) (const int);
+        Fct fct = (Fct)(lib.resolve("setPORT"));
+        //fct(numberTHISdevice);
+        //if (fct) qDebug() << fct(numberTHISdevice,info.portName().toLatin1());
+
+
+
+        while (fct(numberTHISdevice))
+        {
+            /*bool bool_fct = fct(numberTHISdevice);
+
+            qDebug() << bool_fct;
+
+            if (bool_fct)
+            {*/
+
+
+            // get list of Functions
+            typedef const char* ( *FunctionData )();
+            FunctionData functionData;
+            functionData = ( FunctionData ) lib.resolve( "getFunctions" );
+            if( functionData ) {
+                QString functionsQString = QString::fromLatin1(functionData()); //qDebug() << functionData();
+                AllAvailableDevicesQMap[numberofdeviceInt] = QString ("COM_Device%1:%2 Number:%3 DLL:%4 Functions:%5").arg(numberofdeviceInt).arg(nameofdeviceString).arg(numberTHISdevice).arg(listDllCOM->at(i)).arg(functionsQString);
+
+                QStringList FunctionsQStringList = QString::fromLatin1(functionData()).split(";");
+                AllFunctionsDevicesQMap[nameofdeviceString] = FunctionsQStringList;
+
+                NameDeviceQMap[numberofdeviceInt] = nameofdeviceString;
+                NumberDeviceQMap[numberofdeviceInt] = numberTHISdevice;
+                DLLFileDeviceQMap[numberofdeviceInt] = QString ("%1").arg(listDllCOM->at(i));
+                AllFunctionsDeviceQMap[numberofdeviceInt] = FunctionsQStringList;
+
+                for (int k=0; k<AllFunctionsDeviceQMap[numberofdeviceInt].size();k++)
+                {
+                    QString new_function_text = AllFunctionsDeviceQMap[numberofdeviceInt].at(k);
+
+                    QString new_type_text = new_function_text.split(" ").at(0);
+
+                    QRegExp exp("\\(float\\)");
+
+                    if (0<exp.indexIn(AllFunctionsDeviceQMap[numberofdeviceInt].at(k)))
+                    AllFunctionsParameterDeviceQMap[numberofdeviceInt].append("float");
+                    else AllFunctionsParameterDeviceQMap[numberofdeviceInt].append("none");
+
+                    if (new_type_text.contains("float", Qt::CaseInsensitive))
+                    {
+                        AllFunctionsFloatVoidTypeDeviceQMap[numberofdeviceInt].append("float");
+                        AllFunctionsFloatDeviceQMap[numberofdeviceInt].append(AllFunctionsDeviceQMap[numberofdeviceInt].at(k));
+                        if (0<exp.indexIn(AllFunctionsDeviceQMap[numberofdeviceInt].at(k)))
+                        AllFunctionsFloatParameterDeviceQMap[numberofdeviceInt].append("float");
+                        else AllFunctionsFloatParameterDeviceQMap[numberofdeviceInt].append("none");
+                    }
+
+                    if (new_type_text.contains("void", Qt::CaseInsensitive))
+                    {
+                        AllFunctionsFloatVoidTypeDeviceQMap[numberofdeviceInt].append("void");
+                        AllFunctionsVoidDeviceQMap[numberofdeviceInt].append(AllFunctionsDeviceQMap[numberofdeviceInt].at(k));
+                        if (0<exp.indexIn(AllFunctionsDeviceQMap[numberofdeviceInt].at(k)))
+                        AllFunctionsVoidParameterDeviceQMap[numberofdeviceInt].append("float");
+                        else AllFunctionsVoidParameterDeviceQMap[numberofdeviceInt].append("none");
+                    }
+
+                    if ((new_type_text.contains("float", Qt::CaseInsensitive)) or (new_type_text.contains("void", Qt::CaseInsensitive)))
+                    {
+                        AllFunctionsFloatVoidDeviceQMap[numberofdeviceInt].append(AllFunctionsDeviceQMap[numberofdeviceInt].at(k));
+
+                        if (0<exp.indexIn(AllFunctionsDeviceQMap[numberofdeviceInt].at(k)))
+                        AllFunctionsFloatVoidParameterDeviceQMap[numberofdeviceInt].append("float");
+                        else AllFunctionsFloatVoidParameterDeviceQMap[numberofdeviceInt].append("none");
+                    }
+                }
+
+            }
+            typedef const char* ( *GetUnitF )(int);
+            GetUnitF getUnitF;
+            getUnitF = ( GetUnitF ) lib.resolve( "getUnit" );
+            if( getUnitF ) {
+                QString unitQString = QString::fromLatin1(getUnitF(numberTHISdevice));
+                UnitDeviceQMap[numberofdeviceInt]=unitQString;
+            }
+
+
+            //AllAvailableSerialPortsQMap[info.portName()] = QString ("COM_Device%1:%2 Number:%3 DLL:%4").arg(numberofdeviceInt).arg(nameofdeviceString).arg(numberTHISdevice).arg(listDllCOM->at(i));
+
+            numberTHISdevice++;
+            numberofdeviceInt++;
+
+        }
+
+    }
+
+
+
+
+
+
+
+
+
+
+    /*for (int i=0; i<listDllCOM->size();i++)
     {
         QStringList receivedDataList;   //=outputTest
         // receivedDataList transfer to next Strings!!!
@@ -526,7 +645,7 @@ void LAMPhDevices::getAllAvailableSerialPorts(){ // main
             //qDebug() << info.portName() << ":" << AllAvailableSerialPortsQMap.value(info.portName());
             //qDebug() << info.portName() << "Device:" << AllAvailableDevicesQMap.value(numberofdeviceInt);
         }
-    }
+    }*/
 
 
     // Socket
@@ -1193,7 +1312,8 @@ void LAMPhDevices::update_toolBar_PORTS(){
     //const infos = QSerialPortInfo::availablePorts();
     for (const QSerialPortInfo &info : QSerialPortInfo::availablePorts()) {
         QString s = QObject::tr("Port: ") + info.portName() + "\n"
-                + AllAvailableSerialPortsQMap.value(info.portName()) + "\n"
+                //+ AllAvailableSerialPortsQMap.value(info.portName()) + "\n"
+                + QObject::tr("SerialPort: ") + info.portName() + " "
                 + QObject::tr("Manufacturer: ") + info.manufacturer() + " "
                     + QObject::tr("Serial number: ") + info.serialNumber() + "\n"
                     + QObject::tr("Vendor Identifier: ") + (info.hasVendorIdentifier() ? QString::number(info.vendorIdentifier(), 16) : QString()) + " "
