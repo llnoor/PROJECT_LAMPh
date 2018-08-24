@@ -3,7 +3,8 @@
 #include <stdio.h>
 
 #include <string>
-#include <QtSerialPort/QSerialPort>
+#include <QSerialPort>
+#include <QSerialPortInfo>
 
 #include <QDebug>
 
@@ -12,7 +13,7 @@
 #define COMMANDS "MASTECH_MS8050,*,MASTECH_MS8050"; //nameofdevice,KEYcommand,respond
 #define FOLDER  "Functions/"
 #define TXT "_functions.txt"
-#define FUNCTIONS "char checkPORT(char,char); void setPORT(char); float getFloat(); char getUnit(); char getValue(); char getSN()"
+#define FUNCTIONS "float getFloat()"
 #define INFO "The Lib for LAMPh to connect with MASTECH_MS8050";
 
 char cNewLine = '\n';
@@ -38,12 +39,115 @@ public:
 
     void readData()
     {
-        while (! serialPortMASTECH_MS8050.atEnd()) {
-                QByteArray dataByteArray = serialPortMASTECH_MS8050.read(100);
-                std::string result_tmp = dataByteArray.toStdString();
-                QString data_tmp = QString::fromStdString(result_tmp);
-                result_float = data_tmp.toFloat();
+        serialPortMASTECH_MS8050.waitForReadyRead(200);
+        QByteArray data = serialPortMASTECH_MS8050.readAll();
+        int yt=0;
+        while (serialPortMASTECH_MS8050.waitForReadyRead(10))
+        {
+            data += serialPortMASTECH_MS8050.readAll();
+            yt++;
+            qDebug("%d", yt);
+            //if (yt>5) break;
         }
+
+        qDebug().noquote() << "bytes: " << data.size() << " values: " << data.toHex();
+
+        char *buff = data.data();
+        int buff_int[24];
+        int right_array[14];
+
+        for (int l=0; l<24; l++){
+            buff_int[l]=buff[l];
+            //qDebug("buff_int[%d]: %d", l, buff_int[l]);
+        }
+
+
+        int kk_start[4];
+        kk_start[0]=0;
+        kk_start[1]=0;
+        kk_start[2]=0;
+
+        int number_of_kk=0;
+        for (int kk=0; kk<24; kk++)
+        {
+            if (-97<buff_int[kk] and -90>buff_int[kk])
+            {
+                kk_start[number_of_kk]=kk;
+                number_of_kk++;
+            }
+
+        }
+
+
+        for (int l=0; l<14; l++){
+            right_array[l]=buff_int[l+kk_start[0]];
+        }
+
+        if (3<number_of_kk) right_array[0]=0;  //break;
+
+    //qDebug("kk: %d, [0]: %d,[1]: %d,[2]: %d,[3]: %d,[4]: %d,[5]: %d,[6]: %d,[7]: %d,[8]: %d,",kk_start[0], right_array[0],right_array[1],right_array[2],right_array[3],right_array[4],right_array[5],right_array[6],right_array[7],right_array[8]);
+
+
+        if ( -97<right_array[0] and -90>right_array[0])
+        {
+
+
+            result_float=right_array[4]*10000+
+                        right_array[5]*1000+
+                        right_array[6]*100+
+                        right_array[7]*10+
+                        right_array[8];
+
+            switch (right_array[1])
+            {
+            case 0:
+                if (-96==right_array[0]) result_float=result_float*0.0001;
+                if (-95==right_array[0]) result_float=result_float*0.001;
+                if (-94==right_array[0]) result_float=result_float*0.01;
+                if (-93==right_array[0]) result_float=result_float*0.1;
+                break;
+            case 1:
+                if (-96==right_array[0]) result_float=result_float*0.0001;
+                if (-95==right_array[0]) result_float=result_float*0.001;
+                if (-94==right_array[0]) result_float=result_float*0.01;
+                if (-93==right_array[0]) result_float=result_float*0.1;
+                break;
+            case 3:
+                if (-96==right_array[0]) result_float=result_float*0.001;
+                if (-95==right_array[0]) result_float=result_float*0.01;
+                break;
+            case 6:
+                //result_float=result_float;
+                break;
+            case 7:
+                //result_float=result_float;
+                break;
+            case 8:
+                if (-96==right_array[0]) result_float=result_float*0.01;
+                if (-95==right_array[0]) result_float=result_float*0.1;
+                if (-94==right_array[0]) result_float=result_float*1;
+                if (-93==right_array[0]) result_float=result_float*10;
+                if (-92==right_array[0]) result_float=result_float*10000;
+                if (-91==right_array[0]) result_float=result_float*1000000;
+                break;
+            case 11:
+                if (-96==right_array[0]) result_float=result_float*0.01;
+                if (-95==right_array[0]) result_float=result_float*0.1;
+                break;
+            case 14:
+                if (-96==right_array[0]) result_float=result_float*0.001;
+                if (-95==right_array[0]) result_float=result_float*0.01;
+                break;
+            case 17:
+                if (-96==right_array[0]) result_float=result_float*0.0001;
+                if (-95==right_array[0]) result_float=result_float*0.001;
+                break;
+            }
+        }
+
+        result_float=result_float*0.001;
+
+
     }
 
 
@@ -55,16 +159,64 @@ public:
         }
     }
 
-    bool setCOM( const char* const port ){        
-        serialPortMASTECH_MS8050.setPortName(port);
-        serialPortMASTECH_MS8050.setBaudRate(QSerialPort::Baud9600);
-        serialPortMASTECH_MS8050.setStopBits(QSerialPort::OneStop);
-        serialPortMASTECH_MS8050.setDataBits(QSerialPort::Data8);
-        serialPortMASTECH_MS8050.setParity(QSerialPort::NoParity);
-        serialPortMASTECH_MS8050.setFlowControl(QSerialPort::NoFlowControl);
-        serialPortMASTECH_MS8050.open(QIODevice::ReadWrite);
 
-        if (serialPortMASTECH_MS8050.isOpen()) return true; else false;
+    bool setCOM(){
+
+        for (const QSerialPortInfo &info : QSerialPortInfo::availablePorts()){
+            qDebug() << "serialPortMASTECH_MS8050" <<info.portName();
+            if (!info.isBusy())
+            {
+                qDebug() << info.portName();
+                serialPortMASTECH_MS8050.setPortName(info.portName());
+                serialPortMASTECH_MS8050.setBaudRate(QSerialPort::Baud2400);
+                serialPortMASTECH_MS8050.setStopBits(QSerialPort::OneStop);
+                serialPortMASTECH_MS8050.setDataBits(QSerialPort::Data8);
+                serialPortMASTECH_MS8050.setParity(QSerialPort::EvenParity);
+                //serialPortMASTECH_MS8050.setParity(QSerialPort::NoParity);
+                serialPortMASTECH_MS8050.setFlowControl(QSerialPort::NoFlowControl);
+                serialPortMASTECH_MS8050.open(QIODevice::ReadWrite);
+                serialPortMASTECH_MS8050.waitForReadyRead(200);
+
+                QByteArray data = serialPortMASTECH_MS8050.readAll();
+                //int yt=0;
+                while (serialPortMASTECH_MS8050.waitForReadyRead(10))
+                {
+                    data += serialPortMASTECH_MS8050.readAll();
+                    //yt++;
+                    //qDebug("%d", yt);
+                    //if (yt>5) break;
+                }
+
+                //qDebug().noquote() << "bytes: " << data.size() << " values: " << data.toHex();
+                QString dataQString(data.toHex());
+                // qDebug() << "dataQString" << dataQString;
+
+
+                if (dataQString.contains("00007f00", Qt::CaseInsensitive))
+                {
+                   return true;
+                }else
+                {
+                    serialPortMASTECH_MS8050.close();
+                }
+                /*QByteArray ba_check;
+                ba_check.resize(4);
+                ba_check[0] = 0x00;
+                ba_check[1] = 0x00;
+                ba_check[2] = 0x7F;
+                ba_check[2] = 0x00;
+                bool match_bool =true;
+                for (int i=0; i<ba_check.size(); i++)
+                {
+                    if (ba_check[i]!=data[i]){
+                        serialPortMASTECH_MS8050.close();
+                        match_bool = false;
+                    }
+                }
+                if (match_bool) return true;*/
+            }
+        }
+        return false;
     }
 
 
@@ -73,21 +225,7 @@ public:
     }
 
     float getFloat(){
-        serialPortMASTECH_MS8050.write("00005555AA");
-        //readData();
-
-        //serialPortMASTECH_MS8050.waitForBytesWritten(500);
-        serialPortMASTECH_MS8050.waitForReadyRead(500);
-        QByteArray data = serialPortMASTECH_MS8050.readAll();
-        std::string result_tmp = data.toStdString();
-        QString data_tmp = QString::fromStdString(result_tmp);
-        data_tmp.remove("\n");
-        data_tmp.remove("\r");
-        result_float = data_tmp.toFloat();
-        qDebug() << data;
-
-        return result_float;
-
+       return result_float;
     }
 
     const char* getUnit(){
@@ -133,13 +271,20 @@ const char* getCOMcommands() {
     return COMMANDS;
 }
 
+const char* getName() {
+    return DEVICE;
+}
 
 void setNewDevice(int number_of_devices){
     //delete this function
 }
 
-bool setPORT(int number_of_device, const char* const port ){
-    return classLAMPh[number_of_device].setCOM(port);
+bool setPORT(int number_of_device){
+    return classLAMPh[number_of_device].setCOM();
+}
+
+void readData(int number_of_device){
+   classLAMPh[number_of_device].readData();
 }
 
 float getFloat(int number_of_device){
