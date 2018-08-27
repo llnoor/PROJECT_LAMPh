@@ -90,6 +90,7 @@ private:
     QStringList *listDllUSB;
     QStringList *listDllLAN;
     QStringList *listDllLAMPh;
+    QStringList *listDllOther;
 
     int numberofdeviceInt;
     int numberofitemsdeviceInt;

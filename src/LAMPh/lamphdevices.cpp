@@ -271,6 +271,7 @@ void LAMPhDevices::getAllAvailableSerialPorts(){ // main
     listDllUSB  = new QStringList;
     listDllLAN  = new QStringList;
     listDllLAMPh  = new QStringList;
+    listDllOther  = new QStringList;
 
     QDir dir;
     //dir.cd("");
@@ -289,7 +290,8 @@ void LAMPhDevices::getAllAvailableSerialPorts(){ // main
         else if (listDll->at(i).contains("Socket", Qt::CaseInsensitive)) listDllSocket->append(listDll->at(i));
         else if (listDll->at(i).contains("USB", Qt::CaseInsensitive)) listDllUSB->append(listDll->at(i));
         else if (listDll->at(i).contains("LAN", Qt::CaseInsensitive)) listDllLAN->append(listDll->at(i));
-        else listDllLAMPh->append(listDll->at(i));
+        else if (listDll->at(i).contains("LAMPh_", Qt::CaseInsensitive)) listDllLAMPh->append(listDll->at(i));
+        else listDllOther->append(listDll->at(i));
     }
 
     numberofdeviceInt=0;
@@ -300,6 +302,103 @@ void LAMPhDevices::getAllAvailableSerialPorts(){ // main
     {
         while (comboBox_Device[r]->count()>0) comboBox_Device[r]->removeItem(0);
     }
+
+    // LAMPh
+    /*for (int i=0; i<listDllLAMPh->size();i++)
+    {
+        QStringList receivedDataList;
+        QString nameofdeviceString ;
+        QString commandString;
+        QString respondString;
+
+        QLibrary lib ( listDllLAMPh->at(i) );
+
+        nameofdeviceString = "None_LAMPh"; //sorry
+
+        typedef const char* ( *GetName )();
+        GetName getName;
+
+        getName = ( GetName ) lib.resolve( "getName" );
+        if( getName ) {
+            nameofdeviceString = QString::fromUtf8(getName());
+        }
+
+        int numberTHISdevice=0; //sorry
+
+        typedef bool (*Fct) (const int);
+        Fct fct = (Fct)(lib.resolve("checkUSB"));
+        if (fct(numberTHISdevice)) //if device is ready to work
+        {
+            // get list of Functions
+            typedef const char* ( *FunctionData )();
+            FunctionData functionData;
+            functionData = ( FunctionData ) lib.resolve( "getFunctions" );
+            if( functionData ) {
+                QString functionsQString = QString::fromLatin1(functionData()); //qDebug() << functionData();
+                AllAvailableDevicesQMap[numberofdeviceInt] = QString ("LAMPh_Device%1:%2 Number:%3 DLL:%4 Functions:%5").arg(numberofdeviceInt).arg(nameofdeviceString).arg(numberTHISdevice).arg(listDllLAMPh->at(i)).arg(functionsQString);
+                QStringList FunctionsQStringList = QString::fromLatin1(functionData()).split(";");
+                AllFunctionsDevicesQMap[nameofdeviceString] = FunctionsQStringList;
+
+
+                NameDeviceQMap[numberofdeviceInt] = nameofdeviceString;
+                NumberDeviceQMap[numberofdeviceInt] = numberTHISdevice;
+                DLLFileDeviceQMap[numberofdeviceInt] = QString ("%1").arg(listDllLAMPh->at(i));
+                AllFunctionsDeviceQMap[numberofdeviceInt] = FunctionsQStringList;
+
+                for (int k=0; k<AllFunctionsDeviceQMap[numberofdeviceInt].size();k++)
+                {
+                    QString new_function_text = AllFunctionsDeviceQMap[numberofdeviceInt].at(k);
+
+                    QString new_type_text = new_function_text.split(" ").at(0);
+
+                    QRegExp exp("\\(float\\)");
+
+                    if (0<exp.indexIn(AllFunctionsDeviceQMap[numberofdeviceInt].at(k)))
+                    AllFunctionsParameterDeviceQMap[numberofdeviceInt].append("float");
+                    else AllFunctionsParameterDeviceQMap[numberofdeviceInt].append("none");
+
+                    if (new_type_text.contains("float", Qt::CaseInsensitive))
+                    {
+                        AllFunctionsFloatVoidTypeDeviceQMap[numberofdeviceInt].append("float");
+                        AllFunctionsFloatDeviceQMap[numberofdeviceInt].append(AllFunctionsDeviceQMap[numberofdeviceInt].at(k));
+                        if (0<exp.indexIn(AllFunctionsDeviceQMap[numberofdeviceInt].at(k)))
+                        AllFunctionsFloatParameterDeviceQMap[numberofdeviceInt].append("float");
+                        else AllFunctionsFloatParameterDeviceQMap[numberofdeviceInt].append("none");
+                    }
+
+                    if (new_type_text.contains("void", Qt::CaseInsensitive))
+                    {
+                        AllFunctionsFloatVoidTypeDeviceQMap[numberofdeviceInt].append("void");
+                        AllFunctionsVoidDeviceQMap[numberofdeviceInt].append(AllFunctionsDeviceQMap[numberofdeviceInt].at(k));
+                        if (0<exp.indexIn(AllFunctionsDeviceQMap[numberofdeviceInt].at(k)))
+                        AllFunctionsVoidParameterDeviceQMap[numberofdeviceInt].append("float");
+                        else AllFunctionsVoidParameterDeviceQMap[numberofdeviceInt].append("none");
+                    }
+
+                    if ((new_type_text.contains("float", Qt::CaseInsensitive)) or (new_type_text.contains("void", Qt::CaseInsensitive)))
+                    {
+                        AllFunctionsFloatVoidDeviceQMap[numberofdeviceInt].append(AllFunctionsDeviceQMap[numberofdeviceInt].at(k));
+
+                        if (0<exp.indexIn(AllFunctionsDeviceQMap[numberofdeviceInt].at(k)))
+                        AllFunctionsFloatVoidParameterDeviceQMap[numberofdeviceInt].append("float");
+                        else AllFunctionsFloatVoidParameterDeviceQMap[numberofdeviceInt].append("none");
+                    }
+                }
+            }
+
+            typedef const char* ( *GetUnitF )(int);
+            GetUnitF getUnitF;
+            getUnitF = ( GetUnitF ) lib.resolve( "getUnit" );
+            if( getUnitF ) {
+                QString unitQString = QString::fromLatin1(getUnitF(numberTHISdevice));
+                UnitDeviceQMap[numberofdeviceInt]=unitQString;
+            }
+
+
+            numberTHISdevice++;
+            numberofdeviceInt++;
+        }
+    }*/
 
     // USB
     for (int i=0; i<listDllUSB->size();i++)
