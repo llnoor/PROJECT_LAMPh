@@ -26,6 +26,8 @@
 
 char cNewLine = '\n';
 
+int needsize=0;
+
 class ClassLAMPh
 {
 private:
@@ -61,32 +63,31 @@ public:
 
         ATH1535_AddSocket (&socketIndex, "127.0.0.1", 1024, 5000, "AULNetPass", 0);
         sprintf (resourceName, "AULNET::%i::ATH-1533 #*", socketIndex);
-        QThread::msleep(100);
+        QThread::msleep(200);
         ATH1535_init (resourceName, &instrumentHandle, 0, 0, NULL, NULL, NULL);
-        QThread::msleep(100);
-        ATH1535_SetControl (instrumentHandle, 0, 1);
-        QThread::msleep(100);
-        ATH1535_SetOutputEnabled(instrumentHandle,0,1);
-        QThread::msleep(100);
-        ATH1535_SetCurrent (instrumentHandle, 0, 0.7);
-        QThread::msleep(100);
-        ATH1535_SetVoltage (instrumentHandle, 0, 0.7);
-        QThread::msleep(100);
+        QThread::msleep(200);
+
 
         ViByte valViByte;
         ATH1535_GetStatus (instrumentHandle, 0,&valViByte);
         float valFloat = valViByte;
+        QThread::msleep(200);
 
-        qDebug() << "valFloat" << valFloat;
+        qDebug() << "ATH1535_GetStatus:" << valFloat;
 
         if ((70>valFloat) and (63<valFloat))
         {
-            qDebug() << "true67";
+            ATH1535_SetControl (instrumentHandle, 0, 1);
+            QThread::msleep(200);
+            ATH1535_SetOutputEnabled(instrumentHandle,0,1);
+            QThread::msleep(200);
+            ATH1535_SetCurrent (instrumentHandle, 0, 0.7);
+            QThread::msleep(200);
+            ATH1535_SetVoltage (instrumentHandle, 0, 1.7);
+            QThread::msleep(500);
             return true;
         }
-        else{
-
-            qDebug() << "false67";
+        else{  //This situation should not be, arter that you will have problems with changing Voltage and Current
             return false;
         }
     }
@@ -107,14 +108,22 @@ public:
         return currentFloat;
     }
 
-
-
     void setVoltage(float parameter){
-            ATH1535_SetVoltage (instrumentHandle, 0, parameter);
+        double parameter_double = parameter;
+        ATH1535_SetVoltage (instrumentHandle, 0, parameter_double);
+
+        /*ATH1535_SetVoltage (instrumentHandle, 0, 1);
+        QThread::msleep(200);
+        ATH1535_SetVoltage (instrumentHandle, 0, 2);
+        QThread::msleep(200);
+        ATH1535_SetVoltage (instrumentHandle, 0, 3);
+        QThread::msleep(200);*/
+
     }
 
     void setCurrent(float parameter){
-            ATH1535_SetCurrent (instrumentHandle, 0, parameter);
+        double parameter_double = parameter;
+        ATH1535_SetCurrent (instrumentHandle, 0, parameter_double);
     }
 };
 
@@ -169,7 +178,27 @@ void setCurrent(int number_of_device, float parameter){
 
 
 bool checkUSB( int number_of_device ){
-    return classLAMPh[number_of_device].setUSBPORT();
+
+    if (number_of_device==0)//please use this function (ATH1535_ScanSocket) only one time, else (otherwise) you will have problems with changing Voltage and Current
+    {
+        TANetInterface ai = aniAUN2;
+        AULDEVIDN devList;
+        int listsize=56*2;
+
+        ATH1535_ScanSocket (
+            -1,  //если -1 - сканировать весь список
+            ai,  //если aniUnknown - сканировать все интерфейсы
+            &devList, //указатель на заполняемый список найденных
+                                //устройств, в поле id - индекс подключения устройства,
+                                //в поле tag - индекс сокета.
+            listsize,       //размер переданного списка
+            &needsize       //необходимый размер (количество найденных устройств)
+          );
+    }
+    //qDebug() << "number_of_device" << number_of_device;
+    //qDebug() << "needsize" << needsize;
+    if (number_of_device<needsize) return classLAMPh[number_of_device].setUSBPORT();
+    else return false;
 }
 
 const char* getUnit(int number_of_device){

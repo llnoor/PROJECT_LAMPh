@@ -304,7 +304,7 @@ void LAMPhDevices::getAllAvailableSerialPorts(){ // main
     }
 
     // LAMPh
-    /*for (int i=0; i<listDllLAMPh->size();i++)
+    for (int i=0; i<listDllLAMPh->size();i++)
     {
         QStringList receivedDataList;
         QString nameofdeviceString ;
@@ -398,7 +398,7 @@ void LAMPhDevices::getAllAvailableSerialPorts(){ // main
             numberTHISdevice++;
             numberofdeviceInt++;
         }
-    }*/
+    }
 
     // USB
     for (int i=0; i<listDllUSB->size();i++)
@@ -424,7 +424,11 @@ void LAMPhDevices::getAllAvailableSerialPorts(){ // main
 
         typedef bool (*Fct) (const int);
         Fct fct = (Fct)(lib.resolve("checkUSB"));
-        if (fct(numberTHISdevice)) //if device is ready to work
+        //if (fct(numberTHISdevice)) //if device is ready to work
+
+
+
+        while (fct(numberTHISdevice))
         {
             // get list of Functions
             typedef const char* ( *FunctionData )();
