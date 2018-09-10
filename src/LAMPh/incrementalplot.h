@@ -3,6 +3,7 @@
 
 #include <qwt_plot.h>
 #define CurvCnt 20
+#define CurvCounter 5
 
 class QwtPlotCurve;
 class QwtPlotDirectPainter;
@@ -27,7 +28,7 @@ public Q_SLOTS:
 
 private:
     QwtPlotCurve *d_curve;
-    QwtPlotCurve *d_curves[CurvCnt];
+    QwtPlotCurve *d_curves[CurvCnt+CurvCounter];
     QwtPlotDirectPainter *d_directPainter;
     QStringList colorsQStringList = { "white", "black", "cyan", "red", "magenta", "green", "yellow", "blue", "gray", "darkCyan", "darkRed", "darkMagenta", "darkGreen", "darkYellow", "darkBlue", "darkGray", "lightGray" };
     QStringList sizeQStringList = {"line","1","2","4","8"};

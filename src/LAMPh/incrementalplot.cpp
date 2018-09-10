@@ -52,7 +52,7 @@ IncrementalPlot::IncrementalPlot( QWidget *parent ):
     d_curve = new QwtPlotCurve( "Test Curve" );
     d_curve->setData( new CurveData() );
 
-    for(int i = 0; i < CurvCnt; i++ )
+    for(int i = 0; i < (CurvCnt+CurvCounter); i++ )
     {
         d_curves[i] = new QwtPlotCurve( "Test Curve 1-10" );
         d_curves[i]->setData( new CurveData() );
@@ -61,7 +61,7 @@ IncrementalPlot::IncrementalPlot( QWidget *parent ):
     showSymbols( true );
 
     d_curve->attach( this );
-    for(int i = 0; i < CurvCnt; i++ )
+    for(int i = 0; i < (CurvCnt+CurvCounter); i++ )
     {
         d_curves[i]->attach( this );
     }
@@ -72,7 +72,7 @@ IncrementalPlot::IncrementalPlot( QWidget *parent ):
 IncrementalPlot::~IncrementalPlot()
 {
     delete d_curve;
-    for(int i = 0; i < CurvCnt; i++ )
+    for(int i = 0; i < (CurvCnt+CurvCounter); i++ )
     {
         delete d_curves[i];
     }
@@ -266,7 +266,7 @@ void IncrementalPlot::showSymbols( bool on )
         d_curve->setSymbol( new QwtSymbol( QwtSymbol::Ellipse,
                     QBrush(QColor(colorsQStringList.at(3))), QPen(QColor(colorsQStringList.at(3))), QSize( 4, 4 ) ) );
 
-        for (int i=0; i<CurvCnt; i++)
+        for (int i=0; i<(CurvCnt+CurvCounter); i++)
         {
             int color_int=0; if (i<colorsQStringList.size()) color_int=i;
 
@@ -284,7 +284,7 @@ void IncrementalPlot::showSymbols( bool on )
         d_curve->setSymbol( new QwtSymbol( QwtSymbol::Ellipse,
                     QBrush(Qt::red), QPen( Qt::red ), QSize( 0, 0 ) ) );
 
-        for (int i=0; i<CurvCnt; i++)
+        for (int i=0; i<(CurvCnt+CurvCounter); i++)
         {
             d_curves[i] -> setPen( Qt::red );
             d_curves[i] -> setStyle( QwtPlotCurve::Lines );

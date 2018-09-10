@@ -5,6 +5,7 @@
 #include "incrementalplot.h"
 #include <qdatetime.h>
 #define CurvCnt 20
+#define CurvCounter 5
 
 class QTimer;
 
@@ -45,8 +46,8 @@ private:
     void initCurve();
 
     float x_result;
-    bool number_of_point[CurvCnt];
-    float all_results[CurvCnt];
+    bool number_of_point[CurvCnt+CurvCounter];
+    float all_results[CurvCnt+CurvCounter];
 
     QTimer *d_timer;
     int d_timerCount;

@@ -63,6 +63,7 @@ private Q_SLOTS:
     void update_comboBox_Device_Functions(int r,int Index);
     void send_readData();
     void sendColors();
+    void setCounter();
     void readData();
     void getAllAvailableSerialPorts();
     void setCheckBox();
@@ -97,6 +98,8 @@ private:
 
     bool number_of_point[CurvCnt];
     int number_of_point_X;
+
+    int numberofloop=0;
 
     QMap<QString, QString> AllAvailableSerialPortsQMap;
     QMap<int, QString> AllAvailableDevicesQMap;
@@ -333,7 +336,9 @@ private:
 
     QStringList colorsQStringList = { "white", "black", "cyan", "red", "magenta", "green", "yellow", "blue", "gray", "darkCyan", "darkRed", "darkMagenta", "darkGreen", "darkYellow", "darkBlue", "darkGray", "lightGray" };
     QStringList sizeQStringList = {"line","1","2","4","8"};
-    QStringList parametersQStringList = {"Float","None","DATA1","DATA2","DATA3","DATA4","DATA5","SEND1","SEND2","COUNTER1","COUNTER2","COUNTER3","COUNTER4","COUNTER5"};
+    QStringList parametersQStringList = {"Float","None","COUNTER0","COUNTER1","COUNTER2","COUNTER3","COUNTER4",
+                                         "DATA0","DATA1","DATA2","DATA3","DATA4","DATA5","DATA6","DATA7","DATA8","DATA9","DATA10","DATA11","DATA12","DATA13","DATA14","DATA15","DATA16","DATA17","DATA18","DATA19"
+                                         };
 
 };
 

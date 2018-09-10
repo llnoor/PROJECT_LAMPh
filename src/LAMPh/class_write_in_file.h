@@ -1,6 +1,7 @@
 #ifndef CLASS_WRITE_IN_FILE_H
 #define CLASS_WRITE_IN_FILE_H
 #define CurvCnt 20
+#define CurvCounter 5
 #include <QString>
 #include <QDateTime>
 #include <QFile>
@@ -21,10 +22,10 @@ public:
     void get_numberofdeviceInt(int);
 
 private:
-    bool number_of_device[CurvCnt];
-    float all_results[CurvCnt];
-    QString all_names[CurvCnt];
-    QString all_units[CurvCnt];
+    bool number_of_device[CurvCnt+CurvCounter];
+    float all_results[CurvCnt+CurvCounter];
+    QString all_names[CurvCnt+CurvCounter];
+    QString all_units[CurvCnt+CurvCounter];
     float x_result;
     QString name;
     QString str;

@@ -144,6 +144,32 @@ LAMPhDevices::LAMPhDevices(QString loginQString)
         connect(checkBox_Device_Text[r], SIGNAL(toggled(bool)),this,SLOT(setCheckBox()) );
     }
 
+    for (int r=0; r<CurvCounter; r++)
+    {
+        connect(checkBox_Counter_Show_Y[r], static_cast<void(QCheckBox::*)(int)>(&QCheckBox::stateChanged),
+                [=](int index){
+                                    if (checkBox_Counter_Show_Y[r]->isChecked()) {
+                                        setNumberDevice_bool(1,CurvCnt+r);
+                                        setColorSize(CurvCnt+r,comboBox_Counter_ColorData[r]->currentIndex(),comboBox_Counter_SizeData[r]->currentIndex());
+                                    }
+                                    else{
+                                        setNumberDevice_bool(0,CurvCnt+r);
+                                    }
+           });
+
+
+        connect(checkBox_Counter_Text[r], static_cast<void(QCheckBox::*)(int)>(&QCheckBox::stateChanged),
+                [=](int index){
+                                    if (checkBox_Counter_Text[r]->isChecked()) {
+                                        W_File->get_bool(1,CurvCnt+r);
+                                    }
+                                    else
+                                    {
+                                        W_File->get_bool(0,CurvCnt+r);
+                                    }
+           });
+    }
+
 
 
 }
@@ -971,7 +997,7 @@ QToolBar *LAMPhDevices::toolBar_GET()
     label_label_ReceivedData = new QLabel(tr("DATA"));
     label_comboBox_Device = new QLabel(tr("Devices"));
     label_comboBox_Device_Functions = new QLabel(tr("Functions"));
-    label_comboBox_Function_Parameters = new QLabel(tr("Parameters       "));
+    label_comboBox_Function_Parameters = new QLabel(tr("Parameters         "));
     label_lineEdit_NameData = new QLabel(tr("Name"));
     label_checkBox_Device_Show_X = new QLabel(tr("X"));
     label_checkBox_Device_Show_Y = new QLabel(tr("Y"));
@@ -1137,6 +1163,9 @@ QToolBar *LAMPhDevices::toolBar_COUNTERS()
         //lineEdit_Counter_Value[i]->setFixedWidth(50);
 
         checkBox_Counter_Show_X[i]  = new QCheckBox(tr(""));
+        checkBox_Counter_Show_X[i] ->setEnabled(false);
+
+
         checkBox_Counter_Show_Y[i]  = new QCheckBox(tr(""));
         checkBox_Counter_Text[i]  = new QCheckBox(tr(""));
         //comboBox_Counter_DB[i]  = new QCheckBox(tr(""));
@@ -1319,7 +1348,61 @@ void LAMPhDevices::send_readData(){
     qDebug() << "send";
 }
 
+void LAMPhDevices::setCounter(){
+    for(int i=0; i<CurvCounter; i++)
+    {
+
+        if (0==lineEdit_Counter_Period[i]->text().toInt()) lineEdit_Counter_Period[i]->setText(QString ("1"));
+
+        int period =  numberofloop++ % (lineEdit_Counter_Period[i]->text().toInt());
+        if (0==period)
+        {
+            if (lineEdit_Counter_Value[i]->text().toFloat()>=lineEdit_Counter_To[i]->text().toFloat())   lineEdit_Counter_Value[i]->setText(lineEdit_Counter_From[i]->text());
+            else{
+                if (
+                        (lineEdit_Counter_Value[i]->text().toFloat()>=lineEdit_Counter_From[i]->text().toFloat())
+                        and
+                        (lineEdit_Counter_Value[i]->text().toFloat()<lineEdit_Counter_To[i]->text().toFloat())
+                    )
+                {
+                    float valueFloat = lineEdit_Counter_Value[i]->text().toFloat()+lineEdit_Counter_Step[i]->text().toFloat();
+                    lineEdit_Counter_Value[i]->setText(QString ("%1").arg(valueFloat));
+
+                    if (lineEdit_Counter_Value[i]->text().toFloat()>lineEdit_Counter_To[i]->text().toFloat()) lineEdit_Counter_Value[i]->setText(lineEdit_Counter_To[i]->text());
+
+                    float stepFloat = lineEdit_Counter_Step[i]->text().toFloat() * lineEdit_Counter_Acceleration[i]->text().toFloat();
+                    lineEdit_Counter_Step[i]->setText(QString ("%1").arg(stepFloat));
+                    if (lineEdit_Counter_Step[i]->text().toFloat()>lineEdit_Counter_To[i]->text().toFloat()) lineEdit_Counter_Step[i]->setText(lineEdit_Counter_To[i]->text());
+                /*lineEdit_Counter_From[i]
+                lineEdit_Counter_To[i]
+                lineEdit_Counter_Step[i]
+                lineEdit_Counter_Acceleration[i]
+                lineEdit_Counter_Frequency[i]
+                lineEdit_Counter_Period[i]
+                lineEdit_Counter_Value[i]*/
+                }
+            }
+
+            send_all_results(lineEdit_Counter_Value[i]->text().toFloat(),CurvCnt+i);
+            W_File->get_all_results(lineEdit_Counter_Value[i]->text().toFloat(),CurvCnt+i);
+
+        }
+    }
+            /*checkBox_Counter_Show_X[i]
+            checkBox_Counter_Show_Y[i]
+            checkBox_Counter_Text[i]
+            comboBox_Counter_ColorData[i]
+            comboBox_Counter_SizeData[i] */
+
+    //send_all_results(float,50);
+
+
+}
+
+
 void LAMPhDevices::readData(){
+
+    setCounter();
 
     for (int r=0;r<CurvCnt;r++){
         if (!comboBox_Device[r]->currentText().contains("None", Qt::CaseInsensitive)){
@@ -1411,14 +1494,14 @@ void LAMPhDevices::readData(){
                 }
             }
 
-            if (checkBox_Device_Text[r]->isChecked())
+            if (checkBox_Devices_X[r]->isChecked()) //if (checkBox_Device_Text[r]->isChecked())
             {
               W_File->get_x_result(res);
             }
 
         }
     }
-    //W_File->write_in_file();
+    W_File->write_in_file();
     //qDebug() << "get";
 }
 
@@ -1517,6 +1600,7 @@ void LAMPhDevices::appendPoints( bool on )
     }
     else
     {
+        numberofloop=0;
         //d_plot->stop();
     }
 

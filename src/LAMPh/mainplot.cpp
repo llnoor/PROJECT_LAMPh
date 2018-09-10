@@ -40,7 +40,7 @@ MainPlot::MainPlot( QWidget *parent ):
 
     x_result = 0;
 
-    for (int i=0; i<CurvCnt; i++)
+    for (int i=0; i<(CurvCnt+CurvCounter); i++)
     number_of_point[i]=0;
 
     // enable zooming
@@ -85,7 +85,7 @@ void MainPlot::appendPoint()
 
     //IncrementalPlot::appendPoint( QPointF( x+10, x_result ) );
 
-    for (int r=0; r<CurvCnt; r++)
+    for (int r=0; r<(CurvCnt+CurvCounter); r++)
     {
        if (1==number_of_point[r])
        IncrementalPlot::appendPoint_S(r, QPointF( x_result , all_results[r] ) );
@@ -132,7 +132,7 @@ void MainPlot::stop()
 void MainPlot::clear()
 {
     clearPoints();
-    for (int i=0; i<CurvCnt; i++)
+    for (int i=0; i<(CurvCnt+CurvCounter); i++)
     {
         clearPoints_S(i);
     }

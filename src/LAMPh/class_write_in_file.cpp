@@ -4,18 +4,30 @@
 #include <QTextStream>
 #include <QTime>
 #include <QDir>
+#include <QDebug>
 
 
 class_write_in_file::class_write_in_file()
 {
 
     QDateTime date=QDateTime::currentDateTime();
-    str1 = "./DATA/";
+    str1 = "DATA/";
     dir = date.toString("yyyy.MM.dd");
     dir.prepend(str1);
+
+    qDebug() << "dir" << dir;
+
     dirconf.mkpath(dir);
 
-    for (int i=0; i<CurvCnt; i++)
+    /*if (!dirconf.exists()){
+      dirconf.mkdir(dir);
+    }*/
+
+    //dirconf.mkpath(dir);
+
+
+
+    for (int i=0; i<CurvCnt+CurvCounter; i++)
     {
     number_of_device[i]=0;
     all_results[i]=0;
@@ -68,7 +80,7 @@ void class_write_in_file::create_new_file()
     out << "X\t";
     out << "Time\t";
 
-    for (int r=0; r<CurvCnt; r++)
+    for (int r=0; r<CurvCnt+CurvCounter; r++)
     {
        out << all_names[r] << "\t";
     }
@@ -78,7 +90,7 @@ void class_write_in_file::create_new_file()
     out << "X\t";
     out << "Time\t";
 
-    for (int r=0; r<CurvCnt; r++)
+    for (int r=0; r<CurvCnt+CurvCounter; r++)
     {
        out << all_units[r] << "\t";
     }
@@ -103,7 +115,7 @@ void class_write_in_file::write_in_file()
     out << x_result << "\t";
     out << time << "\t";
 
-    for (int r=0; r<CurvCnt; r++)
+    for (int r=0; r<CurvCnt+CurvCounter; r++)
     {
        if (1==number_of_device[r])
        out << all_results[r] << "\t";
