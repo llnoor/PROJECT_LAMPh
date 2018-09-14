@@ -29,8 +29,8 @@
 #include <QLabel>
 #include <QScrollArea>
 
-#include <QSerialPort>
-#include <QSerialPortInfo>
+//#include <QSerialPort>
+//#include <QSerialPortInfo>
 #include <QFile>
 #include <QTextStream>
 
@@ -53,6 +53,7 @@ public:
 
 LAMPhDevices::LAMPhDevices(QString loginQString)
 {
+
     addToolBar(Qt::TopToolBarArea, toolBar()); //buttons
     addToolBar(Qt::LeftToolBarArea, toolBar_GET()); //these are fields for selecting functions of DEVICES
     addToolBar(Qt::LeftToolBarArea, toolBar_COUNTERS());
@@ -938,10 +939,10 @@ QToolBar *LAMPhDevices::toolBar()
     QAction *whatsThisAction = QWhatsThis::createAction( toolBar );
     whatsThisAction->setText( "Help" );
 
-    toolBar->addAction( d_colorsAction );    //send colors to mainplot
-    toolBar->addAction( d_connectAction ); //update AllAvailableDevices
-    toolBar->addAction( d_sendAction );
-    toolBar->addAction( d_getAction );
+    //toolBar->addAction( d_colorsAction );    //send colors to mainplot
+    //toolBar->addAction( d_connectAction ); //update AllAvailableDevices
+    //toolBar->addAction( d_sendAction );
+    //toolBar->addAction( d_getAction );
     toolBar->addAction( d_saveAction );
     toolBar->addAction( d_loadAction );
     toolBar->addAction( whatsThisAction );
@@ -1118,7 +1119,7 @@ QToolBar *LAMPhDevices::toolBar_COUNTERS()
     label_lineEdit_Counter_To = new QLabel(tr("To"));
     label_lineEdit_Counter_Step = new QLabel(tr("Step"));
     label_lineEdit_Counter_Acceleration = new QLabel(tr("Acceleration"));
-    label_lineEdit_Counter_Frequency = new QLabel(tr("Frequency"));
+    //label_lineEdit_Counter_Frequency = new QLabel(tr("Frequency"));
     label_lineEdit_Counter_Period = new QLabel(tr("Period"));
     label_lineEdit_Counter_Value = new QLabel(tr("Value"));
     label_checkBox_Counter_Show_X = new QLabel(tr("X"));
@@ -1150,9 +1151,9 @@ QToolBar *LAMPhDevices::toolBar_COUNTERS()
         lineEdit_Counter_Acceleration[i]->setText(QString("1"));
         lineEdit_Counter_Acceleration[i]->setFixedWidth(80);
 
-        lineEdit_Counter_Frequency[i] = new QLineEdit();
-        lineEdit_Counter_Frequency[i]->setText(QString("1"));
-        lineEdit_Counter_Frequency[i]->setFixedWidth(70);
+        //lineEdit_Counter_Frequency[i] = new QLineEdit();
+        //lineEdit_Counter_Frequency[i]->setText(QString("1"));
+        //lineEdit_Counter_Frequency[i]->setFixedWidth(70);
 
         lineEdit_Counter_Period[i] = new QLineEdit();
         lineEdit_Counter_Period[i]->setText(QString("1"));
@@ -1188,7 +1189,7 @@ QToolBar *LAMPhDevices::toolBar_COUNTERS()
     gridLayout->addWidget(label_lineEdit_Counter_To, 0, 2);
     gridLayout->addWidget(label_lineEdit_Counter_Step, 0, 3);
     gridLayout->addWidget(label_lineEdit_Counter_Acceleration, 0, 4);
-    gridLayout->addWidget(label_lineEdit_Counter_Frequency, 0, 5);
+    //gridLayout->addWidget(label_lineEdit_Counter_Frequency, 0, 5);
     gridLayout->addWidget(label_lineEdit_Counter_Period, 0, 6);
     gridLayout->addWidget(label_lineEdit_Counter_Value, 0, 7);
     gridLayout->addWidget(label_checkBox_Counter_Show_X, 0, 8);
@@ -1207,7 +1208,7 @@ QToolBar *LAMPhDevices::toolBar_COUNTERS()
         gridLayout->addWidget(lineEdit_Counter_To[i], i+1, 2);
         gridLayout->addWidget(lineEdit_Counter_Step[i], i+1, 3);
         gridLayout->addWidget(lineEdit_Counter_Acceleration[i], i+1, 4);
-        gridLayout->addWidget(lineEdit_Counter_Frequency[i], i+1, 5);
+        //gridLayout->addWidget(lineEdit_Counter_Frequency[i], i+1, 5);
         gridLayout->addWidget(lineEdit_Counter_Period[i], i+1, 6);
         gridLayout->addWidget(lineEdit_Counter_Value[i], i+1, 7);
         gridLayout->addWidget(checkBox_Counter_Show_X[i], i+1, 8);
@@ -1290,43 +1291,172 @@ void LAMPhDevices::saveConf(){
 
     QFile file(filePath);
 
-    file.open(QIODevice::Append | QIODevice::Text);
-            //(QIODevice::WriteOnly | QIODevice::Text);
+    file.open(QIODevice::WriteOnly | QIODevice::Text); //remove all info in file
+    //QTextStream out(&file);
+    //out << "";
+    file.close();
 
-    //remove all info in file
+
+    file.open(QIODevice::Append | QIODevice::Text);
 
     QTextStream output(&file);
+    output << "LAMPh" << "\n";
+    output << "Version:0.5.1" << "\n";
+    output << "" << "\n";
+    output << "# Number:Name,number,dll;" << "\n";
+    output << "Devices:" << "\n";
+    output << "numberofdeviceInt:" << numberofdeviceInt << "\n";
+    for (int i=0; i<numberofdeviceInt; i++)
+    {
+        output << i << ":" << NameDeviceQMap.value(i) << "," << NumberDeviceQMap.value(i) << "," << DLLFileDeviceQMap.value(i) << "\n";
+    }
+    output << "" << "\n";
 
-    output << "Test" << "\n" << "test2";
+    output << "# Number:Device_number,function,parameter,Name,X,Y,Text,Color,Size;" << "\n";
+    output << "DATA:" << "\n";
+    for (int i=0; i<CurvCnt; i++)
+    {
+        if (!comboBox_Device[i]->currentText().contains("None", Qt::CaseInsensitive))
+        {
+            output << i << ":"
+                    << comboBox_Device[i]->currentIndex() << ","
+                    << comboBox_Device_Functions[i]->currentIndex() << ","
+                    << comboBox_Function_Parameters[i]->currentText() << ","   // currentText, because it can be float
+                    << lineEdit_NameData[i]->text() << ","
+                    << (checkBox_Devices_X[i]->isChecked() ? "1" : "0") << ","
+                    << (checkBox_Devices_Y[i]->isChecked() ? "1" : "0") << ","
+                    << (checkBox_Device_Text[i]->isChecked() ? "1" : "0") << ","
+                    << comboBox_ColorData[i]->currentIndex() << ","
+                    << comboBox_SizeData[i]->currentIndex() << "\n";
+        }
+    }
+    output << "" << "\n";
 
-
+    output << "# Number:From,To,Step,Accelerator,Period,Value,X,Y,Text,Color,Size;" << "\n";
+    output << "COUNTERS:" << "\n";
+    for (int i=0; i<CurvCounter; i++)
+    {
+        output << i << ":"
+               << lineEdit_Counter_From[i]->text() << ","
+               << lineEdit_Counter_To[i]->text() << ","
+               << lineEdit_Counter_Step[i]->text() << ","
+               << lineEdit_Counter_Acceleration[i]->text() << ","
+               << lineEdit_Counter_Period[i]->text() << ","
+               << lineEdit_Counter_Value[i]->text() << ","
+               << (checkBox_Counter_Show_X[i]->isChecked() ? "1" : "0") << ","
+               << (checkBox_Counter_Show_Y[i]->isChecked() ? "1" : "0") << ","
+               << (checkBox_Counter_Text[i]->isChecked() ? "1" : "0") << ","
+               << comboBox_Counter_ColorData[i]->currentIndex() << ","
+               << comboBox_Counter_SizeData[i]->currentIndex() <<"\n";
+    }
+    output << "" << "\n";
 
     /*
-        numberofdeviceInt
-        Device 0: Name, number, dll
-        Device 1: Name, number, dll
-        Device 2: None, None None
+        Devices:
+        numberofdeviceInt:5
+        # Number: Name, number, dll
+        0: Name, number, dll
+        1: Name, number, dll
+        2: Name, number, dll
+        3: Name, number, dll
+        4: None
 
-        DATA 0: Device 0, function, parameter, X, Y, Text, Color, Size
-        DATA 1:	Device 1, function, parameter, X, Y, Text, Color, Size
-        DATA 2:	Device 0, function, parameter, X, Y, Text, Color, Size
-        DATA 3:	None, none, parameter, X, Y, Text, Color, Size
+        DATA:
+        # Number: Device_number, function, parameter, Name, X, Y, Text, Color, Size
+        0: 0, function, parameter, X, Y, Text, Color, Size
+        1:	1, function, parameter, X, Y, Text, Color, Size
+        2:	0, function, parameter, X, Y, Text, Color, Size
+        3:	None
+        ...
+        19: None
+
+        COUNTERS:
+        # Number: From, To, Step, Accelerator, Period, Value, X, Y, Text, Color, Size
+        0:
+        1:
+        2:
+        3:
+        4:
      */
 
     file.flush();
     file.close();
-
-
-
-
-    //std::string F_name = filePath.toStdString();
-
-    //QFile file(QString::fromStdString(F_name));
 }
 
 void LAMPhDevices::loadConf(){
 
     QString filePath = QFileDialog::getOpenFileName( this, trUtf8( "Open file" ), "./conf", trUtf8( "Data (*.txt)" ) );
+    QFile file(filePath);
+    file.open(QIODevice::ReadOnly |QIODevice::Text);
+
+    int numberofdeviceIntConf =0;
+
+    int devicesInt=0;
+    int dataInt=0;
+    int countersInt=0;
+
+    QMap<int, QStringList> devicesConfQMap;
+    QMap<int, QStringList> dataConfQMap;
+    QMap<int, QStringList> countersConfQMap;
+
+    QString str;
+
+
+    str = file.readLine();
+    if (str.contains("LAMPh", Qt::CaseInsensitive)){
+        str = file.readLine();
+        if (str.contains("Version:", Qt::CaseInsensitive)){
+            QStringList lst = str.split(":");
+            if (lst[1].contains("0.5.1", Qt::CaseInsensitive))
+            {
+                qDebug() << "Version:0.5.1";
+                while(!file.atEnd()){
+                    str = file.readLine();
+                    if (("\n"==str) or (str.contains("#", Qt::CaseInsensitive))){
+                        //skip
+                    }else if (str.contains("Devices:", Qt::CaseInsensitive)){
+                        str = file.readLine();
+                        QStringList lst = str.split(":");
+                        numberofdeviceIntConf = lst[1].toInt();
+                        while (1){
+                            str = file.readLine();
+                            if ("\n"==str) break;
+                            QStringList lst = str.split(":");
+                            QStringList lst2 = lst[1].split(",");
+                            devicesConfQMap[lst[0].toInt()]=lst2;
+                        }
+
+                    }else if (str.contains("DATA:", Qt::CaseInsensitive)){
+                        while (1){
+                            str = file.readLine();
+                            if ("\n"==str) break;
+                            QStringList lst = str.split(":");
+                            QStringList lst2 = lst[1].split(",");
+                            dataConfQMap[lst[0].toInt()]=lst2;
+                        }
+                    }else if (str.contains("COUNTERS:", Qt::CaseInsensitive)){
+                        while (1){
+                            str = file.readLine();
+                            if ("\n"==str) break;
+                            QStringList lst = str.split(":");
+                            QStringList lst2 = lst[1].split(",");
+                            countersConfQMap[lst[0].toInt()]=lst2;
+                        }
+                    }else
+                    {
+                        qDebug() << "ERROR";
+                    }
+                }
+            }else
+            {
+                qDebug() << "Version of this LAMPh file:" << lst[1] << "\n" << "This file is incompatible with this program" ;
+                //break;
+            }
+        }
+    }
+
+    qDebug() << countersConfQMap.value(0);
+
 
     //get conf of all devices
     //refresh data of devices
@@ -1349,14 +1479,27 @@ void LAMPhDevices::send_readData(){
 }
 
 void LAMPhDevices::setCounter(){
+    qDebug() << "numberofloop" << numberofloop;
     for(int i=0; i<CurvCounter; i++)
     {
 
         if (0==lineEdit_Counter_Period[i]->text().toInt()) lineEdit_Counter_Period[i]->setText(QString ("1"));
 
-        int period =  numberofloop++ % (lineEdit_Counter_Period[i]->text().toInt());
-        if (0==period)
+        int period_line = lineEdit_Counter_Period[i]->text().toInt();
+        int period =  numberofloop % period_line;
+
+
+        //qDebug() << "period" << period;
+
+        //qDebug() << "period_line" << period_line;
+
+
+        if ((0==period) and
+            ((checkBox_Counter_Show_Y[i]->isChecked()) or (checkBox_Counter_Text[i]->isChecked())))
         {
+
+
+
             if (lineEdit_Counter_Value[i]->text().toFloat()>=lineEdit_Counter_To[i]->text().toFloat())   lineEdit_Counter_Value[i]->setText(lineEdit_Counter_From[i]->text());
             else{
                 if (
@@ -1388,6 +1531,9 @@ void LAMPhDevices::setCounter(){
 
         }
     }
+    numberofloop++;
+
+
             /*checkBox_Counter_Show_X[i]
             checkBox_Counter_Show_Y[i]
             checkBox_Counter_Text[i]
@@ -1619,7 +1765,7 @@ void LAMPhDevices::update_toolBar_PORTS(){
 
     int device=0;
     //const infos = QSerialPortInfo::availablePorts();
-    for (const QSerialPortInfo &info : QSerialPortInfo::availablePorts()) {
+    /*for (const QSerialPortInfo &info : QSerialPortInfo::availablePorts()) {
         QString s = QObject::tr("Port: ") + info.portName() + "\n"
                 //+ AllAvailableSerialPortsQMap.value(info.portName()) + "\n"
                 + QObject::tr("SerialPort: ") + info.portName() + " "
@@ -1634,7 +1780,7 @@ void LAMPhDevices::update_toolBar_PORTS(){
         button_Port_Setting[device]->show();
 
         device++;
-    }
+    }*/
 
 
 }
