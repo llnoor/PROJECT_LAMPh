@@ -45,6 +45,7 @@ private Q_SLOTS:
     void exportDocument();
     void enableZoomMode( bool );
     void setCheckBox();
+    void show_all_results(float,int);
 
 private:
     QToolBar *toolBar(); //main

@@ -265,6 +265,8 @@ LAMPhPlot::LAMPhPlot(QString loginQString)
 
     connect(lamphDevices,SIGNAL(send_all_results(float,int)),d_plot,SLOT(get_all_results(float,int)));
 
+    connect(lamphDevices,SIGNAL(send_all_results(float,int)),this,SLOT(show_all_results(float,int)));
+
     connect(lamphDevices,SIGNAL(setColorSize(int,int,int)),d_plot,SLOT(setColorSize(int,int,int)));
 
     connect(lamphDevices,SIGNAL(setNumberDevice_bool( bool ,int)),d_plot,SLOT(get_bool( bool ,int)));
@@ -377,11 +379,14 @@ QToolBar *LAMPhPlot::toolBar_Devices()
     Button_Devices_ClearAll->setFixedWidth(40);
     Button_Devices_AutoScaleAll->setFixedWidth(70);
 
+    label_Devices_All->setFont(QFont("Arial",16));
+
     for(int i=0; i<20; i++)
     {
         lineEdit_Devices[i] = new QLineEdit();
         lineEdit_Devices[i]->setText( QString("Device %1:").arg(i));
         lineEdit_Devices[i]->setReadOnly(true);
+        lineEdit_Devices[i]->setFont(QFont("Arial",16));
 
         label_Devices[i] = new QLabel();
         label_Devices[i]->setText( QString("Device %1:").arg(i));
@@ -432,6 +437,11 @@ QToolBar *LAMPhPlot::toolBar_Devices()
 
     toolBar_Devices->addWidget( hBox_Devices );
     return toolBar_Devices;
+}
+
+void LAMPhPlot::show_all_results(float result, int new_int)
+{
+    lineEdit_Devices[new_int]->setText( QString("Device %1: %2").arg(new_int).arg(result));
 }
 
 void LAMPhPlot::setCheckBox() //this automatically switches checkBoxes so that there is no controversy in the program
