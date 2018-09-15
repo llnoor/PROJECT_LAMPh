@@ -51,9 +51,15 @@ Q_SIGNALS:
     void LAMPhExit();
     void send_x_result(float);
     void send_all_results(float,int);
+
+    void send_all_results_to_lamphplot(float,int);
+
     void setColorSize(int number, int color, int size);
     void setNumberDevice_bool( bool , int );
     void send_numberofdeviceInt(int);
+    void send_toolBar_GET_show_data(int);
+    void send_toolBar_GET_hide_data(int);
+
 
 private Q_SLOTS:
     void appendPoints( bool );

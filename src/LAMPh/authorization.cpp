@@ -7,37 +7,34 @@ AuthorizationWindow::AuthorizationWindow(QWidget *parent):
     QWidget(0, Qt::Window | Qt::FramelessWindowHint)
 
 {
-    tableView = new QTableView();
+    /*tableView = new QTableView();
 
     //emit
 
+    // Первым делом необходимо создать объект, который будет использоваться для работы с данными нашей БД
+    //  и инициализировать подключение к базе данных
 
-
-    /* Первым делом необходимо создать объект, который будет использоваться для работы с данными нашей БД
-     * и инициализировать подключение к базе данных
-     * */
     db = new DataBase();
     db->connectToDataBase();
 
-    /* После чего производим наполнение таблицы базы данных
-     * контентом, который будет отображаться в TableView
-     * */
-    /*for(int i = 0; i < 20; i++){
-        QVariantList data;
-        int random = qrand(); // Получаем случайные целые числа для вставки а базу данных
-        data.append(QDate::currentDate()); // Получаем текущую дату для вставки в БД
-        data.append(QTime::currentTime()); // Получаем текущее время для вставки в БД
-        // Подготавливаем полученное случайное число для вставки в БД
-        data.append(random);
-        // Подготавливаем сообщение для вставки в базу данных
-        data.append("Получено сообщение от " + QString::number(random));
-        // Вставляем данные в БД
-        db->inserIntoTable(data);
-    }*/
+    //После чего производим наполнение таблицы базы данных
+    //контентом, который будет отображаться в TableView
+    // for(int i = 0; i < 20; i++){
+    //    QVariantList data;
+    //    int random = qrand(); // Получаем случайные целые числа для вставки а базу данных
+    //    data.append(QDate::currentDate()); // Получаем текущую дату для вставки в БД
+    //    data.append(QTime::currentTime()); // Получаем текущее время для вставки в БД
+    //    // Подготавливаем полученное случайное число для вставки в БД
+    //    data.append(random);
+    //    // Подготавливаем сообщение для вставки в базу данных
+    //    data.append("Получено сообщение от " + QString::number(random));
+    //    // Вставляем данные в БД
+    //    db->inserIntoTable(data);
+    //}
 
-    /* Инициализируем модель для представления данных
-     * с заданием названий колонок
-     * */
+    //Инициализируем модель для представления данных
+     //с заданием названий колонок
+
     this->setupModel(SCIENTISTS,
                         QStringList()
                         << trUtf8("ID")
@@ -57,8 +54,7 @@ AuthorizationWindow::AuthorizationWindow(QWidget *parent):
                         << trUtf8("Theme")
                );
 
-    /* Инициализируем внешний вид таблицы с данными
-     * */
+    //Инициализируем внешний вид таблицы с данными
     this->createUI();
 
     //newuserButton = new QPushButton(tr("New"));
@@ -80,14 +76,14 @@ AuthorizationWindow::AuthorizationWindow(QWidget *parent):
     tableView->setColumnWidth(3,120);
     tableView->setColumnWidth(13,100);
 
-
+*/
 
     setWindowTitle(tr("Authorization"));
         resize(550, 420);
         //this->setFont(QFont("Ubuntu"));//Roboto
         //this->setFont(QFont("Roboto",16,0,1));
 
-    connect(newuserButton, SIGNAL(released()), this, SLOT(slotNewUser()));
+    //connect(newuserButton, SIGNAL(released()), this, SLOT(slotNewUser()));
     //connect(edituserButton, SIGNAL(released()), this, SLOT(slotEditUser()));
 
 }

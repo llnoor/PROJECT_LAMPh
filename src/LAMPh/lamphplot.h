@@ -47,6 +47,12 @@ private Q_SLOTS:
     void setCheckBox();
     void show_all_results(float,int);
 
+    void get_toolBar_GET_show_data(int);
+    void get_toolBar_GET_hide_data(int);
+
+    void get_data_PlotSize (float,float,float,float);
+    void replot_PlotSize();
+
 private:
     QToolBar *toolBar(); //main
     QToolBar *toolBar_Actions();
@@ -128,6 +134,11 @@ private:
     int number_of_checkBox_tmp;
 
     QLabel *label_PlotSize;
+    QLabel *label_Plot_x_min;
+    QLabel *label_Plot_x_max;
+    QLabel *label_Plot_y_min;
+    QLabel *label_Plot_y_max;
+
     QLineEdit *lineEdit_Plot_x_min;
     QLineEdit *lineEdit_Plot_x_max;
     QLineEdit *lineEdit_Plot_y_min;

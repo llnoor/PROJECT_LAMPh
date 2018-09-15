@@ -91,6 +91,7 @@ LAMPhPlot::LAMPhPlot(QString loginQString)
 
     addToolBar(Qt::TopToolBarArea, toolBar()); // main buttons (for switching between windows)
     addToolBar(Qt::LeftToolBarArea, toolBar_Devices()); // data fields
+    addToolBar(Qt::LeftToolBarArea, toolBar_PlotSize());
 
 #ifndef QT_NO_STATUSBAR
     ( void )statusBar();
@@ -258,14 +259,14 @@ LAMPhPlot::LAMPhPlot(QString loginQString)
     //d_plot->get_x_result();
 
     connect( d_plot, SIGNAL( running_writeData( bool ) ), lamphDevices, SLOT( readData() ) );
-    connect(lamphDevices,SIGNAL(send_x_result(float)),d_plot,SLOT(get_x_result(float)));
 
+    connect(lamphDevices,SIGNAL(send_x_result(float)),d_plot,SLOT(get_x_result(float)));
 
     connect( d_startAction, SIGNAL( toggled( bool ) ), lamphDevices, SLOT( appendPoints( bool ) ) );
 
     connect(lamphDevices,SIGNAL(send_all_results(float,int)),d_plot,SLOT(get_all_results(float,int)));
 
-    connect(lamphDevices,SIGNAL(send_all_results(float,int)),this,SLOT(show_all_results(float,int)));
+    connect(lamphDevices,SIGNAL(send_all_results_to_lamphplot(float,int)),this,SLOT(show_all_results(float,int)));
 
     connect(lamphDevices,SIGNAL(setColorSize(int,int,int)),d_plot,SLOT(setColorSize(int,int,int)));
 
@@ -273,6 +274,30 @@ LAMPhPlot::LAMPhPlot(QString loginQString)
 
     //d_plot->get_numberofdeviceInt(lamphDevices->get_numberofdeviceInt());
     connect(lamphDevices,SIGNAL(send_numberofdeviceInt(int)),d_plot,SLOT(get_numberofdeviceInt(int)));
+
+    connect(lamphDevices,SIGNAL(send_toolBar_GET_show_data(int)),this,SLOT(get_toolBar_GET_show_data(int)));
+
+    connect(lamphDevices,SIGNAL(send_toolBar_GET_hide_data(int)),this,SLOT(get_toolBar_GET_hide_data(int)));
+
+    connect(Button_Devices_ClearAll, SIGNAL (released()), d_plot ,SLOT( clear()));
+
+    connect(Button_Devices_AutoScaleAll, SIGNAL (released()), d_plot ,SLOT( autoscale()));
+
+    for(int i=0; i<20; i++)
+    {
+        connect(Button_Devices_Clear[i], static_cast<void(QPushButton::*)(bool)>(&QPushButton::clicked),
+                [=](bool bool_one){
+                d_plot->clear_one(i);
+           });
+        connect(Button_Devices_AutoScale[i], static_cast<void(QPushButton::*)(bool)>(&QPushButton::clicked),
+                [=](bool bool_one){
+                d_plot->autoscale_one(i);
+           });
+    }
+
+    //PlotSize
+    connect(Button_PlotSize_replot, SIGNAL (released()), this ,SLOT( replot_PlotSize()));
+    connect(d_plot, SIGNAL(send_data_PlotSize(float,float,float,float)),this,SLOT(get_data_PlotSize(float,float,float,float)));
 
 
     lamphDevices->first();
@@ -356,7 +381,7 @@ QToolBar *LAMPhPlot::toolBar()
     return toolBar;
 }
 
-QToolBar *LAMPhPlot::toolBar_Devices()
+QToolBar *LAMPhPlot::toolBar_Devices() //toolBar_Data, it's not devices!!!
 {
     MyToolBar *toolBar_Devices = new MyToolBar( this );
     toolBar_Devices->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
@@ -369,7 +394,7 @@ QToolBar *LAMPhPlot::toolBar_Devices()
     d_OpenWindow_A->setShortcut(QKeySequence(tr("Ctrl+A")));
     d_OpenWindow_A->setStatusTip(tr("Open Window"));*/
 
-    label_Devices_All = new QLabel(tr("Devices"));
+    label_Devices_All = new QLabel(tr("DATA"));
     label_Devices_All_X = new QLabel(tr("X"));
     label_Devices_All_Y = new QLabel(tr("Y"));
     label_Devices_All_Y2 = new QLabel(tr("Y2"));
@@ -384,17 +409,16 @@ QToolBar *LAMPhPlot::toolBar_Devices()
     for(int i=0; i<20; i++)
     {
         lineEdit_Devices[i] = new QLineEdit();
-        lineEdit_Devices[i]->setText( QString("Device %1:").arg(i));
+        lineEdit_Devices[i]->setText( QString("DATA %1:").arg(i));
         lineEdit_Devices[i]->setReadOnly(true);
         lineEdit_Devices[i]->setFont(QFont("Arial",16));
 
         label_Devices[i] = new QLabel();
-        label_Devices[i]->setText( QString("Device %1:").arg(i));
+        label_Devices[i]->setText( QString("DATA %1:").arg(i));
         checkBox_Devices_X[i] = new QCheckBox(tr(""));
         checkBox_Devices_Y[i] = new QCheckBox(tr(""));
         checkBox_Devices_Y2[i] = new QCheckBox(tr(""));
         //checkBox_Devices_Show[i] = new QCheckBox(tr(""));
-
         //checkBox_Devices_X[i]->setEnabled(false);
 
         Button_Devices_Start[i] = new QPushButton(tr("Start"));
@@ -402,7 +426,13 @@ QToolBar *LAMPhPlot::toolBar_Devices()
         Button_Devices_AutoScale[i] = new QPushButton(tr("AutoScale"));
         Button_Devices_Clear[i]->setFixedWidth(40);
         Button_Devices_AutoScale[i]->setFixedWidth(70);
+    }
 
+    for(int i=7 /*int_GET*/; i<CurvCnt; i++)
+    {
+        lineEdit_Devices[i]->hide();
+        Button_Devices_Clear[i]->hide();
+        Button_Devices_AutoScale[i]->hide();
     }
 
     QGridLayout *mainLayout = new QGridLayout( hBox_Devices );
@@ -439,9 +469,89 @@ QToolBar *LAMPhPlot::toolBar_Devices()
     return toolBar_Devices;
 }
 
+QToolBar *LAMPhPlot::toolBar_PlotSize()
+{
+    MyToolBar *toolBar_PlotSize = new MyToolBar( this );
+    toolBar_PlotSize->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+    hBox_PlotSize = new QWidget( toolBar_PlotSize );
+
+    hBox_PlotSize->setFont(QFont("Arial",15));
+
+    label_PlotSize  = new QLabel(tr("Plot Size"));
+
+    label_Plot_x_min = new QLabel(tr("Plot Size: x_min:"));
+    label_Plot_x_max = new QLabel(tr("Plot Size: x_max:"));
+    label_Plot_y_min = new QLabel(tr("Plot Size: y_min:"));
+    label_Plot_y_max = new QLabel(tr("Plot Size: y_max:"));
+
+    lineEdit_Plot_x_min = new QLineEdit(tr(""));
+    lineEdit_Plot_x_max = new QLineEdit(tr(""));
+    lineEdit_Plot_y_min = new QLineEdit(tr(""));
+    lineEdit_Plot_y_max = new QLineEdit(tr(""));
+
+    Button_PlotSize_replot = new QPushButton(tr("Replot"));
+    //Button_PlotSize_multiply = new QPushButton(tr("*"));
+    //Button_PlotSize_divide = new QPushButton(tr("/"));
+
+    //Button_Devices_AutoScaleAll->setFixedWidth(70);
+    //label_Devices_All->setFont(QFont("Arial",16));
+
+    QGridLayout *mainLayout = new QGridLayout( hBox_PlotSize );
+
+    mainLayout->addWidget(label_PlotSize, 0, 0);
+    mainLayout->addWidget(label_Plot_x_min, 1, 0);
+    mainLayout->addWidget(label_Plot_x_max, 2, 0);
+    mainLayout->addWidget(label_Plot_y_min, 3, 0);
+    mainLayout->addWidget(label_Plot_y_max, 4, 0);
+    mainLayout->addWidget(lineEdit_Plot_x_min, 1, 1);
+    mainLayout->addWidget(lineEdit_Plot_x_max, 2, 1);
+    mainLayout->addWidget(lineEdit_Plot_y_min, 3, 1);
+    mainLayout->addWidget(lineEdit_Plot_y_max, 4, 1);
+
+    mainLayout->addWidget(Button_PlotSize_replot, 5, 1);
+
+    mainLayout->setContentsMargins(5,5,5,5);
+    mainLayout->setVerticalSpacing(5);
+    mainLayout->setHorizontalSpacing(5);
+
+    toolBar_PlotSize->addWidget( hBox_PlotSize );
+    return toolBar_PlotSize;
+}
+
+void LAMPhPlot::replot_PlotSize()
+{
+d_plot->replot_PlotSize(
+                lineEdit_Plot_x_min->text().toFloat(),
+                lineEdit_Plot_x_max->text().toFloat(),
+                lineEdit_Plot_y_min->text().toFloat(),
+                lineEdit_Plot_y_max->text().toFloat()
+                );
+}
+
+void LAMPhPlot::get_data_PlotSize(float x_min, float x_max, float y_min, float y_max){
+    lineEdit_Plot_x_min->setText(QString("%1").arg(x_min));
+    lineEdit_Plot_x_max->setText(QString("%1").arg(x_max));
+    lineEdit_Plot_y_min->setText(QString("%1").arg(y_min));
+    lineEdit_Plot_y_max->setText(QString("%1").arg(y_max));
+}
+
+void LAMPhPlot::get_toolBar_GET_show_data(int int_get){
+    lineEdit_Devices[int_get]->show();
+    Button_Devices_Clear[int_get]->show();
+    Button_Devices_AutoScale[int_get]->show();
+}
+
+void LAMPhPlot::get_toolBar_GET_hide_data(int int_get){
+    lineEdit_Devices[int_get]->hide();
+    Button_Devices_Clear[int_get]->hide();
+    Button_Devices_AutoScale[int_get]->hide();
+}
+
 void LAMPhPlot::show_all_results(float result, int new_int)
 {
-    lineEdit_Devices[new_int]->setText( QString("Device %1: %2").arg(new_int).arg(result));
+    if (new_int<CurvCnt){
+    lineEdit_Devices[new_int]->setText( QString("DATA %1: %2").arg(new_int).arg(result));
+    }
 }
 
 void LAMPhPlot::setCheckBox() //this automatically switches checkBoxes so that there is no controversy in the program
@@ -655,5 +765,3 @@ void LAMPhPlot::selected( const QPolygon & )
 {
     showInfo();
 }
-
-

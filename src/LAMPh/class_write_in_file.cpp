@@ -6,26 +6,13 @@
 #include <QDir>
 #include <QDebug>
 
-
 class_write_in_file::class_write_in_file()
 {
-
     QDateTime date=QDateTime::currentDateTime();
     str1 = "DATA/";
     dir = date.toString("yyyy.MM.dd");
     dir.prepend(str1);
-
-    qDebug() << "dir" << dir;
-
     dirconf.mkpath(dir);
-
-    /*if (!dirconf.exists()){
-      dirconf.mkdir(dir);
-    }*/
-
-    //dirconf.mkpath(dir);
-
-
 
     for (int i=0; i<CurvCnt+CurvCounter; i++)
     {
@@ -34,8 +21,6 @@ class_write_in_file::class_write_in_file()
     all_names[i]="None";
     all_units[i]="None";
     }
-
-
 }
 
 void class_write_in_file::get_x_result(float result)
@@ -63,11 +48,8 @@ void class_write_in_file::get_bool(bool new_bool, int new_int)
     number_of_device[new_int]=new_bool;
 }
 
-
 void class_write_in_file::create_new_file()
 {
-
-
     QDateTime date=QDateTime::currentDateTime();
     name = date.toString("yyyy.MM.dd/hh.mm.ss");
     name.prepend(str1);
@@ -99,7 +81,6 @@ void class_write_in_file::create_new_file()
 
     file.flush();
     file.close();
-
 }
 
 void class_write_in_file::write_in_file()
@@ -110,7 +91,6 @@ void class_write_in_file::write_in_file()
 
     QDateTime date=QDateTime::currentDateTime();
     QString time = date.toString("hh.mm.ss.zzz");
-
 
     out << x_result << "\t";
     out << time << "\t";
@@ -126,6 +106,4 @@ void class_write_in_file::write_in_file()
 
     file.flush();
     file.close();
-
 }
-
