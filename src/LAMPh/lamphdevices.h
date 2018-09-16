@@ -107,6 +107,8 @@ private:
 
     int numberofloop=0;
 
+    float dataFloat[CurvCnt];
+
     QMap<QString, QString> AllAvailableSerialPortsQMap;
     QMap<int, QString> AllAvailableDevicesQMap;
     QMap<QString, QStringList> AllFunctionsDevicesQMap;

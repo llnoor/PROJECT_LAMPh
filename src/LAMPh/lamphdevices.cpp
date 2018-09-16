@@ -877,6 +877,7 @@ void LAMPhDevices::update_comboBox_Function_Parameters(int r, int Index)
 
 void LAMPhDevices::update_comboBoxes_Function_Parameters(int r, int Index)
 {
+
     if (-1!=Index){
         //qDebug() << "comboBox_Device" << comboBox_Device[r]->currentIndex();
         //qDebug() << "comboBox_Device_Functions" << comboBox_Device_Functions[r]->currentIndex();
@@ -884,10 +885,16 @@ void LAMPhDevices::update_comboBoxes_Function_Parameters(int r, int Index)
 
         while (comboBox_Function_Parameters[r]->count()>0) comboBox_Function_Parameters[r]->removeItem(0);
         //qDebug() << "AllFunctionsFloatVoidParameterDeviceQMap" << AllFunctionsFloatVoidParameterDeviceQMap.value( comboBox_Device[r]->currentIndex()).at(Index);
-        if (AllFunctionsFloatVoidParameterDeviceQMap.value( comboBox_Device[r]->currentIndex()).at(Index).contains("float", Qt::CaseInsensitive))
+
+        //if (comboBox_Device_Functions[r]->currentText()!="")
+        if (!comboBox_Device[r]->currentText().contains("None", Qt::CaseInsensitive))
         {
-            comboBox_Function_Parameters[r]->addItems(parametersQStringList);
-            comboBox_Function_Parameters[r]->setCurrentIndex(1); // "None"
+
+            if (AllFunctionsFloatVoidParameterDeviceQMap.value( comboBox_Device[r]->currentIndex()).at(Index).contains("float", Qt::CaseInsensitive))
+            {
+                comboBox_Function_Parameters[r]->addItems(parametersQStringList);
+                comboBox_Function_Parameters[r]->setCurrentIndex(1); // "None"
+            }
         }
     }
 }
@@ -1207,13 +1214,12 @@ QToolBar *LAMPhDevices::toolBar_COUNTERS()
 void LAMPhDevices::update_comboBox_Device_Functions(int r, int Index){
     while (comboBox_Device_Functions[r]->count()>0) comboBox_Device_Functions[r]->removeItem(0);
     //comboBox_Device_Functions[r]->addItems(AllFunctionsDeviceQMap.value(comboBox_Device[r]->currentIndex()));
-
     comboBox_Device_Functions[r]->addItems(AllFunctionsFloatVoidDeviceQMap.value(comboBox_Device[r]->currentIndex()));
-
 
 
     if (!comboBox_Device[r]->currentText().contains("None", Qt::CaseInsensitive))
     {
+        //comboBox_Device_Functions[r]->setCurrentIndex(0);
         lineEdit_NameData[r]->setText(QString ("%1#%2").arg(NameDeviceQMap.value(comboBox_Device[r]->currentIndex())).arg(NumberDeviceQMap.value(comboBox_Device[r]->currentIndex())));
 
         checkBox_Devices_X[r]->setCheckable(true);
@@ -1236,6 +1242,9 @@ void LAMPhDevices::update_comboBox_Device_Functions(int r, int Index){
     }
     else
     {
+        //comboBox_Device_Functions[r]->addItem("");
+        //comboBox_Device_Functions[r]->setCurrentIndex(0);
+
         lineEdit_NameData[r]->setText("None");
 
         W_File->get_Name("",r);
@@ -1694,14 +1703,123 @@ void LAMPhDevices::readData(){
                     GetData getData = (GetData)(lib.resolve(new_function_text.toLatin1()));
 
                     float parameter_float =0;
-                    switch (comboBox_Function_Parameters[r]->currentIndex()) {
-                    case 0:
+
+                    /*if (comboBox_Function_Parameters[i]->currentText()=="None") parameter_float =0;
+                    else if (comboBox_Function_Parameters[i]->currentText()=="COUNTER0") parameter_float = lineEdit_Counter_Value[0]->text().toFloat();
+                    else if (comboBox_Function_Parameters[i]->currentText()=="COUNTER1") parameter_float = lineEdit_Counter_Value[1]->text().toFloat();
+                    else if (comboBox_Function_Parameters[i]->currentText()=="COUNTER2") parameter_float = lineEdit_Counter_Value[2]->text().toFloat();
+                    else if (comboBox_Function_Parameters[i]->currentText()=="COUNTER3") parameter_float = lineEdit_Counter_Value[3]->text().toFloat();
+                    else if (comboBox_Function_Parameters[i]->currentText()=="COUNTER4") parameter_float = lineEdit_Counter_Value[4]->text().toFloat();
+                    else if (comboBox_Function_Parameters[i]->currentText()=="DATA0") parameter_float =0;
+                    else if (comboBox_Function_Parameters[i]->currentText()=="DATA1") parameter_float =0;
+                    else if (comboBox_Function_Parameters[i]->currentText()=="DATA2") parameter_float =0;
+                    else if (comboBox_Function_Parameters[i]->currentText()=="DATA3") parameter_float =0;
+                    else if (comboBox_Function_Parameters[i]->currentText()=="DATA4") parameter_float =0;
+                    else if (comboBox_Function_Parameters[i]->currentText()=="DATA5") parameter_float =0;
+                    else if (comboBox_Function_Parameters[i]->currentText()=="DATA6") parameter_float =0;
+                    else if (comboBox_Function_Parameters[i]->currentText()=="DATA7") parameter_float =0;
+                    else if (comboBox_Function_Parameters[i]->currentText()=="DATA8") parameter_float =0;
+                    else if (comboBox_Function_Parameters[i]->currentText()=="DATA9") parameter_float =0;
+                    else if (comboBox_Function_Parameters[i]->currentText()=="DATA10") parameter_float =0;
+                    else if (comboBox_Function_Parameters[i]->currentText()=="DATA11") parameter_float =0;
+                    else if (comboBox_Function_Parameters[i]->currentText()=="DATA12") parameter_float =0;
+                    else if (comboBox_Function_Parameters[i]->currentText()=="DATA13") parameter_float =0;
+                    else if (comboBox_Function_Parameters[i]->currentText()=="DATA14") parameter_float =0;
+                    else if (comboBox_Function_Parameters[i]->currentText()=="DATA15") parameter_float =0;
+                    else if (comboBox_Function_Parameters[i]->currentText()=="DATA16") parameter_float =0;
+                    else if (comboBox_Function_Parameters[i]->currentText()=="DATA15") parameter_float =0;
+                    else if (comboBox_Function_Parameters[i]->currentText()=="DATA18") parameter_float =0;
+                    else if (comboBox_Function_Parameters[i]->currentText()=="DATA19") parameter_float =0;
+                    else {
                         parameter_float = comboBox_Function_Parameters[r]->currentText().toFloat();
+                    }*/
+
+                    switch (comboBox_Function_Parameters[r]->currentIndex()) {
+                    case 0: //only float
+                        parameter_float = comboBox_Function_Parameters[r]->currentText().toFloat();
+                        break;
+                    case 1: //none
+                        parameter_float = 0;
+                        break;
+                    case 2: //COUNTER0
+                        parameter_float = lineEdit_Counter_Value[0]->text().toFloat();
+                        break;
+                    case 3: //COUNTER1
+                        parameter_float = lineEdit_Counter_Value[1]->text().toFloat();
+                        break;
+                    case 4: //COUNTER2
+                        parameter_float = lineEdit_Counter_Value[2]->text().toFloat();
+                        break;
+                    case 5: //COUNTER3
+                        parameter_float = lineEdit_Counter_Value[3]->text().toFloat();
+                        break;
+                    case 6: //COUNTER4
+                        parameter_float = lineEdit_Counter_Value[4]->text().toFloat();
+                        break;
+                    case 7: //DATA0
+                        parameter_float = dataFloat[0];
+                        break;
+                    case 8: //DATA1
+                        parameter_float = dataFloat[1];
+                        break;
+                    case 9: //DATA2
+                        parameter_float = dataFloat[2];
+                        break;
+                    case 10: //DATA3
+                        parameter_float = dataFloat[3];
+                        break;
+                    case 11: //DATA4
+                        parameter_float = dataFloat[4];
+                        break;
+                    case 12: //DATA5
+                        parameter_float = dataFloat[5];
+                        break;
+                    case 13: //DATA6
+                        parameter_float = dataFloat[6];
+                        break;
+                    case 14: //DATA7
+                        parameter_float = dataFloat[7];
+                        break;
+                    case 15: //DATA8
+                        parameter_float = dataFloat[8];
+                        break;
+                    case 16: //DATA9
+                        parameter_float = dataFloat[9];
+                        break;
+                    case 17: //DATA10
+                        parameter_float = dataFloat[10];
+                        break;
+                    case 18: //DATA11
+                        parameter_float = dataFloat[11];
+                        break;
+                    case 19: //DATA12
+                        parameter_float = dataFloat[12];
+                        break;
+                    case 20: //DATA13
+                        parameter_float = dataFloat[13];
+                        break;
+                    case 21: //DATA14
+                        parameter_float = dataFloat[14];
+                        break;
+                    case 22: //DATA15
+                        parameter_float = dataFloat[15];
+                        break;
+                    case 23: //DATA16
+                        parameter_float = dataFloat[16];
+                        break;
+                    case 24: //DATA17
+                        parameter_float = dataFloat[17];
+                        break;
+                    case 25: //DATA18
+                        parameter_float = dataFloat[18];
+                        break;
+                    case 26: //DATA19
+                        parameter_float = dataFloat[19];
                         break;
                     default:
                         break;
                     }
-                    res = getData(NumberDeviceQMap.value(comboBox_Device[r]->currentIndex()),parameter_float);
+                    res = getData(NumberDeviceQMap.value(comboBox_Device[r]->currentIndex()),parameter_float);  
                 }
                 else
                 {
@@ -1716,13 +1834,93 @@ void LAMPhDevices::readData(){
                 SetData setData = (SetData)(lib.resolve(new_function_text.toLatin1()));
 
                 float parameter_float =0;
+
                 switch (comboBox_Function_Parameters[r]->currentIndex()) {
-                case 0:
+                case 0: //only float
                     parameter_float = comboBox_Function_Parameters[r]->currentText().toFloat();
+                    break;
+                case 1: //none
+                    parameter_float = 0;
+                    break;
+                case 2: //COUNTER0
+                    parameter_float = lineEdit_Counter_Value[0]->text().toFloat();
+                    break;
+                case 3: //COUNTER1
+                    parameter_float = lineEdit_Counter_Value[1]->text().toFloat();
+                    break;
+                case 4: //COUNTER2
+                    parameter_float = lineEdit_Counter_Value[2]->text().toFloat();
+                    break;
+                case 5: //COUNTER3
+                    parameter_float = lineEdit_Counter_Value[3]->text().toFloat();
+                    break;
+                case 6: //COUNTER4
+                    parameter_float = lineEdit_Counter_Value[4]->text().toFloat();
+                    break;
+                case 7: //DATA0
+                    parameter_float = dataFloat[0];
+                    break;
+                case 8: //DATA1
+                    parameter_float = dataFloat[1];
+                    break;
+                case 9: //DATA2
+                    parameter_float = dataFloat[2];
+                    break;
+                case 10: //DATA3
+                    parameter_float = dataFloat[3];
+                    break;
+                case 11: //DATA4
+                    parameter_float = dataFloat[4];
+                    break;
+                case 12: //DATA5
+                    parameter_float = dataFloat[5];
+                    break;
+                case 13: //DATA6
+                    parameter_float = dataFloat[6];
+                    break;
+                case 14: //DATA7
+                    parameter_float = dataFloat[7];
+                    break;
+                case 15: //DATA8
+                    parameter_float = dataFloat[8];
+                    break;
+                case 16: //DATA9
+                    parameter_float = dataFloat[9];
+                    break;
+                case 17: //DATA10
+                    parameter_float = dataFloat[10];
+                    break;
+                case 18: //DATA11
+                    parameter_float = dataFloat[11];
+                    break;
+                case 19: //DATA12
+                    parameter_float = dataFloat[12];
+                    break;
+                case 20: //DATA13
+                    parameter_float = dataFloat[13];
+                    break;
+                case 21: //DATA14
+                    parameter_float = dataFloat[14];
+                    break;
+                case 22: //DATA15
+                    parameter_float = dataFloat[15];
+                    break;
+                case 23: //DATA16
+                    parameter_float = dataFloat[16];
+                    break;
+                case 24: //DATA17
+                    parameter_float = dataFloat[17];
+                    break;
+                case 25: //DATA18
+                    parameter_float = dataFloat[18];
+                    break;
+                case 26: //DATA19
+                    parameter_float = dataFloat[19];
                     break;
                 default:
                     break;
                 }
+
                 setData(NumberDeviceQMap.value(comboBox_Device[r]->currentIndex()),parameter_float);
                 res = parameter_float;
             }
@@ -1754,7 +1952,7 @@ void LAMPhDevices::readData(){
             {
                 W_File->get_all_results(res,r);
             }
-
+            dataFloat[r]=res;
         }
     }
     W_File->write_in_file();
