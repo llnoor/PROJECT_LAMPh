@@ -1390,11 +1390,13 @@ void LAMPhDevices::loadConf(){
                         //skip
                     }else if (str.contains("Devices:", Qt::CaseInsensitive)){
                         str = file.readLine();
+                        str.remove("\n");
                         QStringList lst = str.split(":");
                         numberofdeviceIntConf = lst[1].toInt();
                         while (1){
                             str = file.readLine();
                             if ("\n"==str) break;
+                            str.remove("\n");
                             QStringList lst = str.split(":");
                             QStringList lst2 = lst[1].split(",");
                             devicesConfQMap[lst[0].toInt()]=lst2;
@@ -1404,6 +1406,7 @@ void LAMPhDevices::loadConf(){
                         while (1){
                             str = file.readLine();
                             if ("\n"==str) break;
+                            str.remove("\n");
                             QStringList lst = str.split(":");
                             QStringList lst2 = lst[1].split(",");
                             dataConfQMap[lst[0].toInt()]=lst2;
@@ -1412,6 +1415,7 @@ void LAMPhDevices::loadConf(){
                         while (1){
                             str = file.readLine();
                             if ("\n"==str) break;
+                            str.remove("\n");
                             QStringList lst = str.split(":");
                             QStringList lst2 = lst[1].split(",");
                             countersConfQMap[lst[0].toInt()]=lst2;
@@ -1429,7 +1433,161 @@ void LAMPhDevices::loadConf(){
         }
     }
 
-    qDebug() << countersConfQMap.value(0);
+
+    for (int i=0; i<devicesConfQMap.size();i++)
+    {
+        qDebug() << "Device" << i << ":" << devicesConfQMap.value(i);
+    }
+
+    for (int i=0; i<CurvCnt;i++)
+         // we can't use dataConfQMap.size(), because size is not equal to numberod DATA and we can skip some of them
+    {
+        if (dataConfQMap.contains(i))   // to skip the empty
+        qDebug() << "DATA" << i << ":" << dataConfQMap.value(i);
+    }
+
+    for (int i=0; i<CurvCnt; i++)
+    {
+        //int comboBox_None = comboBox_Device[i]->count()-1;
+        //qDebug() << comboBox_None;
+        //comboBox_Device[i]->setCurrentIndex(2);
+        //comboBox_Device[i]->setCurrentText("None");
+    }
+
+    QMap<int, int> numberofdeviceinlamphQMap; //to match system (lamph) devices with file;
+
+    int l=0;
+    for (int i=0; i<devicesConfQMap.size();i++)
+    {
+        if (devicesConfQMap.contains(i)){
+            while (l<NameDeviceQMap.size())
+            if
+                    ((devicesConfQMap.value(i).at(1).toInt() == NumberDeviceQMap.value(l))
+                     and
+                    (devicesConfQMap.value(i).at(2) == DLLFileDeviceQMap.value(l)))
+            {
+                numberofdeviceinlamphQMap[i]=l;
+                l=0;
+                break;
+            }
+            else
+            {
+                l++;
+                if (l==NameDeviceQMap.size())
+                {
+                    qDebug() << "ERROR";
+                    //SORRY: You don't have Device: devicesConfQMap.value(i).at(0) or didn't install DLL: devicesConfQMap.value(i).at(2)
+                    //try one more time
+                    //download this DLL //check network then try to find this DLL in website, if it is false return to SORRY
+                    //skip this device
+                }
+            }
+        }
+    }
+
+    /*for (int i=0; i<numberofdeviceinlamphQMap.size();i++)
+    {
+        qDebug() << "numberofdeviceinlamphQMap" << i << ":" << numberofdeviceinlamphQMap.value(i);
+    }*/
+
+    for (int i=0; i<CurvCnt /* we can't use dataConfQMap.size(), because this size is not equal to number of DATA and we can skip some of them*/;i++)
+    {
+        if (dataConfQMap.contains(i))   // to skip the empty
+        {
+            comboBox_Device[i]->setCurrentIndex(numberofdeviceinlamphQMap.value(dataConfQMap.value(i).at(0).toInt()));
+            comboBox_Device_Functions[i]->setCurrentIndex(dataConfQMap.value(i).at(1).toInt());
+            QString dataConfQMap_value2QString = dataConfQMap.value(i).at(2);
+            if (dataConfQMap_value2QString=="None") comboBox_Function_Parameters[i]->setCurrentIndex(1);
+            else if (dataConfQMap_value2QString=="COUNTER0") comboBox_Function_Parameters[i]->setCurrentIndex(2);
+            else if (dataConfQMap_value2QString=="COUNTER1") comboBox_Function_Parameters[i]->setCurrentIndex(3);
+            else if (dataConfQMap_value2QString=="COUNTER2") comboBox_Function_Parameters[i]->setCurrentIndex(4);
+            else if (dataConfQMap_value2QString=="COUNTER3") comboBox_Function_Parameters[i]->setCurrentIndex(5);
+            else if (dataConfQMap_value2QString=="COUNTER4") comboBox_Function_Parameters[i]->setCurrentIndex(6);
+            else if (dataConfQMap_value2QString=="DATA0") comboBox_Function_Parameters[i]->setCurrentIndex(7);
+            else if (dataConfQMap_value2QString=="DATA1") comboBox_Function_Parameters[i]->setCurrentIndex(8);
+            else if (dataConfQMap_value2QString=="DATA2") comboBox_Function_Parameters[i]->setCurrentIndex(9);
+            else if (dataConfQMap_value2QString=="DATA3") comboBox_Function_Parameters[i]->setCurrentIndex(10);
+            else if (dataConfQMap_value2QString=="DATA4") comboBox_Function_Parameters[i]->setCurrentIndex(11);
+            else if (dataConfQMap_value2QString=="DATA5") comboBox_Function_Parameters[i]->setCurrentIndex(12);
+            else if (dataConfQMap_value2QString=="DATA6") comboBox_Function_Parameters[i]->setCurrentIndex(13);
+            else if (dataConfQMap_value2QString=="DATA7") comboBox_Function_Parameters[i]->setCurrentIndex(14);
+            else if (dataConfQMap_value2QString=="DATA8") comboBox_Function_Parameters[i]->setCurrentIndex(15);
+            else if (dataConfQMap_value2QString=="DATA9") comboBox_Function_Parameters[i]->setCurrentIndex(16);
+            else if (dataConfQMap_value2QString=="DATA10") comboBox_Function_Parameters[i]->setCurrentIndex(17);
+            else if (dataConfQMap_value2QString=="DATA11") comboBox_Function_Parameters[i]->setCurrentIndex(18);
+            else if (dataConfQMap_value2QString=="DATA12") comboBox_Function_Parameters[i]->setCurrentIndex(19);
+            else if (dataConfQMap_value2QString=="DATA13") comboBox_Function_Parameters[i]->setCurrentIndex(10);
+            else if (dataConfQMap_value2QString=="DATA14") comboBox_Function_Parameters[i]->setCurrentIndex(21);
+            else if (dataConfQMap_value2QString=="DATA15") comboBox_Function_Parameters[i]->setCurrentIndex(22);
+            else if (dataConfQMap_value2QString=="DATA16") comboBox_Function_Parameters[i]->setCurrentIndex(23);
+            else if (dataConfQMap_value2QString=="DATA15") comboBox_Function_Parameters[i]->setCurrentIndex(24);
+            else if (dataConfQMap_value2QString=="DATA18") comboBox_Function_Parameters[i]->setCurrentIndex(25);
+            else if (dataConfQMap_value2QString=="DATA19") comboBox_Function_Parameters[i]->setCurrentIndex(26);
+            else {
+                comboBox_Function_Parameters[i]->setCurrentIndex(0);
+                comboBox_Function_Parameters[i]->setCurrentText(dataConfQMap_value2QString);
+            }
+            lineEdit_NameData[i]->setText(dataConfQMap.value(i).at(3));
+            (1==dataConfQMap.value(i).at(4).toInt()) ? checkBox_Devices_X[i]->setChecked(true) : checkBox_Devices_X[i]->setChecked(false);
+            (1==dataConfQMap.value(i).at(5).toInt()) ? checkBox_Counter_Show_Y[i]->setChecked(true) : checkBox_Counter_Show_Y[i]->setChecked(false);
+            (1==dataConfQMap.value(i).at(6).toInt()) ? checkBox_Device_Text[i]->setChecked(true) : checkBox_Device_Text[i]->setChecked(false);
+            comboBox_ColorData[i]->setCurrentIndex(dataConfQMap.value(i).at(7).toInt());
+            comboBox_SizeData[i]->setCurrentIndex(dataConfQMap.value(i).at(8).toInt());
+        }
+    }
+
+    for (int i=0; i<CurvCounter;i++)
+    {
+        lineEdit_Counter_From[i]->setText(QString("%1").arg(countersConfQMap.value(i).at(0)));
+        lineEdit_Counter_To[i]->setText(QString("%1").arg(countersConfQMap.value(i).at(1)));
+        lineEdit_Counter_Step[i]->setText(QString("%1").arg(countersConfQMap.value(i).at(2)));
+        lineEdit_Counter_Acceleration[i]->setText(QString("%1").arg(countersConfQMap.value(i).at(3)));
+        lineEdit_Counter_Period[i]->setText(QString("%1").arg(countersConfQMap.value(i).at(4)));
+        lineEdit_Counter_Value[i]->setText(QString("%1").arg(countersConfQMap.value(i).at(5)));
+        //(1==countersConfQMap.value(i).at(6).toInt()) ? checkBox_Counter_Show_X[i]->setChecked(true) : checkBox_Counter_Show_X[i]->setChecked(false); //must always be false
+        (1==countersConfQMap.value(i).at(7).toInt()) ? checkBox_Counter_Show_Y[i]->setChecked(true) : checkBox_Counter_Show_Y[i]->setChecked(false);
+        (1==countersConfQMap.value(i).at(8).toInt()) ? checkBox_Counter_Text[i]->setChecked(true) : checkBox_Counter_Text[i]->setChecked(false);
+        comboBox_Counter_ColorData[i]->setCurrentIndex(countersConfQMap.value(i).at(9).toInt());
+        comboBox_Counter_SizeData[i]->setCurrentIndex(countersConfQMap.value(i).at(10).toInt());
+    }
+
+
+    //for (int r=0; r<CurvCnt; r++)
+    //    update_comboBox_Device_Functions(r,0);
+
+
+
+    /*for (int r=0; r<CurvCnt; r++)
+    {
+       for (int y=0; y<numberofdeviceInt; y++)
+       {
+           comboBox_Device[r]->addItem( QString ("Device %1").arg(y) );
+       }
+    comboBox_Device[r]->addItem("None");
+
+        if (r<numberofdeviceInt)
+        {
+            comboBox_Device[r]->setCurrentIndex(r);
+            comboBox_Device_Functions[r]->addItems(AllFunctionsFloatVoidDeviceQMap.value(r));
+
+            lineEdit_NameData[r]->setText(QString ("%1#%2").arg(NameDeviceQMap.value(r)).arg(NumberDeviceQMap.value(r)));
+            setNumberDevice_bool(1,r); //number_of_point[r]=1; //please check it!!!
+            W_File->get_bool(1,r);
+            if (r==0) {
+                checkBox_Devices_X[r]->setChecked(true);
+                checkBox_Devices_Y[r]->setChecked(false);
+            }
+            else
+            {
+                checkBox_Devices_X[r]->setChecked(false);
+                checkBox_Devices_Y[r]->setChecked(true);
+            }
+            checkBox_Device_Text[r]->setChecked(true);
+        }
+        else comboBox_Device[r]->setCurrentIndex(numberofdeviceInt); //"None"
+        //comboBox_DeviceQMap[r]=numberofdeviceInt;
+
+    }*/
 
 
     //get conf of all devices
