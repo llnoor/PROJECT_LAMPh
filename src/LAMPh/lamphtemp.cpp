@@ -37,6 +37,35 @@ public:
     }
 };
 
+class Counter: public QWidget
+{
+public:
+    Counter( QWidget *parent,
+            const QString &prefix, const QString &suffix,
+            int min, int max, int step ):
+        QWidget( parent )
+    {
+        QHBoxLayout *layout = new QHBoxLayout( this );
+
+        if ( !prefix.isEmpty() )
+            layout->addWidget( new QLabel( prefix + " ", this ) );
+
+        d_counter = new QSpinBox( this );
+        d_counter->setRange( min, max );
+        d_counter->setSingleStep( step );
+        layout->addWidget( d_counter );
+
+        if ( !suffix.isEmpty() )
+            layout->addWidget( new QLabel( QString( " " ) + suffix, this ) );
+    }
+
+    void setValue( int value ) { d_counter->setValue( value ); }
+    int value() const { return d_counter->value(); }
+
+private:
+    QSpinBox *d_counter;
+};
+
 LAMPhTemp::LAMPhTemp(QString loginQString)
 {
 
@@ -121,6 +150,9 @@ QToolBar *LAMPhTemp::toolBar()
     //d_symbolType = new QCheckBox( "Symbols", hBox );
     //d_symbolType->setChecked( true );
 
+    d_timerCount = new Counter( hBox, "Delay (Only for LAMPhTemp)", "ms", 0, 100000, 100 );
+    d_timerCount->setValue( 500 );
+
     QHBoxLayout *layout = new QHBoxLayout( hBox );
     layout->setMargin( 0 );
     layout->setSpacing( 0 );
@@ -128,6 +160,7 @@ QToolBar *LAMPhTemp::toolBar()
     layout->addWidget( new QWidget( hBox ), 10 ); // spacer
     //layout->addWidget( d_symbolType );
     layout->addSpacing( 5 );
+    layout->addWidget( d_timerCount );
 
     toolBar->addWidget( hBox );
 
