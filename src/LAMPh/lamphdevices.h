@@ -4,7 +4,7 @@
 #include <qmainwindow.h>
 #include <qaction.h>
 #include <class_write_in_file.h>
-#include <qserialcomport.h>
+#include <dialogdevicesettings.h>
 #define CurvCnt 20
 #define CurvCounter 5
 
@@ -66,6 +66,7 @@ private Q_SLOTS:
     void toolBar_GET_show_data();
     void toolBar_GET_hide_data();
     void update_toolBar_PORTS();
+    void openDialogDeviceSettings(int numberofdeviceInt);
     void update_comboBox_Device_Functions(int r,int Index);
     void send_readData();
     void sendColors();
@@ -99,7 +100,7 @@ private:
     QStringList *listDllLAMPh;
     QStringList *listDllOther;
 
-    int numberofdeviceInt;
+    int numberofdeviceInt =0;
     int numberofitemsdeviceInt;
 
     bool number_of_point[CurvCnt];
@@ -160,7 +161,6 @@ private:
 
     MainPlot *d_plot;
     class_write_in_file *W_File;
-    qserialcomport *QSerialCOM;
 
     QwtPlotZoomer *d_zoomer[2];
     QwtPlotPicker *d_picker;

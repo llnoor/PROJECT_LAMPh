@@ -31,7 +31,7 @@ HEADERS       = window.h \
     lamphdevices.h \
     lamphtemp.h \
     class_write_in_file.h \
-    qserialcomport.h
+    dialogdevicesettings.h
 SOURCES       = window.cpp \
                 main.cpp \
     logowindow.cpp \
@@ -51,7 +51,7 @@ SOURCES       = window.cpp \
     lamphdevices.cpp \
     lamphtemp.cpp \
     class_write_in_file.cpp \
-    qserialcomport.cpp
+    dialogdevicesettings.cpp
 
 
 DISTFILES += \

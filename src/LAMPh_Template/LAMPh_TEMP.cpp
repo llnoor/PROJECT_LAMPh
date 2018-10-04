@@ -24,13 +24,12 @@
 #define DEVICE "TEMP" 			//Name of device
 #define FOLDER  "Functions/"	//Folder where file will be created (please do not change this value)
 #define TXT "_functions.txt"	//Names of functions will be recorded in this file (please do not change this value)	
-#define FUNCTIONS "float getFloatA();float getFloatB();float getFloatC();getFloatParD(float);getFloatParE(float);getFloatParF(float);void setParameterG();void setParameterH();void setParameterI()"  //one can use only void and float functions with only float parameter (don't leave empty space after ";")
+#define FUNCTIONS "float getFloatA();float getFloatB();float getFloatC();float getFloatParD(float);float getFloatParE(float);float getFloatParF(float);void setParameterG(float);void setParameterH(float);void setParameterI(float)"  //one can use only void and float functions with only float parameter (don't leave empty space after ";")
 #define INFO "The Lib for LAMPh to connect with TEMP" //Info about this Lib or device
-#define NUMBER 5 //Five devices can be connected by this Lib (this value can be changed)
+#define NUMBER 2 //Two devices can be connected by this Lib (this value can be changed)
 #define NONE "None"
 
-class ClassLAMPh
-{
+class ClassLAMPh{
 private:
     QSerialPort serialPort;
 	char * status_char;
@@ -55,11 +54,11 @@ private:
 	bool getFloatB_active = false;
 	bool getFloatC_active = false;
 	bool getFloatParD_active = false;
-	bool getFloatParD_active = false;
-	bool getFloatParD_active = false;
-	bool setParameterG = false;
-	bool setParameterH = false;
-	bool setParameterI = false;
+    bool getFloatParE_active = false;
+    bool getFloatParF_active = false;
+    bool setParameterG_active = false;
+    bool setParameterH_active = false;
+    bool setParameterI_active = false;
 	
 	enum message {
 	nothingCritical = 0,  		//nothing critical
@@ -86,26 +85,15 @@ private:
 	criticHighParameter2 = 21,
 	criticLowParameter3 = 22,
 	criticHighParameter3 = 23};
-	
-    
-    char * value;
-    int i_test=0;
-    QByteArray data;
-    double first =QDateTime::currentDateTime().toTime_t();
-	double second=QDateTime::currentDateTime().toTime_t();
-    double x = second - first;
-    double x_s = second - first;
-    double x_m = second - first;
-    double x_h = second - first;
 
 public:
     ClassLAMPh( ) 
     {
-		status_char = "None";
-		unit_char = "None";
+        status_char = "None";
+        unit_char = "None";
     }
 	
-	bool connect(){
+    bool connectL(){
 		/* for COM devices!!!
 		for (const QSerialPortInfo &info : QSerialPortInfo::availablePorts()){
             if (!info.isBusy())
@@ -164,7 +152,7 @@ public:
 	}
 
 	const char* getStatus(){
-        return status_char;
+        return status_char; //it can be enum message
     }
 	
 	const char* getUnit(){
@@ -172,7 +160,7 @@ public:
     }
 	
 	void readData(){
-		if (getFloatA_active){ // if (getFloatA_active==true)
+        /*if (getFloatA_active){ // if (getFloatA_active==true)
 			serialPort.write(":READ_floatA?\r\n");
 			QByteArray data = serialPort.readAll();
 			std::string result_tmp = data.toStdString();
@@ -218,50 +206,53 @@ public:
 			std::string result_tmp = data.toStdString();
 			QString data_tmp = QString::fromStdString(result_tmp);
 			result_floatF = data_tmp.toFloat();
-		}
+        }*/
 	
 		//if (setParameterG){} //it doesn't matter, it always must be false, because it can't read data  
 	}
 	
 	float getFloatA(){
 		getFloatA_active = true; //after that program will be readData for this function
-		return result_floatA;
+        result_floatA++;
+        return result_floatA;
 	}
 	
 	float getFloatB(){
 		getFloatB_active = true;
-		return result_floatB;
+        //result_floatB=result_floatB+result_floatA;
+        result_floatB = parameterG;
+        return result_floatB;
 	}
 	
 	float getFloatC(){
 		getFloatC_active = true;
+        result_floatC = parameterH;
 		return result_floatC;
 	}
 	
 	float getFloatParD(float parameter){
 		getFloatParD_active = true;
-		parameterD = parameter;
-		//do something with this data //like result_floatD=+parameterD an so on
+        //parameterD = parameter;
+        result_floatD = parameterD;
 		return result_floatD;
 	}
 	
 	float getFloatParE(float parameter){
 		getFloatParE_active = true;
-		parameterE = parameter;
-		//do something with this data //like result_floatD=+parameterD an so on
+        result_floatE = parameterE;
 		return result_floatE;
 	}
 	
 	float getFloatParF(float parameter){
 		getFloatParF_active = true;
-		parameterF = parameter;
-		//do something with this data //like result_floatD=+parameterD an so on
-		return result_floatF;
+        //parameterF = parameter;
+        result_floatF = parameterF;
+        return result_floatF;
 	}
 	
 	void setParameterG(float parameter){
-		//setParameterG = false; // because it does not read data!!!, but it sets parameter
-		parameterG = parameter; // this parameterG can be used for other functions 
+        //setParameterG_active = false; // because it does not read data!!!, but it sets parameter
+        parameterG = parameter; // this parameterG can be used for other functions
 	}
 	
 	void setParameterH(float parameter){
@@ -272,20 +263,20 @@ public:
 		parameterI = parameter;
 	}
 
-	bool start(){
+    bool startL(){
 	if ((result_floatA = 0) and (result_floatB = 0) /* and so on*/) return true; //YES!!! it is result_floatA = 0, because we want reset all parameters 
 	else return false;
 	}
 	
-	bool stop(){
+    bool stopL(){
 		return true;
 	}
 	
-	bool pause(){
+    bool pauseL(){
 		return true;
 	}
 	
-	bool exit(){
+    bool exitL(){
 		return true;
 	}
 	
@@ -331,128 +322,145 @@ public:
 	
 	const char* getRowName(int row){
 		switch(row){
-		case(0): return "Sensitivity"; break;	
-		case(1): return "Time constant"; break;	
-		case(2): return "Phase"; break;	
-		case(3): return "Filters"; break;	
-		case(4): return "Config"; break;	
+        case(0): return "Sensitivity (D)"; break;
+        case(1): return "Time constant (E)"; break;
+        case(2): return "Phase (F)"; break;
+        case(3): return "Filters (G)"; break;
+        case(4): return "Config (H)"; break;
+        }
 	}
 
-	const char* getButtonName(int column, int row){
+    const char* getButtonName (int column, int row){
 		switch(row){
 		case(0): //Sensitivity
 				switch(column){
-				case(0): return "1V"; break;	
-				case(1): return "300mV"; break;	
-				case(2): return "100mV"; break;	
-				case(3): return "30mV"; break;	
-				case(4): return "10mV"; break;	
+                case(0): return "1V(0)"; break;
+                case(1): return "300mV(1)"; break;
+                case(2): return "100mV(2)"; break;
+                case(3): return "30mV(3)"; break;
+                case(4): return "10mV(4)"; break;
 				}
 				break;	
 		case(1): //Time constant
 				switch(column){
-				case(0): return "1s"; break;	
-				case(1): return "300ms"; break;	
-				case(2): return "100ms"; break;	
-				case(3): return "30ms"; break;	
-				case(4): return "10ms"; break;	
+                case(0): return "1s(10)"; break;
+                case(1): return "300ms(11)"; break;
+                case(2): return "100ms(12)"; break;
+                case(3): return "30ms(13)"; break;
+                case(4): return "10ms(14)"; break;
 				}
 				break;
 		case(2): //Phase
 				switch(column){
-				case(0): return "0"; break;	
-				case(1): return "+90"; break;	
-				case(2): return "-90"; break;	
-				case(3): return "+1"; break;	
-				case(4): return "-1"; break;	
+                case(0): return "0(20)"; break;
+                case(1): return "+90(21)"; break;
+                case(2): return "-90(22)"; break;
+                case(3): return "+1(23)"; break;
+                case(4): return "-1(24)"; break;
 				}
 				break;	
 		case(3): //Filters
 				switch(column){
-				case(0): return "BP"; break;	
-				case(1): return "LP"; break;	
-				case(2): return "FLAT"; break;	
-				case(3): return "TRACK"; break;	
-				case(4): return "MAN"; break;	
+                case(0): return "BP(30)"; break;
+                case(1): return "LP(31)"; break;
+                case(2): return "FLAT(32)"; break;
+                case(3): return "TRACK(33)"; break;
+                case(4): return "MAN(34)"; break;
 				}
 				break;	
 		case(4): //Config
 				switch(column){
-				case(0): return "LIGHTS"; break;	
-				case(1): return "RS232"; break;	
-				case(2): return "A-OFFSET"; break;	
-				case(3): return "A-PHASE"; break;	
-				case(4): return "A-FILTER"; break;	
+                case(0): return "LIGHTS(40)"; break;
+                case(1): return "RS232(41)"; break;
+                case(2): return "A-OFFSET(42)"; break;
+                case(3): return "A-PHASE(43)"; break;
+                case(4): return "A-FILTER(44)"; break;
 				}
 				break;
-	}
+        }
+    }
+
+    char array[33];
+
+    const char* returnRowData(int row){
+        switch(row){
+        case(0): sprintf(array, "%5.2f", parameterD); return array; break;
+        case(1): sprintf(array, "%5.2f", parameterE); return array; break;
+        case(2): sprintf(array, "%5.2f", parameterF); return array; break;
+        case(3): sprintf(array, "%5.2f", parameterG); return array; break;
+        case(4): sprintf(array, "%5.2f", parameterH); return array; break;
+        }
+    }
 	
 	bool setParameterButton(int column, int row, float data_float){
 		switch(row){
 		case(0): //Sensitivity
 				switch(column){
-				case(0): /*set data_float*/ return true; break;	
-				case(1): /*set data_float*/ return true; break;	
-				case(2): /*set data_float*/ return true; break;	
-				case(3): /*set data_float*/ return true; break;	
-				case(4): /*set data_float*/ return true; break;	
+                case(0): parameterD=0; return true; break;
+                case(1): parameterD=1; return true; break;
+                case(2): parameterD=2; return true; break;
+                case(3): parameterD=3; return true; break;
+                case(4): parameterD=4; return true; break;
 				}
 				break;	
 		case(1): //Time constant
-				switch(column){
-				case(0): /*set data_float*/ return true; break;	
-				case(1): /*set data_float*/ return true; break;	
-				case(2): /*set data_float*/ return true; break;	
-				case(3): /*set data_float*/ return true; break;	
-				case(4): /*set data_float*/ return true; break;	
+            switch(column){
+                case(0): parameterE=10; return true; break;
+                case(1): parameterE=11; return true; break;
+                case(2): parameterE=12; return true; break;
+                case(3): parameterE=13; return true; break;
+                case(4): parameterE=14; return true; break;
 				}
 				break;
 		case(2): //Phase
-				switch(column){
-				case(0): /*set data_float*/ return true; break;	
-				case(1): /*set data_float*/ return true; break;	
-				case(2): /*set data_float*/ return true; break;	
-				case(3): /*set data_float*/ return true; break;	
-				case(4): /*set data_float*/ return true; break;	
+                switch(column){
+                case(0): parameterF=20; return true; break;
+                case(1): parameterF=21; return true; break;
+                case(2): parameterF=22; return true; break;
+                case(3): parameterF=23; return true; break;
+                case(4): parameterF=24; return true; break;
 				}
 				break;	
 		case(3): //Filters
 				switch(column){
-				case(0): /*set data_float*/ return true; break;	
-				case(1): /*set data_float*/ return true; break;	
-				case(2): /*set data_float*/ return true; break;	
-				case(3): /*set data_float*/ return true; break;	
-				case(4): /*set data_float*/ return true; break;	
+                case(0): parameterG=30; return true; break;
+                case(1): parameterG=31; return true; break;
+                case(2): parameterG=32; return true; break;
+                case(3): parameterG=33; return true; break;
+                case(4): parameterG=34; return true; break;
 				}
 				break;	
 		case(4): //Config
 				switch(column){
-				case(0): /*set data_float*/ return true; break;	
-				case(1): /*set data_float*/ return true; break;	
-				case(2): /*set data_float*/ return true; break;	
-				case(3): /*set data_float*/ return true; break;	
-				case(4): /*set data_float*/ return true; break;	
+                case(0): parameterH=40; return true; break;
+                case(1): parameterH=41; return true; break;
+                case(2): parameterH=42; return true; break;
+                case(3): parameterH=43; return true; break;
+                case(4): parameterH=44; return true; break;
 				}
 				break;
-	}
+        }
+    }
 	
 	const char* getLineName(int row){
 		switch(row){
-		case(0): return "Sensitivity"; break;	
+        case(0): return "Sensitivity"; break;
 		case(1): return "Time constant"; break;	
 		case(2): return "Phase"; break;	
 		case(3): return "Filters"; break;	
 		case(4): return "Config"; break;	
+        }
 	}
 	
 	bool setParameterLine(int row, float data_float){
 		switch(row){
-		case(0): /*set data_float*/ return true; break;	
-		case(1): /*set data_float*/ return true; break;	
-		case(2): /*set data_float*/ return true; break;	
-		case(3): /*set data_float*/ return true; break;	
-		case(4): /*set data_float*/ return true; break;	
-	}
+        case(0): parameterD=data_float; return true; break;
+        case(1): parameterE=data_float; return true; break;
+        case(2): parameterF=data_float; return true; break;
+        case(3): parameterG=data_float; return true; break;
+        case(4): parameterH=data_float; return true; break;
+        }
+    }
 };
 
 ClassLAMPh classLAMPh[NUMBER]; 
@@ -474,9 +482,9 @@ bool createFile(){
     return true;
 }
 
-bool connect(int number_of_device){
+bool connectL(int number_of_device){
 	if (number_of_device < NUMBER ){ //protection from going beyond the classLAMPh
-		return classLAMPh[number_of_device].connect();
+        return classLAMPh[number_of_device].connectL();
 	}else{
 		return false;
 	}
@@ -570,33 +578,33 @@ void setParameterI(int number_of_device, float parameter){
 	}
 }
 
-bool start(int number_of_device){
+bool startL(int number_of_device){
 	if (number_of_device < NUMBER ){ 
-		return classLAMPh[number_of_device].start();
+        return classLAMPh[number_of_device].startL();
 	}else{
 		return false;
 	}
 }
 
-bool stop(int number_of_device){
+bool stopL(int number_of_device){
 	if (number_of_device < NUMBER ){ 
-		return classLAMPh[number_of_device].stop();
+        return classLAMPh[number_of_device].stopL();
 	}else{
 		return false;
 	}
 }
 
-bool pause(int number_of_device){
+bool pauseL(int number_of_device){
 	if (number_of_device < NUMBER ){ 
-		return classLAMPh[number_of_device].pause();
+        return classLAMPh[number_of_device].pauseL();
 	}else{
 		return false;
 	}
 }
 
-bool exit(int number_of_device){
+bool exitL(int number_of_device){
 	if (number_of_device < NUMBER ){ 
-		return classLAMPh[number_of_device].exit();
+        return classLAMPh[number_of_device].exitL();
 	}else{
 		return false;
 	}
@@ -620,6 +628,12 @@ const char* getButtonName(int number_of_device, int column, int row){
 	if (number_of_device < NUMBER ){ 
 		return classLAMPh[number_of_device].getButtonName(column,row);
 	}
+}
+
+const char* returnRowData(int number_of_device, int row){
+    if (number_of_device < NUMBER ){
+        return classLAMPh[number_of_device].returnRowData(row);
+    }
 }
 
 bool setParameterButton(int number_of_device, int column, int row, float data_float){
