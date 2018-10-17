@@ -7,6 +7,7 @@
 #include <QWidget>
 #include <QLineEdit>
 #include <QPushButton>
+#include <QComboBox>
 
 #define BUTTONNUM 5
 
@@ -31,6 +32,7 @@ private Q_SLOTS:
     void delete_data();
     bool setParameterButton(int row, int column);
     bool setParameterLine(int row);
+    bool setParameterComboBox(int row, int index);
 
 
 private:
@@ -49,6 +51,9 @@ private:
 	QLabel   *labelLineName[BUTTONNUM];
 	QLineEdit  *lineEditParameterLine[BUTTONNUM];
 	QPushButton	*pushButtonSend[BUTTONNUM];
+
+    QLabel   *labelComboBoxName[BUTTONNUM];
+    QComboBox *comboBoxQStringList[BUTTONNUM];
 	
 private:
     void accept();

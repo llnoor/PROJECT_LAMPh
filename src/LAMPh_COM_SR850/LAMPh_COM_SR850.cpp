@@ -1,13 +1,13 @@
 /*-------------------------------------------------
 *
-*	This is a template for writing a new library for LAMPh
-*	Created by Ilnur Gimazov (ubvfp94@mail.ru) 2018-10-03 (3th October 2018)
+*	This library is written to work with the lock-in SR850.
+*	Created by Ilnur Gimazov 2018-10-17 (17th October 2018)
 *	Lib for LAMPh
 *	
 *-------------------------------------------------
 */
 
-#include "LAMPh_TEMP.h"
+#include "LAMPh_COM_SR850.h"
 
 #include <stdio.h>
 #include <cmath>
@@ -18,9 +18,10 @@
 
 #include <QDebug>
 #include <QDateTime>
+#include <QtSerialPort/QSerialPort>
 
-#define NAME  "LAMPh_TEMP"  	//Name of device
-#define DEVICE "TEMP" 			//Name of device
+#define NAME  "LAMPh_COM_SR850"  	//Name of device
+#define DEVICE "Lock-in SR850" 			//Name of device
 #define FOLDER  "Functions/"	//Folder where file will be created (please do not change this value)
 #define TXT "_functions.txt"	//Names of functions will be recorded in this file (please do not change this value)	
 #define FUNCTIONS "float getFloatA();float getFloatB();float getFloatC();float getFloatParD(float);float getFloatParE(float);float getFloatParF(float);void setParameterG(float);void setParameterH(float);void setParameterI(float)"  //one can use only void and float functions with only float parameter (don't leave empty space after ";")
@@ -30,6 +31,7 @@
 
 class ClassLAMPh{
 private:
+    QSerialPort serialPort;
 	char * status_char;
 	char * unit_char;
 	
@@ -92,10 +94,11 @@ public:
     }
 	
     bool connectL(){
-		/* for COM devices!!!
-		for (const QSerialPortInfo &info : QSerialPortInfo::availablePorts()){
+        for (const QSerialPortInfo &info : QSerialPortInfo::availablePorts()){
+            qDebug() << "serialPort" << info.portName();
             if (!info.isBusy())
             {
+                qDebug() << info.portName();
                 serialPort.setPortName(info.portName());
                 serialPort.setBaudRate(QSerialPort::Baud9600);
                 serialPort.setStopBits(QSerialPort::OneStop);
@@ -114,9 +117,17 @@ public:
                 ba[5] = 0x0d;
                 ba[6] = 0x0a; // "*IDN?"
 
+                QByteArray ba_check; //KEITHLEY2000
+                ba_check.resize(4);
+                ba_check[0] = 0x4b;
+                ba_check[1] = 0x45;
+                ba_check[2] = 0x49;
+                ba_check[3] = 0x54;
+
+
                 serialPort.waitForBytesWritten(300);
 
-                serialPort.write("*IDN?\r\n"); //or serialPort.write(ba);
+                serialPort.write("*IDN?\r\n");
 
                 serialPort.waitForReadyRead(300);
 
@@ -124,29 +135,34 @@ public:
                 data= serialPort.readAll();
                 while (serialPort.waitForReadyRead(10))
                     data += serialPort.readAll();
-				
-				//or
-				//for (int i=0; i<14; i++){
-                //    if (serialPort.waitForReadyRead(10)){
-                //        data += serialPort.readAll();
-                //    }else{break;}
-                //}
-				QString dataQString(data.toHex());
-				
-				if (dataQString.contains("00000600", Qt::CaseInsensitive)){
-                    serialPort.write("*RST\r\n");
-					serialPort.write(":SENS:FUNC 'VOLT:DC'\r\n");
-					serialPort.write(":SENS:FRES:DIG 6\r\n");
-					serialPort.write(":READ?\r\n");
-				    return true;
-                }else
+
+
+                std::string result_tmp = data.toStdString();
+                QString data_tmp = QString::fromStdString(result_tmp);
+                qDebug() << "data_tmp: "  << data_tmp;
+
+                qDebug().noquote() << "bytes: " << data.size() << " values: " << data.toHex();
+
+                bool match_bool =true;
+                for (int i=0; i<ba_check.size(); i++)
                 {
-                    serialPort.close();
+                    if (ba_check[i]!=data[i]){
+                        serialPort.close();
+                        match_bool = false;
+                    }
                 }
+                if (match_bool)
+                {
+                    //serialPort.write("*RST\r\n");
+                    //serialPort.write(":SENS:FUNC 'VOLT:DC'\r\n");
+                    //serialPort.write(":SENS:FRES:DIG 6\r\n");
+                    //serialPort.write(":READ?\r\n");
+                    return true;
+                }
+
             }
         }
-        return false;*/
-		return true;
+        return false;
 	}
 
 	const char* getStatus(){

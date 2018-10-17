@@ -1,18 +1,19 @@
 /*-------------------------------------------------
 *
-*	This is a template for writing a new library for LAMPh
-*	Created by Ilnur Gimazov (ubvfp94@mail.ru) 2018-10-03 (3th October 2018)
+*	This library is written to work with the lock-in SR850.
+*	Created by Ilnur Gimazov 2018-10-17 (17th October 2018)
 *	Lib for LAMPh
 *	
 *-------------------------------------------------
 */
 
-#ifndef LAMPh_TEMP_LIB_H
-#define LAMPh_TEMP_LIB_H
+#ifndef LAMPh_COM_SR850_LIB_H
+#define LAMPh_COM_SR850_LIB_H
 
-#include "LAMPh_TEMP_global.h"
+#include "LAMPh_COM_SR850_global.h"
 #include <QString>
 #include <QStringList>
+#include <QtSerialPort/QSerialPort>
 
 extern "C" {
 LAMPHLIBSHARED_EXPORT const char* getName(); // LAMPh will receive Name of this device from this Lib
@@ -61,4 +62,4 @@ LAMPHLIBSHARED_EXPORT bool setParameterComboBox(int number_of_device, int row, f
 
 }
 
-#endif // LAMPh_TEMP_LIB_H
+#endif // LAMPh_COM_SR850_LIB_H

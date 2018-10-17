@@ -18,11 +18,11 @@ DialogDeviceSettings::DialogDeviceSettings(QString dllFile, int number, QWidget 
 	
     QString infoString = "";
     QLibrary lib ( dllFileQString );
-    typedef const char* ( *GetInfo )();
+    typedef const char* ( *GetInfo )(int);
     GetInfo getInfo;
     getInfo = ( GetInfo ) lib.resolve( "getInfo" );
     if( getInfo ) {
-        infoString = QString::fromUtf8(getInfo());
+        infoString = QString::fromUtf8(getInfo(number_of_device));
     }
     labelInfo->setText(QString ("Info: %1").arg(infoString));
 
@@ -62,11 +62,75 @@ DialogDeviceSettings::DialogDeviceSettings(QString dllFile, int number, QWidget 
         labelLineName[i] -> setText(QString::fromLatin1(getLineName(number_of_device,i)));
     }
 
+    for (int i=0; i<BUTTONNUM; i++)
+    {
+        typedef const char* ( *GetComboBoxName )(int, int);
+        GetComboBoxName getComboBoxName;
+        getComboBoxName = ( GetComboBoxName ) lib.resolve( "getComboBoxName" );
+        labelComboBoxName[i] -> setText(QString::fromLatin1(getComboBoxName(number_of_device,i)));
+    }
 
+    for (int i=0; i<BUTTONNUM; i++)
+    {
+        typedef const char* ( *GetQStringList )(int, int);
+        GetQStringList getQStringList;
+        getQStringList = ( GetQStringList ) lib.resolve( "getQStringList" );
+        QStringList dataQStringList = QString::fromLatin1(getQStringList(number_of_device,i)).split(";");
+        comboBoxQStringList[i]->addItems(dataQStringList);
+
+
+        connect(comboBoxQStringList[i], static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+                 [=](int index){
+                 setParameterComboBox(i,index);
+            });
+    }
+
+    for (int i=0; i<BUTTONNUM; i++)
+    {
+        if ("" ==labelRowName[i]->text()){
+            labelRowName[i]->hide();
+            for (int column=0; column<BUTTONNUM; column++)
+            {
+                pushButtonButtonName[i][column]->hide();
+            }
+            lineEditRowData[i]->hide();
+        }else
+        {
+            labelRowName[i]->show();
+            for (int column=0; column<BUTTONNUM; column++)
+            {
+                pushButtonButtonName[i][column]->show();
+            }
+            lineEditRowData[i]->show();
+        }
+
+        if ("" ==labelLineName[i]->text()){
+            labelLineName[i]->hide();
+            lineEditParameterLine[i]->hide();
+            pushButtonSend[i]->hide();
+        }else{
+            labelLineName[i]->show();
+            lineEditParameterLine[i]->show();
+            pushButtonSend[i]->show();
+        }
+
+        if ("" ==labelComboBoxName[i]->text()){
+            labelComboBoxName[i]->hide();
+            comboBoxQStringList[i]->hide();
+        }else{
+            labelComboBoxName[i]->show();
+            comboBoxQStringList[i]->show();
+        }
+    }
 }
 
 DialogDeviceSettings::~DialogDeviceSettings(){
- //delete ui;
+    /*for (int i=0; i<BUTTONNUM; i++)
+    {
+        delete comboBoxQStringList[i];
+    }*/
+
+    //delete groupTableSettings();
 }
 
 void DialogDeviceSettings::save_data(){
@@ -106,6 +170,19 @@ bool DialogDeviceSettings::setParameterLine(int row){
     float returnFloat = lineEditParameterLine[row]->text().toFloat();
     return setParameterLine(number_of_device,row,returnFloat);
 }
+
+bool DialogDeviceSettings::setParameterComboBox(int row,int index){
+    QLibrary lib ( dllFileQString );
+    typedef bool (*SetParameterComboBox) (int,int,float);
+    SetParameterComboBox setParameterComboBox;
+    setParameterComboBox = (SetParameterComboBox)(lib.resolve("setParameterComboBox"));
+    float returnFloat = (float) index; //comboBoxQStringList[row]->currentIndex();
+    setParameterComboBox(number_of_device,row,returnFloat);
+    //sorry
+    //return setParameterComboBox(number_of_device,row,returnFloat);
+}
+
+
 
 QGroupBox *DialogDeviceSettings::groupTableSettings()
 {
@@ -160,6 +237,21 @@ QGroupBox *DialogDeviceSettings::groupTableSettings()
            });
     }
 
+    for (int i=0; i<BUTTONNUM; i++)
+    {
+        labelComboBoxName[i] = new QLabel(QString ("Line: %1").arg(i));
+    }
+
+    for (int i=0; i<BUTTONNUM; i++)
+    {
+        comboBoxQStringList[i] = new QComboBox();
+
+        /*connect(comboBoxQStringList[i], static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+                 [=](int index){
+                 setParameterComboBox(i,index);
+            });*/
+    }
+
     QGridLayout * gridLayout = new QGridLayout();
 
     //gridLayout->addWidget(labelName,0,0);
@@ -197,6 +289,16 @@ QGroupBox *DialogDeviceSettings::groupTableSettings()
     for (int i=0; i<BUTTONNUM; i++)
     {
         gridLayout->addWidget(pushButtonSend[i],7+i,3);
+    }
+
+    for (int i=0; i<BUTTONNUM; i++)
+    {
+        gridLayout->addWidget(labelComboBoxName[i],12+i,0);
+    }
+
+    for (int i=0; i<BUTTONNUM; i++)
+    {
+        gridLayout->addWidget(comboBoxQStringList[i],12+i,1,1,2);
     }
 
     groupBox->setLayout(gridLayout);

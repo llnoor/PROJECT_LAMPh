@@ -1,18 +1,20 @@
 /*-------------------------------------------------
 *
-*	This is a template for writing a new library for LAMPh
-*	Created by Ilnur Gimazov (ubvfp94@mail.ru) 2018-10-03 (3th October 2018)
+*	To work with APPA 205
+*	Created by Ilnur Gimazov (ubvfp94@mail.ru) 2018-10-17 (17th October 2018)
 *	Lib for LAMPh
 *	
 *-------------------------------------------------
 */
 
-#ifndef LAMPh_TEMP_LIB_H
-#define LAMPh_TEMP_LIB_H
+#ifndef LAMPh_COM_APPA205_LIB_H
+#define LAMPh_COM_APPA205_LIB_H
 
-#include "LAMPh_TEMP_global.h"
+#include "LAMPh_COM_APPA205_global.h"
 #include <QString>
 #include <QStringList>
+#include <QSerialPort>
+#include <QSerialPortInfo>
 
 extern "C" {
 LAMPHLIBSHARED_EXPORT const char* getName(); // LAMPh will receive Name of this device from this Lib
@@ -27,17 +29,7 @@ LAMPHLIBSHARED_EXPORT const char* getStatus(int number_of_device); //LAMPh will 
 LAMPHLIBSHARED_EXPORT const char* getUnit(int number_of_device); // LAMPh will receive Units (V, mV, A, mA, Ohm, K, Oe, T and so on)
 LAMPHLIBSHARED_EXPORT void readData(int number_of_device); //LAMPh send command to read Data from device
 
-LAMPHLIBSHARED_EXPORT float getFloatA(int number_of_device);	//LAMPh will receive Data (Float) from device by this Lib
-LAMPHLIBSHARED_EXPORT float getFloatB(int number_of_device);
-LAMPHLIBSHARED_EXPORT float getFloatC(int number_of_device);
-
-LAMPHLIBSHARED_EXPORT float getFloatParD(int number_of_device, float parameter = 0); //LAMPh will receive Data (Float) from device by this Lib and will set parameter (default =0)
-LAMPHLIBSHARED_EXPORT float getFloatParE(int number_of_device, float parameter = 0);
-LAMPHLIBSHARED_EXPORT float getFloatParF(int number_of_device, float parameter = 0);
-
-LAMPHLIBSHARED_EXPORT void setParameterG(int number_of_device, float parameter = 0); //LAMPh will set parameter (default =0)
-LAMPHLIBSHARED_EXPORT void setParameterH(int number_of_device, float parameter = 0);
-LAMPHLIBSHARED_EXPORT void setParameterI(int number_of_device, float parameter = 0);
+LAMPHLIBSHARED_EXPORT float getFloat(int number_of_device);	//LAMPh will receive Data (Float) from device by this Lib
 
 LAMPHLIBSHARED_EXPORT bool startL(int number_of_device); //LAMPh (measurement) is started
 LAMPHLIBSHARED_EXPORT bool stopL(int number_of_device); //LAMPh (measurement) is stopped
@@ -61,4 +53,4 @@ LAMPHLIBSHARED_EXPORT bool setParameterComboBox(int number_of_device, int row, f
 
 }
 
-#endif // LAMPh_TEMP_LIB_H
+#endif // LAMPh_COM_APPA205_LIB_H
