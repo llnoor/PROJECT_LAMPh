@@ -17,8 +17,10 @@
 #include <string>
 
 #include <QDebug>
+#include <QThread>
 #include <QDateTime>
-#include <QtSerialPort/QSerialPort>
+#include <QSerialPort>
+#include <QSerialPortInfo>
 
 #define NAME  "LAMPh_COM_SR850"  	//Name of device
 #define DEVICE "Lock-in SR850" 			//Name of device
@@ -117,12 +119,12 @@ public:
                 ba[5] = 0x0d;
                 ba[6] = 0x0a; // "*IDN?"
 
-                QByteArray ba_check; //KEITHLEY2000
+                QByteArray ba_check; //SR850
                 ba_check.resize(4);
-                ba_check[0] = 0x4b;
-                ba_check[1] = 0x45;
-                ba_check[2] = 0x49;
-                ba_check[3] = 0x54;
+                ba_check[0] = 0x53;
+                ba_check[1] = 0x74;
+                ba_check[2] = 0x61;
+                ba_check[3] = 0x6e;
 
 
                 serialPort.waitForBytesWritten(300);
@@ -174,80 +176,50 @@ public:
     }
 	
 	void readData(){
-        /*if (getFloatA_active){ // if (getFloatA_active==true)
-			serialPort.write(":READ_floatA?\r\n");
-			QByteArray data = serialPort.readAll();
-			std::string result_tmp = data.toStdString();
-			QString data_tmp = QString::fromStdString(result_tmp);
-			result_floatA = data_tmp.toFloat();
-		}
-		
-		if (getFloatB_active){ 
-			serialPort.write(":READ_floatB?\r\n");
-			QByteArray data = serialPort.readAll();
-			std::string result_tmp = data.toStdString();
-			QString data_tmp = QString::fromStdString(result_tmp);
-			result_floatB = data_tmp.toFloat();
-		}
-		
-		if (getFloatC_active){ 
-			serialPort.write(":READ_floatC?\r\n");
-			QByteArray data = serialPort.readAll();
-			std::string result_tmp = data.toStdString();
-			QString data_tmp = QString::fromStdString(result_tmp);
-			result_floatC = data_tmp.toFloat();
-		}
-		
-		if (getFloatParD_active){ 
-			serialPort.write(":READ_floatD?\r\n");
-			QByteArray data = serialPort.readAll();
-			std::string result_tmp = data.toStdString();
-			QString data_tmp = QString::fromStdString(result_tmp);
-			result_floatD = data_tmp.toFloat();
-		}
-		
-		if (getFloatParE_active){ 
-			serialPort.write(":READ_floatE?\r\n");
-			QByteArray data = serialPort.readAll();
-			std::string result_tmp = data.toStdString();
-			QString data_tmp = QString::fromStdString(result_tmp);
-			result_floatE = data_tmp.toFloat();
-		}
-		
-		if (getFloatParF_active){ 
-			serialPort.write(":READ_floatF?\r\n");
-			QByteArray data = serialPort.readAll();
-			std::string result_tmp = data.toStdString();
-			QString data_tmp = QString::fromStdString(result_tmp);
-			result_floatF = data_tmp.toFloat();
+        QByteArray data;
+
+        serialPort.write("SNAP?1,2,4,9\r\n");
+
+        data = serialPort.readAll();
+        /*char *buff = data.data();
+        for (int l=0; l<102; l++){
+            buff_int[l]=0;
+            buff_int[l]= buff[l]  - '0';
         }*/
-	
-		//if (setParameterG){} //it doesn't matter, it always must be false, because it can't read data  
-	}
+
+        std::string result_tmp = data.toStdString();
+        QString data_tmp = QString::fromStdString(result_tmp);
+        data_tmp.remove("\n");
+        data_tmp.remove("\r");
+
+        QStringList list1 = data_tmp.split(',');
+        list1.append("0");
+        list1.append("0");
+
+        result_floatA  = list1[0].toFloat();
+        result_floatB  = list1[1].toFloat();
+
+    }
 	
 	float getFloatA(){
-		getFloatA_active = true; //after that program will be readData for this function
-        result_floatA++;
+        getFloatA_active = true; //after that program will be readData for this function
+        QThread::msleep(100);
         return result_floatA;
 	}
 	
 	float getFloatB(){
-		getFloatB_active = true;
-        //result_floatB=result_floatB+result_floatA;
-        result_floatB = parameterG;
+        getFloatB_active = true;
+        QThread::msleep(100);
         return result_floatB;
 	}
 	
 	float getFloatC(){
-		getFloatC_active = true;
-        result_floatC = parameterH;
+        getFloatC_active = true;
 		return result_floatC;
 	}
 	
 	float getFloatParD(float parameter){
 		getFloatParD_active = true;
-        //parameterD = parameter;
-        result_floatD = parameterD;
 		return result_floatD;
 	}
 	
