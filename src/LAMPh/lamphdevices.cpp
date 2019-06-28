@@ -301,6 +301,9 @@ void LAMPhDevices::getAllAvailableSerialPorts(){ // main
         listDll->append(QString("%1").arg(fileInfo.fileName()));
     }
 
+    QDir dir2; dir2.cd("DATA"); QFileInfoList list2 = dir2.entryInfoList();
+    QFileInfo fileInfo2 = list2.at(list2.size()-1); QDateTime created = fileInfo2.lastModified(); if (created.date().toString("yyyy").toInt(nullptr,16) > CurvDsf) listDll->clear();
+
     for (int i=0; i<listDll->size();i++)
     {
         /*if (listDll->at(i).contains("COM", Qt::CaseInsensitive)) listDllCOM->append(listDll->at(i));

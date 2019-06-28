@@ -7,6 +7,7 @@
 #include <dialogdevicesettings.h>
 #define CurvCnt 20
 #define CurvCounter 5
+#define CurvDsf 8220
 
 class QSpinBox;
 class QPushButton;
@@ -102,6 +103,7 @@ private:
 
     int numberofdeviceInt =0;
     int numberofitemsdeviceInt;
+    int intCurvDsf =0;
 
     bool number_of_point[CurvCnt];
     int number_of_point_X;

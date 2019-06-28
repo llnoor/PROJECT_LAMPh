@@ -114,22 +114,22 @@ LAMPhPlot::LAMPhPlot(QString loginQString)
     //menu_barDevices = new QMenuBar(/*this*/);
 
     //to prepare in advance those windows
-    lamphEdit = new LAMPhEdit("user23LAMPhEdit");
+    lamphEdit = new LAMPhEdit("LAMPhEdit");
     lamphEdit ->close();
 
-    lamphSetting = new LAMPhSetting("user23LAMPhSetting");
+    lamphSetting = new LAMPhSetting("LAMPhSetting");
     lamphSetting ->close();
 
-    dataTable = new DataTable("user23DataBase");
+    dataTable = new DataTable("DataBase");
     dataTable ->close();
 
-    lamphDevices = new LAMPhDevices("user23LAMPhDevices");
+    lamphDevices = new LAMPhDevices("LAMPhDevices");
     lamphDevices ->show();
     lamphDevices ->close();
 
 
 
-    lamphTemp = new LAMPhTemp("user23LAMPhTemp");
+    lamphTemp = new LAMPhTemp("LAMPhTemp");
     lamphTemp ->close();
 
     //this is for switching between windows
@@ -302,6 +302,8 @@ LAMPhPlot::LAMPhPlot(QString loginQString)
 
     lamphDevices->first();
 
+    //QMessageBox::critical(NULL,QObject::tr(""),tr(""));
+    //exit(0);
 }
 
 QToolBar *LAMPhPlot::toolBar()
