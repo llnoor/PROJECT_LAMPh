@@ -21,7 +21,7 @@
 #define TXT "_functions.txt"
 #define FUNCTIONS "float getSeconds();float getSecondsFromNull();float getMinutes();float getMinutesFromNull();float getHours();float getHoursfromNull();float getDays();float getDaysFromNull()"
 #define INFO "The Lib for LAMPh to connect with ATIME"
-#define NUMBER 2 //Only one device can be connected by this Lib (this value can be changed)
+#define NUMBER 1 //Only one device can be connected by this Lib (this value can be changed)
 #define NONE "None"
 
 /*For keithley

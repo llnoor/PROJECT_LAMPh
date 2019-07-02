@@ -8,12 +8,9 @@ int pin_b[8];
 String inputString = ""; 
 bool stringComplete = false; 
 
-
-void turnA(int i, int k);
-void turnB(int i, int k);
-
 void setup() {
-  Serial.begin(9600); 
+  Serial.begin(9600);
+  Serial.write("ArduinoDUE,RelayModule,LAMPh_0.5.0"); 
  
   for (int i=0;i<8;i++)
   {
@@ -28,27 +25,6 @@ void setup() {
     digitalWrite(pin_a[i], HIGH);  //HIGH = turn off !!!
     digitalWrite(pin_b[i], HIGH);  //LOW  = turn on  !!!
   }
-  for (int i=0;i<8;i++)
-  {
-    digitalWrite(pin_a[i], LOW);
-    delay(dl);
-  }
-  for (int i=0;i<8;i++)
-  {
-    digitalWrite(pin_b[i], LOW);
-    delay(dl);
-  }
-  for (int i=0;i<8;i++)
-  {
-    digitalWrite(pin_a[i], HIGH);
-    delay(dl);
-  }
-  for (int i=0;i<8;i++)
-  {
-    digitalWrite(pin_b[i], HIGH);
-    delay(dl);
-  }
-
   inputString.reserve(200);
 }
 
@@ -89,8 +65,8 @@ void loop() {
   case 17: turnA(4,0);turnA(5,1);turnA(6,1);turnA(7,0);turnB(3,0);turnB(4,1);turnB(7,1);turnB(8,0); break;
   case 18: turnA(3,1);turnA(4,1);turnA(7,1);turnA(8,1);turnB(4,0);turnB(5,0);turnB(6,0);turnB(7,0); break;
 
-  case 19: turnOff(); break; 
-  case 20: turnOff(); break; 
+  case 19: break; 
+  case 20: break; 
 
   case 21: turnA(4,0);turnA(5,0);turnA(6,0);turnA(7,0);turnB(4,0);turnB(5,0);turnB(6,0);turnB(7,0); break;
   case 22: turnA(3,0);turnA(4,1);turnA(7,1);turnA(8,0);turnB(3,0);turnB(4,1);turnB(7,1);turnB(8,0); break;
@@ -101,6 +77,10 @@ void loop() {
   case 26: turnOff(); break; 
   case 27: turnOff(); break; 
   case 28: turnOff(); break; 
+  case 29: turnOff(); break;
+  case 30: turnOff(); break;
+
+  case 70: check(); break; 
   
   default: 
   if ((intR>30)and(intR<=68)){
@@ -152,7 +132,28 @@ void turnOff(){
   }
 }
 
-
+void check(){
+  for (int i=0;i<8;i++)
+  {
+    digitalWrite(pin_a[i], LOW);
+    delay(dl);
+  }
+  for (int i=0;i<8;i++)
+  {
+    digitalWrite(pin_b[i], LOW);
+    delay(dl);
+  }
+  for (int i=0;i<8;i++)
+  {
+    digitalWrite(pin_a[i], HIGH);
+    delay(dl);
+  }
+  for (int i=0;i<8;i++)
+  {
+    digitalWrite(pin_b[i], HIGH);
+    delay(dl);
+  }
+}
 
 
   

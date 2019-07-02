@@ -22,6 +22,7 @@
 
 #include <QDebug>
 #include <QLibrary>
+#include <QtMath>
 
 #include <QApplication>
 #include <QWidget>
@@ -1251,22 +1252,65 @@ void LAMPhDevices::setCounter(){
         if ((0==period) and
             ((checkBox_Counter_Show_Y[i]->isChecked()) or (checkBox_Counter_Text[i]->isChecked())))
         {
-            if (lineEdit_Counter_Value[i]->text().toFloat()>=lineEdit_Counter_To[i]->text().toFloat())   lineEdit_Counter_Value[i]->setText(lineEdit_Counter_From[i]->text());
-            else{
+            float valueFloat=1;
+            float stepFloat=1;
+
+            if (
+                    (lineEdit_Counter_Step[i]->text().toFloat()>= qFabs(lineEdit_Counter_From[i]->text().toFloat()) )
+                    and
+                    (lineEdit_Counter_Step[i]->text().toFloat()>= qFabs(lineEdit_Counter_To[i]->text().toFloat()))
+                    ) {
+                lineEdit_Counter_Step[i]->setText(QString ("1"));
+            }
+            if (
+                    (lineEdit_Counter_Acceleration[i]->text().toFloat()>= qFabs(lineEdit_Counter_From[i]->text().toFloat()) )
+                    and
+                    (lineEdit_Counter_Acceleration[i]->text().toFloat()>= qFabs(lineEdit_Counter_To[i]->text().toFloat()))
+                    ) {
+                lineEdit_Counter_Acceleration[i]->setText(QString ("1"));
+            }
+            if (lineEdit_Counter_Acceleration[i]->text().toFloat() != 1){
+            stepFloat = lineEdit_Counter_Step[i]->text().toFloat() * lineEdit_Counter_Acceleration[i]->text().toFloat();
+            lineEdit_Counter_Step[i]->setText(QString ("%1").arg(stepFloat));
+            }
+            valueFloat = lineEdit_Counter_Value[i]->text().toFloat()+lineEdit_Counter_Step[i]->text().toFloat();
+
+
+            if (lineEdit_Counter_From[i]->text().toFloat() < lineEdit_Counter_To[i]->text().toFloat()) {
+                if (lineEdit_Counter_Step[i]->text().toFloat()<0)
+                    lineEdit_Counter_Step[i]->setText(QString ("%1").arg((1)*qFabs(lineEdit_Counter_Step[i]->text().toFloat()) ));
                 if (
-                        (lineEdit_Counter_Value[i]->text().toFloat()>=lineEdit_Counter_From[i]->text().toFloat())
+                        (lineEdit_Counter_Value[i]->text().toFloat()>= lineEdit_Counter_From[i]->text().toFloat() )
                         and
-                        (lineEdit_Counter_Value[i]->text().toFloat()<lineEdit_Counter_To[i]->text().toFloat())
-                    )
-                {
-                    float valueFloat = lineEdit_Counter_Value[i]->text().toFloat()+lineEdit_Counter_Step[i]->text().toFloat();
+                        (lineEdit_Counter_Value[i]->text().toFloat()< lineEdit_Counter_To[i]->text().toFloat())
+                        ) {
+                        lineEdit_Counter_Value[i]->setText(QString ("%1").arg(valueFloat));
+
+                }else {
+                    valueFloat = lineEdit_Counter_From[i]->text().toFloat();
                     lineEdit_Counter_Value[i]->setText(QString ("%1").arg(valueFloat));
-
-                    if (lineEdit_Counter_Value[i]->text().toFloat()>lineEdit_Counter_To[i]->text().toFloat()) lineEdit_Counter_Value[i]->setText(lineEdit_Counter_To[i]->text());
-
-                    float stepFloat = lineEdit_Counter_Step[i]->text().toFloat() * lineEdit_Counter_Acceleration[i]->text().toFloat();
-                    lineEdit_Counter_Step[i]->setText(QString ("%1").arg(stepFloat));
-                    if (lineEdit_Counter_Step[i]->text().toFloat()>lineEdit_Counter_To[i]->text().toFloat()) lineEdit_Counter_Step[i]->setText(lineEdit_Counter_To[i]->text());
+                }
+            }
+            else {
+                if (lineEdit_Counter_Step[i]->text().toFloat()>0){
+                    lineEdit_Counter_Step[i]->setText(QString ("%1").arg((-1)*qFabs(lineEdit_Counter_Step[i]->text().toFloat()) ));
+                    valueFloat = lineEdit_Counter_Value[i]->text().toFloat()-qFabs(lineEdit_Counter_Step[i]->text().toFloat());
+                }
+                if (
+                        (lineEdit_Counter_Value[i]->text().toFloat()<= lineEdit_Counter_From[i]->text().toFloat() )
+                        and
+                        (lineEdit_Counter_Value[i]->text().toFloat()> lineEdit_Counter_To[i]->text().toFloat())
+                        ) {
+                        lineEdit_Counter_Value[i]->setText(QString ("%1").arg(valueFloat));
+                }else {
+                    if (lineEdit_Counter_Value[i]->text().toFloat() > lineEdit_Counter_From[i]->text().toFloat()) {
+                        valueFloat = lineEdit_Counter_From[i]->text().toFloat();
+                    }else if (lineEdit_Counter_Value[i]->text().toFloat()< lineEdit_Counter_To[i]->text().toFloat()) {
+                        valueFloat = lineEdit_Counter_To[i]->text().toFloat();
+                    }else {
+                        valueFloat = lineEdit_Counter_Value[i]->text().toFloat();
+                    }
+                    lineEdit_Counter_Value[i]->setText(QString ("%1").arg(valueFloat));
                 }
             }
             send_all_results(lineEdit_Counter_Value[i]->text().toFloat(),CurvCnt+i);
