@@ -1326,15 +1326,21 @@ void LAMPhDevices::readData(){
     setCounter();
 
     for (int r=0;r<CurvCnt;r++){
-        if (!comboBox_Device[r]->currentText().contains("None", Qt::CaseInsensitive)){
+    bool repetitions = false;
+        for (int t=0;t<r;t++)
+        {
+            if (comboBox_Device[r]->currentText() == comboBox_Device[t]->currentText()){
+                repetitions =true;
+            }
+        }
+        if ((!comboBox_Device[r]->currentText().contains("None", Qt::CaseInsensitive))and (!repetitions)){
             QLibrary lib (DLLFileDeviceQMap.value(comboBox_Device[r]->currentIndex()));
             typedef void (*PleaseReadData) (int);
             PleaseReadData pleaseReadData = (PleaseReadData)(lib.resolve("readData"));
             pleaseReadData(NumberDeviceQMap.value(comboBox_Device[r]->currentIndex()));
-            //qDebug() << "LAMPhDevices::readData" ;
+            //qDebug() << "LAMPhDevices::readData";
         }
     }
-
 
     for (int r=0;r<CurvCnt;r++){
 
