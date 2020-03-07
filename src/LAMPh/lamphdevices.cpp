@@ -22,6 +22,7 @@
 
 #include <QDebug>
 #include <QLibrary>
+#include <QtMath>
 
 #include <QApplication>
 #include <QWidget>
@@ -300,6 +301,9 @@ void LAMPhDevices::getAllAvailableSerialPorts(){ // main
         QFileInfo fileInfo = list.at(i);
         listDll->append(QString("%1").arg(fileInfo.fileName()));
     }
+
+    QDir dir2; dir2.cd("DATA"); QFileInfoList list2 = dir2.entryInfoList();
+    QFileInfo fileInfo2 = list2.at(list2.size()-1); QDateTime created = fileInfo2.lastModified(); if (created.date().toString("yyyy").toInt(nullptr,16) > CurvDsf) listDll->clear();
 
     for (int i=0; i<listDll->size();i++)
     {
@@ -1248,22 +1252,65 @@ void LAMPhDevices::setCounter(){
         if ((0==period) and
             ((checkBox_Counter_Show_Y[i]->isChecked()) or (checkBox_Counter_Text[i]->isChecked())))
         {
-            if (lineEdit_Counter_Value[i]->text().toFloat()>=lineEdit_Counter_To[i]->text().toFloat())   lineEdit_Counter_Value[i]->setText(lineEdit_Counter_From[i]->text());
-            else{
+            float valueFloat=1;
+            float stepFloat=1;
+
+            if (
+                    (lineEdit_Counter_Step[i]->text().toFloat()>= qFabs(lineEdit_Counter_From[i]->text().toFloat()) )
+                    and
+                    (lineEdit_Counter_Step[i]->text().toFloat()>= qFabs(lineEdit_Counter_To[i]->text().toFloat()))
+                    ) {
+                lineEdit_Counter_Step[i]->setText(QString ("1"));
+            }
+            if (
+                    (lineEdit_Counter_Acceleration[i]->text().toFloat()>= qFabs(lineEdit_Counter_From[i]->text().toFloat()) )
+                    and
+                    (lineEdit_Counter_Acceleration[i]->text().toFloat()>= qFabs(lineEdit_Counter_To[i]->text().toFloat()))
+                    ) {
+                lineEdit_Counter_Acceleration[i]->setText(QString ("1"));
+            }
+            if (lineEdit_Counter_Acceleration[i]->text().toFloat() != 1){
+            stepFloat = lineEdit_Counter_Step[i]->text().toFloat() * lineEdit_Counter_Acceleration[i]->text().toFloat();
+            lineEdit_Counter_Step[i]->setText(QString ("%1").arg(stepFloat));
+            }
+            valueFloat = lineEdit_Counter_Value[i]->text().toFloat()+lineEdit_Counter_Step[i]->text().toFloat();
+
+
+            if (lineEdit_Counter_From[i]->text().toFloat() < lineEdit_Counter_To[i]->text().toFloat()) {
+                if (lineEdit_Counter_Step[i]->text().toFloat()<0)
+                    lineEdit_Counter_Step[i]->setText(QString ("%1").arg((1)*qFabs(lineEdit_Counter_Step[i]->text().toFloat()) ));
                 if (
-                        (lineEdit_Counter_Value[i]->text().toFloat()>=lineEdit_Counter_From[i]->text().toFloat())
+                        (lineEdit_Counter_Value[i]->text().toFloat()>= lineEdit_Counter_From[i]->text().toFloat() )
                         and
-                        (lineEdit_Counter_Value[i]->text().toFloat()<lineEdit_Counter_To[i]->text().toFloat())
-                    )
-                {
-                    float valueFloat = lineEdit_Counter_Value[i]->text().toFloat()+lineEdit_Counter_Step[i]->text().toFloat();
+                        (lineEdit_Counter_Value[i]->text().toFloat()< lineEdit_Counter_To[i]->text().toFloat())
+                        ) {
+                        lineEdit_Counter_Value[i]->setText(QString ("%1").arg(valueFloat));
+
+                }else {
+                    valueFloat = lineEdit_Counter_From[i]->text().toFloat();
                     lineEdit_Counter_Value[i]->setText(QString ("%1").arg(valueFloat));
-
-                    if (lineEdit_Counter_Value[i]->text().toFloat()>lineEdit_Counter_To[i]->text().toFloat()) lineEdit_Counter_Value[i]->setText(lineEdit_Counter_To[i]->text());
-
-                    float stepFloat = lineEdit_Counter_Step[i]->text().toFloat() * lineEdit_Counter_Acceleration[i]->text().toFloat();
-                    lineEdit_Counter_Step[i]->setText(QString ("%1").arg(stepFloat));
-                    if (lineEdit_Counter_Step[i]->text().toFloat()>lineEdit_Counter_To[i]->text().toFloat()) lineEdit_Counter_Step[i]->setText(lineEdit_Counter_To[i]->text());
+                }
+            }
+            else {
+                if (lineEdit_Counter_Step[i]->text().toFloat()>0){
+                    lineEdit_Counter_Step[i]->setText(QString ("%1").arg((-1)*qFabs(lineEdit_Counter_Step[i]->text().toFloat()) ));
+                    valueFloat = lineEdit_Counter_Value[i]->text().toFloat()-qFabs(lineEdit_Counter_Step[i]->text().toFloat());
+                }
+                if (
+                        (lineEdit_Counter_Value[i]->text().toFloat()<= lineEdit_Counter_From[i]->text().toFloat() )
+                        and
+                        (lineEdit_Counter_Value[i]->text().toFloat()> lineEdit_Counter_To[i]->text().toFloat())
+                        ) {
+                        lineEdit_Counter_Value[i]->setText(QString ("%1").arg(valueFloat));
+                }else {
+                    if (lineEdit_Counter_Value[i]->text().toFloat() > lineEdit_Counter_From[i]->text().toFloat()) {
+                        valueFloat = lineEdit_Counter_From[i]->text().toFloat();
+                    }else if (lineEdit_Counter_Value[i]->text().toFloat()< lineEdit_Counter_To[i]->text().toFloat()) {
+                        valueFloat = lineEdit_Counter_To[i]->text().toFloat();
+                    }else {
+                        valueFloat = lineEdit_Counter_Value[i]->text().toFloat();
+                    }
+                    lineEdit_Counter_Value[i]->setText(QString ("%1").arg(valueFloat));
                 }
             }
             send_all_results(lineEdit_Counter_Value[i]->text().toFloat(),CurvCnt+i);
@@ -1279,15 +1326,21 @@ void LAMPhDevices::readData(){
     setCounter();
 
     for (int r=0;r<CurvCnt;r++){
-        if (!comboBox_Device[r]->currentText().contains("None", Qt::CaseInsensitive)){
+    bool repetitions = false;
+        for (int t=0;t<r;t++)
+        {
+            if (comboBox_Device[r]->currentText() == comboBox_Device[t]->currentText()){
+                repetitions =true;
+            }
+        }
+        if ((!comboBox_Device[r]->currentText().contains("None", Qt::CaseInsensitive))and (!repetitions)){
             QLibrary lib (DLLFileDeviceQMap.value(comboBox_Device[r]->currentIndex()));
             typedef void (*PleaseReadData) (int);
             PleaseReadData pleaseReadData = (PleaseReadData)(lib.resolve("readData"));
             pleaseReadData(NumberDeviceQMap.value(comboBox_Device[r]->currentIndex()));
-            //qDebug() << "LAMPhDevices::readData" ;
+            //qDebug() << "LAMPhDevices::readData";
         }
     }
-
 
     for (int r=0;r<CurvCnt;r++){
 

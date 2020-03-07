@@ -20,10 +20,10 @@ Window::Window() : QWidget(0, Qt::Window | Qt::FramelessWindowHint)
     //authWindow->show();
 
 
-    lamphPlot = new LAMPhPlot("user23del");
+    lamphPlot = new LAMPhPlot("user");
     lamphPlot ->show();
 
-    //exprimentsWindow = new Experiments("user23");
+    //exprimentsWindow = new Experiments("user");
     //exprimentsWindow ->show();
 
 

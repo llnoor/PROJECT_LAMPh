@@ -1,19 +1,19 @@
 /*-------------------------------------------------
 *
-*	This library is written to work with the lock-in SR850.
-*	Created by Ilnur Gimazov 2018-10-17 (17th October 2018)
+*	This library is written to work with the lock-in LockIn5209.
+*	Created by Ilnur Gimazov 2019-09-02 (2nd September 2019)
 *	Lib for LAMPh
 *	
 *-------------------------------------------------
 */
 
-#ifndef LAMPh_COM_SR850_LIB_H
-#define LAMPh_COM_SR850_LIB_H
+#ifndef LAMPh_COM_LockIn5209_LIB_H
+#define LAMPh_COM_LockIn5209_LIB_H
 
-#include "LAMPh_COM_SR850_global.h"
+#include "LAMPh_COM_LockIn5209_global.h"
 #include <QString>
-#include <QStringList>
-#include <QtSerialPort/QSerialPort>
+//#include <QStringList>
+//#include <QtSerialPort/QSerialPort>
 
 extern "C" {
 LAMPHLIBSHARED_EXPORT const char* getName(); // LAMPh will receive Name of this device from this Lib
@@ -28,17 +28,14 @@ LAMPHLIBSHARED_EXPORT const char* getStatus(int number_of_device); //LAMPh will 
 LAMPHLIBSHARED_EXPORT const char* getUnit(int number_of_device); // LAMPh will receive Units (V, mV, A, mA, Ohm, K, Oe, T and so on)
 LAMPHLIBSHARED_EXPORT void readData(int number_of_device); //LAMPh send command to read Data from device
 
-LAMPHLIBSHARED_EXPORT float getFloatX(int number_of_device);
-LAMPHLIBSHARED_EXPORT float getFloatY(int number_of_device);
-LAMPHLIBSHARED_EXPORT float getFloatTheta(int number_of_device);
-LAMPHLIBSHARED_EXPORT float getFloatRefFreq(int number_of_device);
-
-LAMPHLIBSHARED_EXPORT float getFloatPar(int number_of_device, float parameter = 0);
+LAMPHLIBSHARED_EXPORT float getFloat(int number_of_device);
+LAMPHLIBSHARED_EXPORT float getFloatAuxIn1(int number_of_device);
+LAMPHLIBSHARED_EXPORT float getFloatAuxIn2(int number_of_device);
+LAMPHLIBSHARED_EXPORT float getFloatAuxIn3(int number_of_device);
+LAMPHLIBSHARED_EXPORT float getFloatAuxIn4(int number_of_device);
 
 LAMPHLIBSHARED_EXPORT void setAUXV1(int number_of_device, float parameter = 0);
 LAMPHLIBSHARED_EXPORT void setAUXV2(int number_of_device, float parameter = 0);
-LAMPHLIBSHARED_EXPORT void setAUXV3(int number_of_device, float parameter = 0);
-LAMPHLIBSHARED_EXPORT void setAUXV4(int number_of_device, float parameter = 0);
 
 LAMPHLIBSHARED_EXPORT float getFloatA(int number_of_device);	//LAMPh will receive Data (Float) from device by this Lib
 LAMPHLIBSHARED_EXPORT float getFloatB(int number_of_device);
@@ -76,4 +73,4 @@ LAMPHLIBSHARED_EXPORT bool setParameterComboBox(int number_of_device, int row, f
 
 }
 
-#endif // LAMPh_COM_SR850_LIB_H
+#endif // LAMPh_COM_LockIn5209_LIB_H

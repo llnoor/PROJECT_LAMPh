@@ -60,3 +60,4 @@ DISTFILES += \
     photo1.jpg \
     photo_sql.jpg
 
+RC_FILE = logo.rc

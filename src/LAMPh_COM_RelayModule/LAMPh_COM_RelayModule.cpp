@@ -1,13 +1,13 @@
 /*-------------------------------------------------
 *
-*	This library is written to work with the lock-in SR850.
-*	Created by Ilnur Gimazov 2018-10-17 (17th October 2018)
+*	To work with RelayModule (ArduinoDUE)
+*	Created by Ilnur Gimazov (ubvfp94@mail.ru) 2019-06-26 (26th June 2019)
 *	Lib for LAMPh
 *	
 *-------------------------------------------------
 */
 
-#include "LAMPh_COM_SR850.h"
+#include "LAMPh_COM_RelayModule.h"
 
 #include <stdio.h>
 #include <cmath>
@@ -17,18 +17,17 @@
 #include <string>
 
 #include <QDebug>
-#include <QThread>
 #include <QDateTime>
 #include <QSerialPort>
 #include <QSerialPortInfo>
 
-#define NAME  "LAMPh_COM_SR850"  	//Name of device
-#define DEVICE "Lock-in SR850" 			//Name of device
+#define NAME  "LAMPh_COM_RelayModule"  	//Name of device
+#define DEVICE "COM_RelayModule" 			//Name of device
 #define FOLDER  "Functions/"	//Folder where file will be created (please do not change this value)
 #define TXT "_functions.txt"	//Names of functions will be recorded in this file (please do not change this value)	
-#define FUNCTIONS "float getFloatX();float getFloatY();float getFloatTheta();float getFloatRefFreq();float getFloatPar(float);void setAUXV1(float);void setAUXV2(float);void setAUXV3(float);void setAUXV4(float)"  //one can use only void and float functions with only float parameter (don't leave empty space after ";")
-#define INFO "The Lib for LAMPh to connect with TEMP" //Info about this Lib or device
-#define NUMBER 1 //Two devices can be connected by this Lib (this value can be changed)
+#define FUNCTIONS "void setParameterG(float)" //"float getFloatA();float getFloatB();float getFloatC();float getFloatParD(float);float getFloatParE(float);float getFloatParF(float);void setParameterG(float);void setParameterH(float);void setParameterI(float)"  //one can use only void and float functions with only float parameter (don't leave empty space after ";")
+#define INFO "The Lib for LAMPh to connect with RelayModule (ArduinoDUE)" //Info about this Lib or device
+#define NUMBER 2 //Two devices can be connected by this Lib (this value can be changed)
 #define NONE "None"
 
 class ClassLAMPh{
@@ -40,7 +39,7 @@ private:
 	float result_floatA = 0;
 	float result_floatB = 0;
 	float result_floatC = 0;
-
+	
 	float result_floatD = 0;
 	float parameterD = 0;
 	float result_floatE = 0;
@@ -61,26 +60,7 @@ private:
     bool setParameterG_active = false;
     bool setParameterH_active = false;
     bool setParameterI_active = false;
-
-    float result_float[14];
-    bool parameterSNAP[14];
-
-    /*enum parameterSNAP {
-        X = 1,
-        Y = 2,
-        R = 3,
-        Theta = 4,
-        AuxIn1 = 5,
-        AuxIn2 = 6,
-        AuxIn3 = 7,
-        AuxIn4 = 8,
-        RefFreq = 9,
-        Trace1 = 10,
-        Trace2 = 11,
-        Trace3 = 12,
-        Trace4 = 13
-    };*/
-
+	
 	enum message {
 	nothingCritical = 0,  		//nothing critical
 	criticError = 1,
@@ -112,22 +92,14 @@ public:
     {
         status_char = "None";
         unit_char = "None";
-        for (int l=0;l<14;l++){
-            parameterSNAP[l]=false;
-            result_float[l]=0;
-        }
-        parameterSNAP[1]=true;
-        parameterSNAP[2]=true;
-        parameterSNAP[4]=true;
-        parameterSNAP[9]=true;
+        QByteArray data;
+        QSerialPort serialPort;
     }
 	
     bool connectL(){
-        for (const QSerialPortInfo &info : QSerialPortInfo::availablePorts()){
-            qDebug() << "serialPort" << info.portName();
+		for (const QSerialPortInfo &info : QSerialPortInfo::availablePorts()){
             if (!info.isBusy())
             {
-                qDebug() << info.portName();
                 serialPort.setPortName(info.portName());
                 serialPort.setBaudRate(QSerialPort::Baud9600);
                 serialPort.setStopBits(QSerialPort::OneStop);
@@ -135,6 +107,10 @@ public:
                 serialPort.setParity(QSerialPort::NoParity);
                 serialPort.setFlowControl(QSerialPort::NoFlowControl);
                 serialPort.open(QIODevice::ReadWrite);
+
+                //serialPort.waitForReadyRead(1000);
+                QByteArray data;
+                //serialPort.readAll();
 
                 QByteArray ba;
                 ba.resize(7);
@@ -146,37 +122,27 @@ public:
                 ba[5] = 0x0d;
                 ba[6] = 0x0a; // "*IDN?"
 
-                QByteArray ba_check; //SR850
-                ba_check.resize(4);
-                ba_check[0] = 0x53;
-                ba_check[1] = 0x74;
-                ba_check[2] = 0x61;
-                ba_check[3] = 0x6e;
+                serialPort.waitForBytesWritten(1000);
+                serialPort.write("*IDN?\r\n"); //or
+                serialPort.waitForReadyRead(1000);
 
-                serialPort.waitForBytesWritten(300);
-                serialPort.write("*IDN?\r\n");
-                serialPort.waitForReadyRead(300);
+                //data= serialPort.readAll();
 
-                QByteArray data;
-                data= serialPort.readAll();
-                while (serialPort.waitForReadyRead(10))
+                //qDebug() << data;
+
+                while (serialPort.waitForReadyRead(20))
                     data += serialPort.readAll();
+				
+				QString dataQString(data.toHex());
 
-                std::string result_tmp = data.toStdString();
-                QString data_tmp = QString::fromStdString(result_tmp);
-                //qDebug() << "data_tmp: "  << data_tmp;
-                //qDebug().noquote() << "bytes: " << data.size() << " values: " << data.toHex();
-                bool match_bool =true;
-                for (int i=0; i<ba_check.size(); i++)
-                {
-                    if (ba_check[i]!=data[i]){
-                        serialPort.close();
-                        match_bool = false;
-                    }
-                }
-                if (match_bool)
-                {
+                qDebug() << data;
+
+                if (dataQString.contains("41726475696E6F", Qt::CaseInsensitive)){ //ArduinoDUE
+                    serialPort.write("70\r\n");
                     return true;
+                }else
+                {
+                    serialPort.close();
                 }
             }
         }
@@ -192,130 +158,33 @@ public:
     }
 	
 	void readData(){
-        /*
-           set RS232
-           set FMOD2s
-           if (value < sensetivety) and (reserve = on) then (manual reserve++/ auto reserve)
-           if (value > sensetivety) and (reserve = on) then (sensetivety++/ auto gain)
-           if (OUTPUT = on) ?
-           */
 
-        QByteArray data;
-
-
-        //serialPort.write("SNAP?1,2,4,9\r\n");
-        /*bool check_SNAP_empty = true;
-        for (int i=1;i<14;i++){
-            if (parameterSNAP[i]){
-                check_SNAP_empty =false;
-            }
-        }
-        if (check_SNAP_empty) parameterSNAP[1]=true; //At least one out of 13 has to be TRUE!!!
-        */
-
-
-
-        serialPort.write("SNAP?");
-        int maxSNAP = 6; //only 6 parametrs could be used
-        for (int i=1;i<14;i++){
-
-            if ((parameterSNAP[i])and (maxSNAP>0)){
-                if (i!=1) serialPort.write(",");
-                serialPort.write(QByteArray::number(i));
-                maxSNAP--;
-            }
-            if (maxSNAP==0) {
-                for (int m=3;m<14;m++)
-                {
-                    parameterSNAP[m] =false;
-                }
-                break;
-            }
-        }
-        serialPort.write("\r\n");
-
-
-        data = serialPort.readAll();
-
-        std::string result_tmp = data.toStdString();
-        QString data_tmp = QString::fromStdString(result_tmp);
-        data_tmp.remove("\n");
-        data_tmp.remove("\r");
-
-
-
-        QStringList list1 = data_tmp.split(',');
-        list1.append("0");
-        list1.append("0");
-        list1.append("0");
-        list1.append("0");
-        list1.append("0");
-        list1.append("0");
-
-        //qDebug() << "list1: "  << list1;
-        result_floatA= list1[0].toFloat();
-        result_floatB= list1[1].toFloat();
-
-        int listnumber=0;
-        for (int i=1;i<14;i++){
-            if ((parameterSNAP[i]) and (listnumber<6)){
-                //qDebug() << "parameterSNAP[i]=true, i="  << i;
-                result_float[i]=list1[listnumber].toFloat();
-                listnumber++;
-            }
-        }
-
-
-        /*for (int kml=1;kml<14;kml++){
-            if (parameterSNAP[kml]==true){
-                qDebug() << "parameterSNAP[kml]=true, kml="  << kml;
-            }
-        }*/
-    }
+	}
 	
-    float getFloatX(){
-        parameterSNAP[1]=true;
-        //getFloatParD_active = true;
-        return result_float[1];
-    }
-
-    float getFloatY(){
-        parameterSNAP[2]=true;
-        //getFloatParD_active = true;
-        return result_float[2];
-    }
-
-    float getFloatTheta(){
-        parameterSNAP[4]=true;
-        //getFloatParD_active = true;
-        return result_float[4];
-    }
-
-    float getFloatRefFreq(){
-        parameterSNAP[9]=true;
-        //getFloatParD_active = true;
-        return result_float[9];
-    }
-
 	float getFloatA(){
-        getFloatA_active = true; //after that program will be readData for this function
+		getFloatA_active = true; //after that program will be readData for this function
+        result_floatA++;
         return result_floatA;
 	}
 	
 	float getFloatB(){
-        getFloatB_active = true;
+		getFloatB_active = true;
+        //result_floatB=result_floatB+result_floatA;
+        result_floatB = parameterG;
         return result_floatB;
 	}
 	
 	float getFloatC(){
-        getFloatC_active = true;
+		getFloatC_active = true;
+        result_floatC = parameterH;
 		return result_floatC;
 	}
 	
 	float getFloatParD(float parameter){
-        getFloatParE_active = true;
-        result_floatE = parameterE;
-        return result_floatE;
+		getFloatParD_active = true;
+        //parameterD = parameter;
+        result_floatD = parameterD;
+		return result_floatD;
 	}
 	
 	float getFloatParE(float parameter){
@@ -331,38 +200,10 @@ public:
         return result_floatF;
 	}
 	
-    float getFloatPar(float parameter){
-        int intparameter = parameter;
-        parameterSNAP[intparameter]=true;
-        return result_float[intparameter];
-    }
-
-    void setAUXV1(float parameter){
-        serialPort.write("AUXV1,");
-        serialPort.write(QByteArray::number(parameter));
-        serialPort.write("\r\n");
-    }
-
-    void setAUXV2(float parameter){
-        serialPort.write("AUXV2,");
-        serialPort.write(QByteArray::number(parameter));
-        serialPort.write("\r\n");
-    }
-
-    void setAUXV3(float parameter){
-        serialPort.write("AUXV3,");
-        serialPort.write(QByteArray::number(parameter));
-        serialPort.write("\r\n");
-    }
-
-    void setAUXV4(float parameter){
-        serialPort.write("AUXV4,");
-        serialPort.write(QByteArray::number(parameter));
-        serialPort.write("\r\n");
-    }
-
 	void setParameterG(float parameter){
-        //setParameterG_active = false; // because it does not read data!!!, but it sets parameter
+        serialPort.write(QByteArray::number(parameter));
+        serialPort.write("\r\n");
+		//setParameterG_active = false; // because it does not read data!!!, but it sets parameter
         parameterG = parameter; // this parameterG can be used for other functions
 	}
 	
@@ -373,25 +214,6 @@ public:
 	void setParameterI(float parameter){
 		parameterI = parameter;
 	}
-
-    const char* infoL(){
-        QString strInfo = "The Lib for LAMPh to connect with lock-in SR850. "
-                            "\nParametrs of getFloatPar(float) (only 6 parametrs could be used at a single instant):"
-                            "\nX = 1,"
-                            "\nY = 2,"
-                            "\nR = 3,"
-                            "\nTheta = 4,"
-                            "\nAuxIn1 = 5,"
-                            "\nAuxIn2 = 6,"
-                            "\nAuxIn3 = 7,"
-                            "\nAuxIn4 = 8,"
-                            "\nRefFreq = 9,"
-                            "\nTrace1 = 10,"
-                            "\nTrace2 = 11,"
-                            "\nTrace3 = 12,"
-                            "\nTrace4 = 13";
-            return strInfo.toStdString().c_str();
-    }
 
     bool startL(){
 	if ((result_floatA = 0) and (result_floatB = 0) /* and so on*/) return true; //YES!!! it is result_floatA = 0, because we want reset all parameters 
@@ -584,7 +406,7 @@ public:
 	
 	bool setParameterLine(int row, float data_float){
 		switch(row){
-        case(0): parameterD=data_float; return true; break;
+        case(0): parameterI=data_float; return true; break;
         case(1): parameterE=data_float; return true; break;
         case(2): parameterF=data_float; return true; break;
         case(3): parameterG=data_float; return true; break;
@@ -604,11 +426,11 @@ public:
 
     const char* getQStringList(int row){
         switch(row){
-        case(0): return "Sensitivity:;1V;300mV;100mV;30mV;10mV;3mV;1mV;300mkV;100mkV;30mkV;10mkV;3mkV;1mkV"; break;
-        case(1): return "Time constant:;1S;300mS;100mS;30mS;10mS;3mS;1mS;300mkS;100mkS;30mkS;10mkS;3mkS;1mkS"; break;
-        case(2): return "Phase:;0;45;90;180;270"; break;
-        case(3): return "Filters:;BP;LP;FLAT;TRACK;MAN"; break;
-        case(4): return "Config:;LIGHTS;RS232;A-OFFSET;A-PHASE;A-FILTER"; break;
+        case(0): return ""; break;
+        case(1): return ""; break;
+        case(2): return ""; break;
+        case(3): return ""; break;
+        case(4): return ""; break;
         }
     }
 
@@ -691,14 +513,7 @@ ClassLAMPh classLAMPh[NUMBER];
 
 const char* getName() {return DEVICE;}
 
-//const char* getInfo(int number_of_device) {createFile();return INFO;}
-const char* getInfo(int number_of_device) {
-    if (number_of_device < NUMBER ){ //protection from going beyond the classLAMPh
-        return classLAMPh[number_of_device].infoL();;
-    }else{
-        return INFO;
-    }
-}
+const char* getInfo(int number_of_device) {createFile();return INFO;}
 
 const char* DLLMain() {createFile();return INFO;}
 
@@ -743,76 +558,12 @@ void readData(int number_of_device){
 	}
 }
 
-float getFloatX(int number_of_device){
-    if (number_of_device < NUMBER ){
-        return classLAMPh[number_of_device].getFloatX();
-    }else{
-        return -1;
-    }
-}
-
-float getFloatY(int number_of_device){
-    if (number_of_device < NUMBER ){
-        return classLAMPh[number_of_device].getFloatY();
-    }else{
-        return -1;
-    }
-}
-
-float getFloatTheta(int number_of_device){
-    if (number_of_device < NUMBER ){
-        return classLAMPh[number_of_device].getFloatTheta();
-    }else{
-        return -1;
-    }
-}
-
-float getFloatRefFreq(int number_of_device){
-    if (number_of_device < NUMBER ){
-        return classLAMPh[number_of_device].getFloatRefFreq();
-    }else{
-        return -1;
-    }
-}
-
-float getFloatPar(int number_of_device, float parameter){
-    if (number_of_device < NUMBER ){
-        return classLAMPh[number_of_device].getFloatPar(parameter);
-    }else{
-        return -1;
-    }
-}
-
-void setAUXV1(int number_of_device, float parameter){
-    if (number_of_device < NUMBER ){
-        classLAMPh[number_of_device].setAUXV1(parameter);
-    }
-}
-
-void setAUXV2(int number_of_device, float parameter){
-    if (number_of_device < NUMBER ){
-        classLAMPh[number_of_device].setAUXV2(parameter);
-    }
-}
-
-void setAUXV3(int number_of_device, float parameter){
-    if (number_of_device < NUMBER ){
-        classLAMPh[number_of_device].setAUXV3(parameter);
-    }
-}
-
-void setAUXV4(int number_of_device, float parameter){
-    if (number_of_device < NUMBER ){
-        classLAMPh[number_of_device].setAUXV4(parameter);
-    }
-}
-
 float getFloatA(int number_of_device){
-    if (number_of_device < NUMBER ){
-        return classLAMPh[number_of_device].getFloatA();
-    }else{
-        return -1;
-    }
+	if (number_of_device < NUMBER ){ 
+		return classLAMPh[number_of_device].getFloatA();
+	}else{
+		return -1;
+	}
 }
 
 float getFloatB(int number_of_device){

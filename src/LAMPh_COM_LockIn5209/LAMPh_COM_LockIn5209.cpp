@@ -1,13 +1,13 @@
 /*-------------------------------------------------
 *
-*	This library is written to work with the lock-in SR850.
-*	Created by Ilnur Gimazov 2018-10-17 (17th October 2018)
+*	This library is written to work with the lock-in LockIn5209.
+*	Created by Ilnur Gimazov 2019-09-02 (2nd September 2019)
 *	Lib for LAMPh
 *	
 *-------------------------------------------------
 */
 
-#include "LAMPh_COM_SR850.h"
+#include "LAMPh_COM_LockIn5209.h"
 
 #include <stdio.h>
 #include <cmath>
@@ -19,27 +19,43 @@
 #include <QDebug>
 #include <QThread>
 #include <QDateTime>
-#include <QSerialPort>
-#include <QSerialPortInfo>
+//#include <QSerialPort>
+//#include <QSerialPortInfo>
 
-#define NAME  "LAMPh_COM_SR850"  	//Name of device
-#define DEVICE "Lock-in SR850" 			//Name of device
+#include <windows.h>
+#include <iostream>
+using namespace std;
+
+#define NAME  "LAMPh_COM_LockIn5209"  	//Name of device
+#define DEVICE "Lock-in LockIn5209" 			//Name of device
 #define FOLDER  "Functions/"	//Folder where file will be created (please do not change this value)
 #define TXT "_functions.txt"	//Names of functions will be recorded in this file (please do not change this value)	
-#define FUNCTIONS "float getFloatX();float getFloatY();float getFloatTheta();float getFloatRefFreq();float getFloatPar(float);void setAUXV1(float);void setAUXV2(float);void setAUXV3(float);void setAUXV4(float)"  //one can use only void and float functions with only float parameter (don't leave empty space after ";")
+#define FUNCTIONS "float getFloat();float getFloatAuxIn1();float getFloatAuxIn2();float getFloatAuxIn3();float getFloatAuxIn4();void setAUXV1(float);void setAUXV2(float)"  //one can use only void and float functions with only float parameter (don't leave empty space after ";")
 #define INFO "The Lib for LAMPh to connect with TEMP" //Info about this Lib or device
-#define NUMBER 1 //Two devices can be connected by this Lib (this value can be changed)
+#define NUMBER 1 //One device can be connected by this Lib (this value can be changed)
 #define NONE "None"
 
 class ClassLAMPh{
 private:
-    QSerialPort serialPort;
+    //QSerialPort serialPort;
+
+    HANDLE hSerial;
+    COMMTIMEOUTS timeouts;
+    DWORD dwSize;
+
+    QString stringReceived;
+
 	char * status_char;
 	char * unit_char;
+    char * temp;
 	
 	float result_floatA = 0;
 	float result_floatB = 0;
-	float result_floatC = 0;
+    float result_floatC = 0;
+    float result_floatAuxIn1 = 0;
+    float result_floatAuxIn2 = 0;
+    float result_floatAuxIn3 = 0;
+    float result_floatAuxIn4 = 0;
 
 	float result_floatD = 0;
 	float parameterD = 0;
@@ -63,23 +79,6 @@ private:
     bool setParameterI_active = false;
 
     float result_float[14];
-    bool parameterSNAP[14];
-
-    /*enum parameterSNAP {
-        X = 1,
-        Y = 2,
-        R = 3,
-        Theta = 4,
-        AuxIn1 = 5,
-        AuxIn2 = 6,
-        AuxIn3 = 7,
-        AuxIn4 = 8,
-        RefFreq = 9,
-        Trace1 = 10,
-        Trace2 = 11,
-        Trace3 = 12,
-        Trace4 = 13
-    };*/
 
 	enum message {
 	nothingCritical = 0,  		//nothing critical
@@ -112,78 +111,128 @@ public:
     {
         status_char = "None";
         unit_char = "None";
-        for (int l=0;l<14;l++){
-            parameterSNAP[l]=false;
-            result_float[l]=0;
-        }
-        parameterSNAP[1]=true;
-        parameterSNAP[2]=true;
-        parameterSNAP[4]=true;
-        parameterSNAP[9]=true;
-    }
+
+
+     }
 	
     bool connectL(){
-        for (const QSerialPortInfo &info : QSerialPortInfo::availablePorts()){
-            qDebug() << "serialPort" << info.portName();
-            if (!info.isBusy())
-            {
-                qDebug() << info.portName();
-                serialPort.setPortName(info.portName());
-                serialPort.setBaudRate(QSerialPort::Baud9600);
-                serialPort.setStopBits(QSerialPort::OneStop);
-                serialPort.setDataBits(QSerialPort::Data8);
-                serialPort.setParity(QSerialPort::NoParity);
-                serialPort.setFlowControl(QSerialPort::NoFlowControl);
-                serialPort.open(QIODevice::ReadWrite);
 
-                QByteArray ba;
-                ba.resize(7);
-                ba[0] = 0x2a;
-                ba[1] = 0x49;
-                ba[2] = 0x44;
-                ba[3] = 0x4e;
-                ba[4] = 0x3f;
-                ba[5] = 0x0d;
-                ba[6] = 0x0a; // "*IDN?"
+        //for (const QSerialPortInfo &info : QSerialPortInfo::availablePorts()){
+           // if (!info.isBusy())
 
-                QByteArray ba_check; //SR850
-                ba_check.resize(4);
-                ba_check[0] = 0x53;
-                ba_check[1] = 0x74;
-                ba_check[2] = 0x61;
-                ba_check[3] = 0x6e;
+           // {
 
-                serialPort.waitForBytesWritten(300);
-                serialPort.write("*IDN?\r\n");
-                serialPort.waitForReadyRead(300);
+                //qDebug() << "ComPort:" << info.portName();
+                //LPCTSTR sPortName = (wchar_t*)QString(info.portName()).utf16();
 
-                QByteArray data;
-                data= serialPort.readAll();
-                while (serialPort.waitForReadyRead(10))
-                    data += serialPort.readAll();
+                LPCTSTR sPortName = L"COM2";
 
-                std::string result_tmp = data.toStdString();
-                QString data_tmp = QString::fromStdString(result_tmp);
-                //qDebug() << "data_tmp: "  << data_tmp;
-                //qDebug().noquote() << "bytes: " << data.size() << " values: " << data.toHex();
-                bool match_bool =true;
-                for (int i=0; i<ba_check.size(); i++)
+                hSerial = ::CreateFile(sPortName,GENERIC_READ | GENERIC_WRITE,0,0,OPEN_EXISTING,FILE_ATTRIBUTE_NORMAL,0);
+                if(hSerial==INVALID_HANDLE_VALUE)
                 {
-                    if (ba_check[i]!=data[i]){
-                        serialPort.close();
-                        match_bool = false;
+                        if(GetLastError()==ERROR_FILE_NOT_FOUND)
+                    {
+                        qDebug() << "serial port does not exist";
                     }
+                    qDebug() << "some other error occurred";
                 }
-                if (match_bool)
+
+                int time_cc = 3;
+                timeouts.ReadIntervalTimeout = time_cc;
+                timeouts.ReadTotalTimeoutMultiplier = time_cc;
+                timeouts.ReadTotalTimeoutConstant = time_cc;
+
+                int time_cc2 = 3;
+                timeouts.WriteTotalTimeoutMultiplier = time_cc2;
+                timeouts.WriteTotalTimeoutConstant = time_cc2;
+                if (!SetCommTimeouts(hSerial, &timeouts)){
+                    qDebug() << "setting timeouts failed";
+                }
+
+
+                DCB dcbSerialParams = {0};
+                dcbSerialParams.DCBlength=sizeof(dcbSerialParams);
+                if (!GetCommState(hSerial, &dcbSerialParams))
                 {
-                    return true;
+                    qDebug() << "Error";
                 }
-            }
-        }
-        return false;
+                dcbSerialParams.BaudRate=CBR_9600;
+                dcbSerialParams.ByteSize=7;
+                dcbSerialParams.StopBits=ONESTOPBIT;
+                dcbSerialParams.Parity=EVENPARITY;
+                if(!SetCommState(hSerial, &dcbSerialParams))
+                {
+                    qDebug() << "Error setting serial port state";
+                }
+                WriteFilePort(1,"ID\r\n", sizeof("ID\r\n"));
+                ReadFilePort();
+
+                if (stringReceived.contains("5209", Qt::CaseInsensitive)){
+                    qDebug() << "Connected to 5209";
+                    return true;
+                }else{
+                    CloseHandle(hSerial);
+                }
+                return false;
+            //}
+        //}
+        //return false
 	}
 
-	const char* getStatus(){
+    bool WriteFilePort( int N, char* dataW = "*", int size = 0){
+        DWORD dwBytesWritten;
+        if (N==1) //if N==0 use last char* dataW
+        {
+        temp = dataW;
+        dwSize = size;
+        }
+        for (int k=0; k<dwSize; k++)
+        {
+            char s3 = temp[k];
+            if (strchr (&s3,'_') !=0){
+                s3 = ' ';
+            }
+            WriteFile (hSerial,&s3,1,&dwBytesWritten,NULL);
+        }
+        return true;
+    }
+
+    QString ReadFilePort(){
+        DWORD iSize;
+        char sReceivedChar;
+        stringReceived ="";
+        int int_while=0;
+        while (true)
+        {
+            ReadFile(hSerial, &sReceivedChar, 1, &iSize, NULL);  // get 1 byte
+            if (iSize > 0){   // if some data received
+                int_while=0;
+                //QString s2 = QString::fromUtf8(&sReceivedChar);
+                QString s2 = QString(QChar::fromLatin1(sReceivedChar));
+
+                stringReceived += s2;
+                //qDebug() << "sReceivedChar" << sReceivedChar << "s2" << s2;
+
+                if (strchr (&sReceivedChar,'?') !=0){
+                    stringReceived.clear();
+                    WriteFilePort(0);
+                }
+                if (strchr (&sReceivedChar,'*') !=0){
+                    break;
+                }
+            }
+            else{
+                int_while++;
+                //qDebug() << "int_while" << int_while;
+            }
+            if (int_while>10){
+                break;
+            }
+        }
+        return stringReceived;
+    }
+
+    const char* getStatus(){
         return status_char; //it can be enum message
     }
 	
@@ -192,109 +241,97 @@ public:
     }
 	
 	void readData(){
-        /*
-           set RS232
-           set FMOD2s
-           if (value < sensetivety) and (reserve = on) then (manual reserve++/ auto reserve)
-           if (value > sensetivety) and (reserve = on) then (sensetivety++/ auto gain)
-           if (OUTPUT = on) ?
-           */
+        QString str;
+        QString str2;
 
-        QByteArray data;
+        WriteFilePort(1, "*\r", sizeof("*\r"));
+        str = ReadFilePort();
+        str.remove("\r\r\n*");
+        float temp_float = str.toFloat();
+        if (temp_float!=0) result_floatA  = temp_float;
 
-
-        //serialPort.write("SNAP?1,2,4,9\r\n");
-        /*bool check_SNAP_empty = true;
-        for (int i=1;i<14;i++){
-            if (parameterSNAP[i]){
-                check_SNAP_empty =false;
-            }
+        //qDebug() << str;
+        WriteFilePort(1, "ADC_1\r", sizeof("ADC_1\r"));
+        str2 = ReadFilePort();
+        if (str2 == "ADC"){
+            //qDebug() << "tr";
+            WriteFilePort(1, "ADC_1\r", sizeof("ADC_1\r"));
+            str = ReadFilePort();
         }
-        if (check_SNAP_empty) parameterSNAP[1]=true; //At least one out of 13 has to be TRUE!!!
-        */
-
-
-
-        serialPort.write("SNAP?");
-        int maxSNAP = 6; //only 6 parametrs could be used
-        for (int i=1;i<14;i++){
-
-            if ((parameterSNAP[i])and (maxSNAP>0)){
-                if (i!=1) serialPort.write(",");
-                serialPort.write(QByteArray::number(i));
-                maxSNAP--;
-            }
-            if (maxSNAP==0) {
-                for (int m=3;m<14;m++)
-                {
-                    parameterSNAP[m] =false;
-                }
-                break;
-            }
-        }
-        serialPort.write("\r\n");
-
-
-        data = serialPort.readAll();
-
-        std::string result_tmp = data.toStdString();
-        QString data_tmp = QString::fromStdString(result_tmp);
-        data_tmp.remove("\n");
-        data_tmp.remove("\r");
-
-
-
-        QStringList list1 = data_tmp.split(',');
-        list1.append("0");
-        list1.append("0");
-        list1.append("0");
-        list1.append("0");
-        list1.append("0");
-        list1.append("0");
-
-        //qDebug() << "list1: "  << list1;
-        result_floatA= list1[0].toFloat();
-        result_floatB= list1[1].toFloat();
-
-        int listnumber=0;
-        for (int i=1;i<14;i++){
-            if ((parameterSNAP[i]) and (listnumber<6)){
-                //qDebug() << "parameterSNAP[i]=true, i="  << i;
-                result_float[i]=list1[listnumber].toFloat();
-                listnumber++;
-            }
-        }
-
-
-        /*for (int kml=1;kml<14;kml++){
-            if (parameterSNAP[kml]==true){
-                qDebug() << "parameterSNAP[kml]=true, kml="  << kml;
-            }
-        }*/
+        //qDebug() << "str2: " << str2;
+        str2.remove("ADC1");
+        str2.remove("ADC 1");
+        str2.remove("\r\n");
+        str2.remove("\r\n");
+        str2.remove("*");
+        //qDebug() << "str22: " << str2;
+        float temp_float2 = str2.toFloat();
+        if (temp_float2!=0) result_floatAuxIn1  = temp_float2;
     }
 	
-    float getFloatX(){
-        parameterSNAP[1]=true;
-        //getFloatParD_active = true;
-        return result_float[1];
+    float getFloat(){
+        return result_floatA;
     }
 
-    float getFloatY(){
-        parameterSNAP[2]=true;
-        //getFloatParD_active = true;
-        return result_float[2];
-    }
+    float getFloatAuxIn1(){
 
-    float getFloatTheta(){
-        parameterSNAP[4]=true;
-        //getFloatParD_active = true;
-        return result_float[4];
-    }
+        return result_floatAuxIn1;
 
-    float getFloatRefFreq(){
-        parameterSNAP[9]=true;
-        //getFloatParD_active = true;
-        return result_float[9];
+    }
+	
+	
+	float getFloatAuxIn2(){
+        QString str;
+        WriteFilePort(1, "ADC_2\r", sizeof("ADC_2\r"));
+        str = ReadFilePort();
+        if (str == "ADC"){
+            WriteFilePort(1, "ADC_2\r", sizeof("ADC_2\r"));
+            str = ReadFilePort();
+        }
+        str.remove("ADC2");
+        str.remove("ADC 2");
+        str.remove("\r\n");
+        str.remove("\r\n");
+        str.remove("*");
+        float temp_float = str.toFloat();
+        if (temp_float!=0) result_floatAuxIn2  = temp_float;
+        return result_floatAuxIn2;
+    }
+	
+	float getFloatAuxIn3(){
+        QString str;
+        WriteFilePort(1, "ADC_3\r", sizeof("ADC_3\r"));
+        str = ReadFilePort();
+        if (str == "ADC"){
+            WriteFilePort(1, "ADC_3\r", sizeof("ADC_3\r"));
+            str = ReadFilePort();
+        }
+        str.remove("ADC3");
+        str.remove("ADC 3");
+        str.remove("\r\n");
+        str.remove("\r\n");
+        str.remove("*");
+        float temp_float = str.toFloat();
+        if (temp_float!=0) result_floatAuxIn3  = temp_float;
+        return result_floatAuxIn3;
+    }
+	
+	float getFloatAuxIn4(){
+        QString str;
+        WriteFilePort(1, "ADC_4\r", sizeof("ADC_4\r"));
+        str = ReadFilePort();
+        if (str == "ADC"){
+            WriteFilePort(1, "ADC_4\r", sizeof("ADC_4\r"));
+            str = ReadFilePort();
+        }
+        str.remove("ADC4");
+        str.remove("ADC 4");
+        str.remove("\r\n");
+        str.remove("\r\n");
+        str.remove("*");
+        float temp_float = str.toFloat();
+        if (temp_float!=0) result_floatAuxIn4  = temp_float;
+        return result_floatAuxIn4;
     }
 
 	float getFloatA(){
@@ -331,34 +368,17 @@ public:
         return result_floatF;
 	}
 	
-    float getFloatPar(float parameter){
-        int intparameter = parameter;
-        parameterSNAP[intparameter]=true;
-        return result_float[intparameter];
-    }
 
     void setAUXV1(float parameter){
-        serialPort.write("AUXV1,");
-        serialPort.write(QByteArray::number(parameter));
-        serialPort.write("\r\n");
+        //serialPort.write("AUXV1,");
+        //serialPort.write(QByteArray::number(parameter));
+        //serialPort.write("\r\n");
     }
 
     void setAUXV2(float parameter){
-        serialPort.write("AUXV2,");
-        serialPort.write(QByteArray::number(parameter));
-        serialPort.write("\r\n");
-    }
-
-    void setAUXV3(float parameter){
-        serialPort.write("AUXV3,");
-        serialPort.write(QByteArray::number(parameter));
-        serialPort.write("\r\n");
-    }
-
-    void setAUXV4(float parameter){
-        serialPort.write("AUXV4,");
-        serialPort.write(QByteArray::number(parameter));
-        serialPort.write("\r\n");
+        //serialPort.write("AUXV2,");
+        //serialPort.write(QByteArray::number(parameter));
+        //serialPort.write("\r\n");
     }
 
 	void setParameterG(float parameter){
@@ -375,21 +395,7 @@ public:
 	}
 
     const char* infoL(){
-        QString strInfo = "The Lib for LAMPh to connect with lock-in SR850. "
-                            "\nParametrs of getFloatPar(float) (only 6 parametrs could be used at a single instant):"
-                            "\nX = 1,"
-                            "\nY = 2,"
-                            "\nR = 3,"
-                            "\nTheta = 4,"
-                            "\nAuxIn1 = 5,"
-                            "\nAuxIn2 = 6,"
-                            "\nAuxIn3 = 7,"
-                            "\nAuxIn4 = 8,"
-                            "\nRefFreq = 9,"
-                            "\nTrace1 = 10,"
-                            "\nTrace2 = 11,"
-                            "\nTrace3 = 12,"
-                            "\nTrace4 = 13";
+        QString strInfo = "The Lib for LAMPh to connect with lock-in LockIn5209. ";
             return strInfo.toStdString().c_str();
     }
 
@@ -743,45 +749,46 @@ void readData(int number_of_device){
 	}
 }
 
-float getFloatX(int number_of_device){
+float getFloat(int number_of_device){
     if (number_of_device < NUMBER ){
-        return classLAMPh[number_of_device].getFloatX();
+        return classLAMPh[number_of_device].getFloat();
     }else{
         return -1;
     }
 }
 
-float getFloatY(int number_of_device){
+float getFloatAuxIn1(int number_of_device){
     if (number_of_device < NUMBER ){
-        return classLAMPh[number_of_device].getFloatY();
+        return classLAMPh[number_of_device].getFloatAuxIn1();
     }else{
         return -1;
     }
 }
 
-float getFloatTheta(int number_of_device){
+float getFloatAuxIn2(int number_of_device){
     if (number_of_device < NUMBER ){
-        return classLAMPh[number_of_device].getFloatTheta();
+        return classLAMPh[number_of_device].getFloatAuxIn2();
     }else{
         return -1;
     }
 }
 
-float getFloatRefFreq(int number_of_device){
+float getFloatAuxIn3(int number_of_device){
     if (number_of_device < NUMBER ){
-        return classLAMPh[number_of_device].getFloatRefFreq();
+        return classLAMPh[number_of_device].getFloatAuxIn3();
     }else{
         return -1;
     }
 }
 
-float getFloatPar(int number_of_device, float parameter){
+float getFloatAuxIn4(int number_of_device){
     if (number_of_device < NUMBER ){
-        return classLAMPh[number_of_device].getFloatPar(parameter);
+        return classLAMPh[number_of_device].getFloatAuxIn4();
     }else{
         return -1;
     }
 }
+
 
 void setAUXV1(int number_of_device, float parameter){
     if (number_of_device < NUMBER ){
@@ -792,18 +799,6 @@ void setAUXV1(int number_of_device, float parameter){
 void setAUXV2(int number_of_device, float parameter){
     if (number_of_device < NUMBER ){
         classLAMPh[number_of_device].setAUXV2(parameter);
-    }
-}
-
-void setAUXV3(int number_of_device, float parameter){
-    if (number_of_device < NUMBER ){
-        classLAMPh[number_of_device].setAUXV3(parameter);
-    }
-}
-
-void setAUXV4(int number_of_device, float parameter){
-    if (number_of_device < NUMBER ){
-        classLAMPh[number_of_device].setAUXV4(parameter);
     }
 }
 

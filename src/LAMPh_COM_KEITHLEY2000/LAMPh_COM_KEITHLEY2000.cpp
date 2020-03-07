@@ -1,13 +1,13 @@
 /*-------------------------------------------------
 *
-*	This library is written to work with the lock-in SR850.
-*	Created by Ilnur Gimazov 2018-10-17 (17th October 2018)
+*	This library was written to work with the multimeter KEITHLEY2000
+*	Created by Ilnur Gimazov (ubvfp94@mail.ru) 2019-07-02 (2nd July 2019)
 *	Lib for LAMPh
 *	
 *-------------------------------------------------
 */
 
-#include "LAMPh_COM_SR850.h"
+#include "LAMPh_COM_KEITHLEY2000.h"
 
 #include <stdio.h>
 #include <cmath>
@@ -17,18 +17,17 @@
 #include <string>
 
 #include <QDebug>
-#include <QThread>
 #include <QDateTime>
 #include <QSerialPort>
 #include <QSerialPortInfo>
 
-#define NAME  "LAMPh_COM_SR850"  	//Name of device
-#define DEVICE "Lock-in SR850" 			//Name of device
+#define NAME  "LAMPh_COM_KEITHLEY2000"  	//Name of device
+#define DEVICE "COM_KEITHLEY2000" 			//Name of device
 #define FOLDER  "Functions/"	//Folder where file will be created (please do not change this value)
 #define TXT "_functions.txt"	//Names of functions will be recorded in this file (please do not change this value)	
-#define FUNCTIONS "float getFloatX();float getFloatY();float getFloatTheta();float getFloatRefFreq();float getFloatPar(float);void setAUXV1(float);void setAUXV2(float);void setAUXV3(float);void setAUXV4(float)"  //one can use only void and float functions with only float parameter (don't leave empty space after ";")
-#define INFO "The Lib for LAMPh to connect with TEMP" //Info about this Lib or device
-#define NUMBER 1 //Two devices can be connected by this Lib (this value can be changed)
+#define FUNCTIONS "float getFloatA();void setParameterG(float)"  //one can use only void and float functions with only float parameter (don't leave empty space after ";")
+#define INFO "The Lib for LAMPh to connect with COM_KEITHLEY2000" //Info about this Lib or device
+#define NUMBER 2 //Two devices can be connected by this Lib (this value can be changed)
 #define NONE "None"
 
 class ClassLAMPh{
@@ -40,7 +39,7 @@ private:
 	float result_floatA = 0;
 	float result_floatB = 0;
 	float result_floatC = 0;
-
+	
 	float result_floatD = 0;
 	float parameterD = 0;
 	float result_floatE = 0;
@@ -61,26 +60,7 @@ private:
     bool setParameterG_active = false;
     bool setParameterH_active = false;
     bool setParameterI_active = false;
-
-    float result_float[14];
-    bool parameterSNAP[14];
-
-    /*enum parameterSNAP {
-        X = 1,
-        Y = 2,
-        R = 3,
-        Theta = 4,
-        AuxIn1 = 5,
-        AuxIn2 = 6,
-        AuxIn3 = 7,
-        AuxIn4 = 8,
-        RefFreq = 9,
-        Trace1 = 10,
-        Trace2 = 11,
-        Trace3 = 12,
-        Trace4 = 13
-    };*/
-
+	
 	enum message {
 	nothingCritical = 0,  		//nothing critical
 	criticError = 1,
@@ -112,22 +92,12 @@ public:
     {
         status_char = "None";
         unit_char = "None";
-        for (int l=0;l<14;l++){
-            parameterSNAP[l]=false;
-            result_float[l]=0;
-        }
-        parameterSNAP[1]=true;
-        parameterSNAP[2]=true;
-        parameterSNAP[4]=true;
-        parameterSNAP[9]=true;
     }
 	
     bool connectL(){
-        for (const QSerialPortInfo &info : QSerialPortInfo::availablePorts()){
-            qDebug() << "serialPort" << info.portName();
+		for (const QSerialPortInfo &info : QSerialPortInfo::availablePorts()){
             if (!info.isBusy())
             {
-                qDebug() << info.portName();
                 serialPort.setPortName(info.portName());
                 serialPort.setBaudRate(QSerialPort::Baud9600);
                 serialPort.setStopBits(QSerialPort::OneStop);
@@ -146,37 +116,29 @@ public:
                 ba[5] = 0x0d;
                 ba[6] = 0x0a; // "*IDN?"
 
-                QByteArray ba_check; //SR850
-                ba_check.resize(4);
-                ba_check[0] = 0x53;
-                ba_check[1] = 0x74;
-                ba_check[2] = 0x61;
-                ba_check[3] = 0x6e;
-
                 serialPort.waitForBytesWritten(300);
-                serialPort.write("*IDN?\r\n");
+
+                serialPort.write("*IDN?\r\n"); //or serialPort.write(ba);
+
                 serialPort.waitForReadyRead(300);
 
                 QByteArray data;
                 data= serialPort.readAll();
                 while (serialPort.waitForReadyRead(10))
                     data += serialPort.readAll();
+				
 
-                std::string result_tmp = data.toStdString();
-                QString data_tmp = QString::fromStdString(result_tmp);
-                //qDebug() << "data_tmp: "  << data_tmp;
-                //qDebug().noquote() << "bytes: " << data.size() << " values: " << data.toHex();
-                bool match_bool =true;
-                for (int i=0; i<ba_check.size(); i++)
+				QString dataQString(data.toHex());
+				
+                if (dataQString.contains("4B45495448", Qt::CaseInsensitive)){
+                    serialPort.write("*RST\r\n");
+					serialPort.write(":SENS:FUNC 'VOLT:DC'\r\n");
+					serialPort.write(":SENS:FRES:DIG 6\r\n");
+					serialPort.write(":READ?\r\n");
+				    return true;
+                }else
                 {
-                    if (ba_check[i]!=data[i]){
-                        serialPort.close();
-                        match_bool = false;
-                    }
-                }
-                if (match_bool)
-                {
-                    return true;
+                    serialPort.close();
                 }
             }
         }
@@ -192,130 +154,95 @@ public:
     }
 	
 	void readData(){
-        /*
-           set RS232
-           set FMOD2s
-           if (value < sensetivety) and (reserve = on) then (manual reserve++/ auto reserve)
-           if (value > sensetivety) and (reserve = on) then (sensetivety++/ auto gain)
-           if (OUTPUT = on) ?
-           */
 
-        QByteArray data;
-
-
-        //serialPort.write("SNAP?1,2,4,9\r\n");
-        /*bool check_SNAP_empty = true;
-        for (int i=1;i<14;i++){
-            if (parameterSNAP[i]){
-                check_SNAP_empty =false;
-            }
-        }
-        if (check_SNAP_empty) parameterSNAP[1]=true; //At least one out of 13 has to be TRUE!!!
-        */
-
-
-
-        serialPort.write("SNAP?");
-        int maxSNAP = 6; //only 6 parametrs could be used
-        for (int i=1;i<14;i++){
-
-            if ((parameterSNAP[i])and (maxSNAP>0)){
-                if (i!=1) serialPort.write(",");
-                serialPort.write(QByteArray::number(i));
-                maxSNAP--;
-            }
-            if (maxSNAP==0) {
-                for (int m=3;m<14;m++)
-                {
-                    parameterSNAP[m] =false;
-                }
-                break;
-            }
-        }
-        serialPort.write("\r\n");
-
-
-        data = serialPort.readAll();
+        serialPort.write(":READ?\r\n");
+        serialPort.waitForReadyRead(10);
+        QByteArray data = serialPort.readAll();
 
         std::string result_tmp = data.toStdString();
         QString data_tmp = QString::fromStdString(result_tmp);
-        data_tmp.remove("\n");
-        data_tmp.remove("\r");
+        //data_tmp.remove("\n");
+        //data_tmp.remove("\r");
 
 
-
-        QStringList list1 = data_tmp.split(',');
-        list1.append("0");
-        list1.append("0");
-        list1.append("0");
-        list1.append("0");
-        list1.append("0");
-        list1.append("0");
-
-        //qDebug() << "list1: "  << list1;
-        result_floatA= list1[0].toFloat();
-        result_floatB= list1[1].toFloat();
-
-        int listnumber=0;
-        for (int i=1;i<14;i++){
-            if ((parameterSNAP[i]) and (listnumber<6)){
-                //qDebug() << "parameterSNAP[i]=true, i="  << i;
-                result_float[i]=list1[listnumber].toFloat();
-                listnumber++;
-            }
-        }
+        qDebug() << "data_tmp" << data_tmp;
+        result_floatA = data_tmp.toFloat();
 
 
-        /*for (int kml=1;kml<14;kml++){
-            if (parameterSNAP[kml]==true){
-                qDebug() << "parameterSNAP[kml]=true, kml="  << kml;
-            }
+        /*if (getFloatA_active){ // if (getFloatA_active==true)
+			serialPort.write(":READ_floatA?\r\n");
+			QByteArray data = serialPort.readAll();
+			std::string result_tmp = data.toStdString();
+			QString data_tmp = QString::fromStdString(result_tmp);
+			result_floatA = data_tmp.toFloat();
+		}
+		
+		if (getFloatB_active){ 
+			serialPort.write(":READ_floatB?\r\n");
+			QByteArray data = serialPort.readAll();
+			std::string result_tmp = data.toStdString();
+			QString data_tmp = QString::fromStdString(result_tmp);
+			result_floatB = data_tmp.toFloat();
+		}
+		
+		if (getFloatC_active){ 
+			serialPort.write(":READ_floatC?\r\n");
+			QByteArray data = serialPort.readAll();
+			std::string result_tmp = data.toStdString();
+			QString data_tmp = QString::fromStdString(result_tmp);
+			result_floatC = data_tmp.toFloat();
+		}
+		
+		if (getFloatParD_active){ 
+			serialPort.write(":READ_floatD?\r\n");
+			QByteArray data = serialPort.readAll();
+			std::string result_tmp = data.toStdString();
+			QString data_tmp = QString::fromStdString(result_tmp);
+			result_floatD = data_tmp.toFloat();
+		}
+		
+		if (getFloatParE_active){ 
+			serialPort.write(":READ_floatE?\r\n");
+			QByteArray data = serialPort.readAll();
+			std::string result_tmp = data.toStdString();
+			QString data_tmp = QString::fromStdString(result_tmp);
+			result_floatE = data_tmp.toFloat();
+		}
+		
+		if (getFloatParF_active){ 
+			serialPort.write(":READ_floatF?\r\n");
+			QByteArray data = serialPort.readAll();
+			std::string result_tmp = data.toStdString();
+			QString data_tmp = QString::fromStdString(result_tmp);
+			result_floatF = data_tmp.toFloat();
         }*/
-    }
 	
-    float getFloatX(){
-        parameterSNAP[1]=true;
-        //getFloatParD_active = true;
-        return result_float[1];
-    }
-
-    float getFloatY(){
-        parameterSNAP[2]=true;
-        //getFloatParD_active = true;
-        return result_float[2];
-    }
-
-    float getFloatTheta(){
-        parameterSNAP[4]=true;
-        //getFloatParD_active = true;
-        return result_float[4];
-    }
-
-    float getFloatRefFreq(){
-        parameterSNAP[9]=true;
-        //getFloatParD_active = true;
-        return result_float[9];
-    }
-
+		//if (setParameterG){} //it doesn't matter, it always must be false, because it can't read data  
+	}
+	
 	float getFloatA(){
         getFloatA_active = true; //after that program will be readData for this function
         return result_floatA;
 	}
 	
 	float getFloatB(){
-        getFloatB_active = true;
+		getFloatB_active = true;
+        //result_floatB=result_floatB+result_floatA;
+        result_floatB = parameterG;
         return result_floatB;
 	}
 	
 	float getFloatC(){
-        getFloatC_active = true;
+		getFloatC_active = true;
+        result_floatC = parameterH;
 		return result_floatC;
 	}
 	
 	float getFloatParD(float parameter){
-        getFloatParE_active = true;
-        result_floatE = parameterE;
-        return result_floatE;
+		getFloatParD_active = true;
+        //parameterD = parameter;
+        result_floatD = parameterD;
+		return result_floatD;
 	}
 	
 	float getFloatParE(float parameter){
@@ -331,39 +258,15 @@ public:
         return result_floatF;
 	}
 	
-    float getFloatPar(float parameter){
-        int intparameter = parameter;
-        parameterSNAP[intparameter]=true;
-        return result_float[intparameter];
-    }
-
-    void setAUXV1(float parameter){
-        serialPort.write("AUXV1,");
-        serialPort.write(QByteArray::number(parameter));
-        serialPort.write("\r\n");
-    }
-
-    void setAUXV2(float parameter){
-        serialPort.write("AUXV2,");
-        serialPort.write(QByteArray::number(parameter));
-        serialPort.write("\r\n");
-    }
-
-    void setAUXV3(float parameter){
-        serialPort.write("AUXV3,");
-        serialPort.write(QByteArray::number(parameter));
-        serialPort.write("\r\n");
-    }
-
-    void setAUXV4(float parameter){
-        serialPort.write("AUXV4,");
-        serialPort.write(QByteArray::number(parameter));
-        serialPort.write("\r\n");
-    }
-
 	void setParameterG(float parameter){
-        //setParameterG_active = false; // because it does not read data!!!, but it sets parameter
-        parameterG = parameter; // this parameterG can be used for other functions
+        if (parameterG != parameter)
+        {\
+            //":ROUTE:CLOSE (@1)\r\n"
+            serialPort.write(":ROUTE:CLOSE (@");
+            serialPort.write(QByteArray::number(parameter));
+            serialPort.write(")\r\n");
+            parameterG = parameter; // this parameterG can be used for other functions
+        }
 	}
 	
 	void setParameterH(float parameter){
@@ -373,25 +276,6 @@ public:
 	void setParameterI(float parameter){
 		parameterI = parameter;
 	}
-
-    const char* infoL(){
-        QString strInfo = "The Lib for LAMPh to connect with lock-in SR850. "
-                            "\nParametrs of getFloatPar(float) (only 6 parametrs could be used at a single instant):"
-                            "\nX = 1,"
-                            "\nY = 2,"
-                            "\nR = 3,"
-                            "\nTheta = 4,"
-                            "\nAuxIn1 = 5,"
-                            "\nAuxIn2 = 6,"
-                            "\nAuxIn3 = 7,"
-                            "\nAuxIn4 = 8,"
-                            "\nRefFreq = 9,"
-                            "\nTrace1 = 10,"
-                            "\nTrace2 = 11,"
-                            "\nTrace3 = 12,"
-                            "\nTrace4 = 13";
-            return strInfo.toStdString().c_str();
-    }
 
     bool startL(){
 	if ((result_floatA = 0) and (result_floatB = 0) /* and so on*/) return true; //YES!!! it is result_floatA = 0, because we want reset all parameters 
@@ -452,59 +336,59 @@ public:
 	
 	const char* getRowName(int row){
 		switch(row){
-        case(0): return ""; break;
-        case(1): return ""; break;
-        case(2): return ""; break;
-        case(3): return ""; break;
-        case(4): return ""; break;
+        case(0): return "Functions I"; break;
+        case(1): return "Functions II"; break;
+        case(2): return "Channels I"; break;
+        case(3): return "Channels II"; break;
+        case(4): return "Config"; break;
         }
 	}
 
     const char* getButtonName (int column, int row){
 		switch(row){
-		case(0): //Sensitivity
+        case(0): //Functions I
 				switch(column){
-                case(0): return "1V(0)"; break;
-                case(1): return "300mV(1)"; break;
-                case(2): return "100mV(2)"; break;
-                case(3): return "30mV(3)"; break;
-                case(4): return "10mV(4)"; break;
+                case(0): return "AC Current"; break;
+                case(1): return "DC Current"; break;
+                case(2): return "AC Voltage"; break;
+                case(3): return "DC Voltage"; break;
+                case(4): return "Temperature"; break;
 				}
 				break;	
-		case(1): //Time constant
+        case(1): //Functions II
 				switch(column){
-                case(0): return "1s(10)"; break;
-                case(1): return "300ms(11)"; break;
-                case(2): return "100ms(12)"; break;
-                case(3): return "30ms(13)"; break;
-                case(4): return "10ms(14)"; break;
+                case(0): return "2W Resistance"; break;
+                case(1): return "4W Resistance"; break;
+                case(2): return "Period"; break;
+                case(3): return "Frequency"; break;
+                case(4): return "Diode Testing"; break;
 				}
 				break;
-		case(2): //Phase
+        case(2): //Channels I
 				switch(column){
-                case(0): return "0(20)"; break;
-                case(1): return "+90(21)"; break;
-                case(2): return "-90(22)"; break;
-                case(3): return "+1(23)"; break;
-                case(4): return "-1(24)"; break;
+                case(0): return "Channel 1"; break;
+                case(1): return "Channel 2"; break;
+                case(2): return "Channel 3"; break;
+                case(3): return "Channel 4"; break;
+                case(4): return "Channel 5"; break;
 				}
 				break;	
-		case(3): //Filters
+        case(3): //Channels II
 				switch(column){
-                case(0): return "BP(30)"; break;
-                case(1): return "LP(31)"; break;
-                case(2): return "FLAT(32)"; break;
-                case(3): return "TRACK(33)"; break;
-                case(4): return "MAN(34)"; break;
+                case(0): return "Channel 6"; break;
+                case(1): return "Channel 7"; break;
+                case(2): return "Channel 8"; break;
+                case(3): return "Channel 9"; break;
+                case(4): return "Channel 10"; break;
 				}
 				break;	
 		case(4): //Config
 				switch(column){
-                case(0): return "LIGHTS(40)"; break;
-                case(1): return "RS232(41)"; break;
-                case(2): return "A-OFFSET(42)"; break;
-                case(3): return "A-PHASE(43)"; break;
-                case(4): return "A-FILTER(44)"; break;
+                case(0): return "Display ON"; break;
+                case(1): return "Display OFF"; break;
+                case(2): return "DIGITS"; break;
+                case(3): return "RATE"; break;
+                case(4): return "AUTO"; break;
 				}
 				break;
         }
@@ -514,59 +398,59 @@ public:
 
     const char* returnRowData(int row){
         switch(row){
-        case(0): sprintf(array, "%5.2f", parameterD); return array; break;
-        case(1): sprintf(array, "%5.2f", parameterE); return array; break;
-        case(2): sprintf(array, "%5.2f", parameterF); return array; break;
-        case(3): sprintf(array, "%5.2f", parameterG); return array; break;
-        case(4): sprintf(array, "%5.2f", parameterH); return array; break;
+        case(0): return ""; break;
+        case(1): return ""; break;
+        case(2): return ""; break;
+        case(3): return ""; break;
+        case(4): return ""; break;
         }
     }
 	
 	bool setParameterButton(int column, int row, float data_float){
 		switch(row){
-		case(0): //Sensitivity
+        case(0): //Functions I
 				switch(column){
-                case(0): parameterD=0; return true; break;
-                case(1): parameterD=1; return true; break;
-                case(2): parameterD=2; return true; break;
-                case(3): parameterD=3; return true; break;
-                case(4): parameterD=4; return true; break;
+                case(0): serialPort.write("*RST\r\n");serialPort.write(":SENS:FUNC 'CURR:AC'\r\n");serialPort.write(":SENS:CURR:AC:DIG 5\r\n"); return true; break;
+                case(1): serialPort.write("*RST\r\n");serialPort.write(":SENS:FUNC 'CURR:DC'\r\n");serialPort.write(":SENS:CURR:DC:DIG 5\r\n"); return true; break;
+                case(2): serialPort.write("*RST\r\n");serialPort.write(":SENS:FUNC 'VOLT:AC'\r\n");serialPort.write(":SENS:VOLT:AC:DIG 6\r\n"); return true; break;
+                case(3): serialPort.write("*RST\r\n");serialPort.write(":SENS:FUNC 'VOLT:DC'\r\n");serialPort.write(":SENS:VOLT:DC:DIG 6\r\n"); return true; break;
+                case(4): serialPort.write("*RST\r\n");serialPort.write(":SENS:FUNC 'TEMP'\r\n");serialPort.write(":SENS:TEMP:DIG 6\r\n"); return true; break;
 				}
 				break;	
-		case(1): //Time constant
+        case(1): //Functions II
             switch(column){
-                case(0): parameterE=10; return true; break;
-                case(1): parameterE=11; return true; break;
-                case(2): parameterE=12; return true; break;
-                case(3): parameterE=13; return true; break;
-                case(4): parameterE=14; return true; break;
+                case(0): serialPort.write("*RST\r\n");serialPort.write(":SENS:FUNC 'RES'\r\n");serialPort.write(":SENS:RES:DIG 6\r\n"); return true; break;
+                case(1): serialPort.write("*RST\r\n");serialPort.write(":SENS:FUNC 'FRES'\r\n");serialPort.write(":SENS:FRES:DIG 6\r\n"); return true; break;
+                case(2): serialPort.write("*RST\r\n");serialPort.write(":SENS:FUNC 'PER'\r\n");serialPort.write(":SENS:PER:DIG 6\r\n"); return true; break;
+                case(3): serialPort.write("*RST\r\n");serialPort.write(":SENS:FUNC 'FREQ'\r\n");serialPort.write(":SENS:FREQ:DIG 6\r\n"); return true; break;
+                case(4): serialPort.write("*RST\r\n");serialPort.write(":SENS:FUNC 'DIOD'\r\n"); return true; break;
 				}
 				break;
-		case(2): //Phase
+        case(2): //Channels I
                 switch(column){
-                case(0): parameterF=20; return true; break;
-                case(1): parameterF=21; return true; break;
-                case(2): parameterF=22; return true; break;
-                case(3): parameterF=23; return true; break;
-                case(4): parameterF=24; return true; break;
+                case(0): serialPort.write(":ROUTE:CLOSE (@1)\r\n"); return true; break;
+                case(1): serialPort.write(":ROUTE:CLOSE (@2)\r\n"); return true; break;
+                case(2): serialPort.write(":ROUTE:CLOSE (@3)\r\n"); return true; break;
+                case(3): serialPort.write(":ROUTE:CLOSE (@4)\r\n"); return true; break;
+                case(4): serialPort.write(":ROUTE:CLOSE (@5)\r\n"); return true; break;
 				}
 				break;	
-		case(3): //Filters
+        case(3): //Channels II
 				switch(column){
-                case(0): parameterG=30; return true; break;
-                case(1): parameterG=31; return true; break;
-                case(2): parameterG=32; return true; break;
-                case(3): parameterG=33; return true; break;
-                case(4): parameterG=34; return true; break;
+                case(0): serialPort.write(":ROUTE:CLOSE (@6)\r\n"); return true; break;
+                case(1): serialPort.write(":ROUTE:CLOSE (@7)\r\n"); return true; break;
+                case(2): serialPort.write(":ROUTE:CLOSE (@8)\r\n"); return true; break;
+                case(3): serialPort.write(":ROUTE:CLOSE (@9)\r\n"); return true; break;
+                case(4): serialPort.write(":ROUTE:CLOSE (@10)\r\n"); return true; break;
 				}
 				break;	
 		case(4): //Config
 				switch(column){
-                case(0): parameterH=40; return true; break;
-                case(1): parameterH=41; return true; break;
-                case(2): parameterH=42; return true; break;
-                case(3): parameterH=43; return true; break;
-                case(4): parameterH=44; return true; break;
+                case(0): serialPort.write(":DISP:ENAB ON\r\n"); return true; break;
+                case(1): serialPort.write(":DISP:ENAB OFF\r\n"); return true; break;
+                case(2): serialPort.write(":SYST:KEY 30\r\n"); return true; break;
+                case(3): serialPort.write(":SYST:KEY 31\r\n"); return true; break;
+                case(4): serialPort.write(":SYST:KEY 12\r\n"); return true; break;
 				}
 				break;
         }
@@ -691,14 +575,7 @@ ClassLAMPh classLAMPh[NUMBER];
 
 const char* getName() {return DEVICE;}
 
-//const char* getInfo(int number_of_device) {createFile();return INFO;}
-const char* getInfo(int number_of_device) {
-    if (number_of_device < NUMBER ){ //protection from going beyond the classLAMPh
-        return classLAMPh[number_of_device].infoL();;
-    }else{
-        return INFO;
-    }
-}
+const char* getInfo(int number_of_device) {createFile();return INFO;}
 
 const char* DLLMain() {createFile();return INFO;}
 
@@ -743,76 +620,12 @@ void readData(int number_of_device){
 	}
 }
 
-float getFloatX(int number_of_device){
-    if (number_of_device < NUMBER ){
-        return classLAMPh[number_of_device].getFloatX();
-    }else{
-        return -1;
-    }
-}
-
-float getFloatY(int number_of_device){
-    if (number_of_device < NUMBER ){
-        return classLAMPh[number_of_device].getFloatY();
-    }else{
-        return -1;
-    }
-}
-
-float getFloatTheta(int number_of_device){
-    if (number_of_device < NUMBER ){
-        return classLAMPh[number_of_device].getFloatTheta();
-    }else{
-        return -1;
-    }
-}
-
-float getFloatRefFreq(int number_of_device){
-    if (number_of_device < NUMBER ){
-        return classLAMPh[number_of_device].getFloatRefFreq();
-    }else{
-        return -1;
-    }
-}
-
-float getFloatPar(int number_of_device, float parameter){
-    if (number_of_device < NUMBER ){
-        return classLAMPh[number_of_device].getFloatPar(parameter);
-    }else{
-        return -1;
-    }
-}
-
-void setAUXV1(int number_of_device, float parameter){
-    if (number_of_device < NUMBER ){
-        classLAMPh[number_of_device].setAUXV1(parameter);
-    }
-}
-
-void setAUXV2(int number_of_device, float parameter){
-    if (number_of_device < NUMBER ){
-        classLAMPh[number_of_device].setAUXV2(parameter);
-    }
-}
-
-void setAUXV3(int number_of_device, float parameter){
-    if (number_of_device < NUMBER ){
-        classLAMPh[number_of_device].setAUXV3(parameter);
-    }
-}
-
-void setAUXV4(int number_of_device, float parameter){
-    if (number_of_device < NUMBER ){
-        classLAMPh[number_of_device].setAUXV4(parameter);
-    }
-}
-
 float getFloatA(int number_of_device){
-    if (number_of_device < NUMBER ){
-        return classLAMPh[number_of_device].getFloatA();
-    }else{
-        return -1;
-    }
+	if (number_of_device < NUMBER ){ 
+		return classLAMPh[number_of_device].getFloatA();
+	}else{
+		return -1;
+	}
 }
 
 float getFloatB(int number_of_device){
