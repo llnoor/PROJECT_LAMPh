@@ -305,6 +305,15 @@ QToolBar *LAMPhEdit::toolBar_Devices()
     Button_Devices_AutoScaleAll = new QPushButton(tr("AutoScale"));
     Button_Devices_ClearAll->setFixedWidth(40);
     Button_Devices_AutoScaleAll->setFixedWidth(70);
+	
+	/*
+	these things will be realised INSH
+	1) opening files (FILE)
+	2) addition to files or data (DATA1+DATA2)
+	3) special function for calculation R and maybe MWA (R or MWA)
+	4) deleting points with mouse selection
+	5) to plot realtime data (MAIN)
+	*/
 
     for(int i=0; i<20; i++)
     {
