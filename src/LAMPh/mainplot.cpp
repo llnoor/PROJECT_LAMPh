@@ -98,6 +98,12 @@ void MainPlot::get_numberofdeviceInt(int numberofdeviceInt){
     }
 }
 
+void MainPlot::appendPointXY(int r)
+{
+    IncrementalPlot::appendPoint_S(r, QPointF( x_result , all_results[r] ) );
+}
+
+
 void MainPlot::appendPoint()
 {
     Q_EMIT running_writeData( true );
@@ -114,6 +120,19 @@ void MainPlot::appendPoint()
     /*if ( --d_timerCount <= 0 )
         stop();*/
 }
+
+
+void MainPlot::appendPointVector(int device_num, QVector <QStringList> qVector_temp){
+    qDebug() << "number(MainPlot)" << device_num;
+    for(int i=0; i<qVector_temp.size();i++)
+    {
+        //qDebug() << "qVector_temp.at(i).at(0)" << qVector_temp.at(i).at(0);
+        //qDebug() << "qVector_temp.at(i).at(0).toFloat()" << qVector_temp.at(i).at(0).toFloat();
+        IncrementalPlot::appendPoint_S(device_num, QPointF( qVector_temp.at(i).at(0).toFloat() , qVector_temp.at(i).at(1).toFloat() ) );
+    }
+}
+
+
 
 void MainPlot::append( int timeout, int count )
 {

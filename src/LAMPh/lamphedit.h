@@ -3,6 +3,7 @@
 
 #include <qmainwindow.h>
 #include <qaction.h>
+#include <dialogopenfile.h>
 
 class QSpinBox;
 class QPushButton;
@@ -49,8 +50,13 @@ private Q_SLOTS:
     void moved( const QPoint & );
     void selected( const QPolygon & );
     void exportDocument();
+    void openFile();
+    void functionFile();
     void enableZoomMode( bool );
     void setCheckBox();
+    //void get_qMap(int, QMap <int, QStringList>);
+    void get_qVector(int, QVector <QStringList>);
+    void sendAll(float, float, int);
 
 
 private:
@@ -69,6 +75,8 @@ private:
     Counter *d_timerCount;
     QCheckBox *d_symbolType;
 
+    QAction *d_openAction;
+    QAction *d_functionAction;
     QAction *d_startAction;
     QAction *d_clearAction;
     QAction *d_zoomAction;
@@ -138,8 +146,6 @@ private:
     QPushButton *Button_PlotSize_multiply;
     QPushButton *Button_PlotSize_divide;
 
-
-
 private:
     QLabel          *labelPlotSetting;
     QLabel          *labelPlotSettingS;
@@ -150,9 +156,12 @@ private:
     QPushButton     *editExpButton;
     QPushButton     *tableButton;
 
-   
-
-
+    struct dataEdit{
+                float X;
+                float Y;
+                bool Empty;  //1-empty, 0 -have data
+            };
+    QMap <int, dataEdit> qMapDataEdit[20];
 };
 
 #endif // LAMPHEDIT_H

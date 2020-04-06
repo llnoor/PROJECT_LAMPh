@@ -31,7 +31,8 @@ HEADERS       = window.h \
     lamphdevices.h \
     lamphtemp.h \
     class_write_in_file.h \
-    dialogdevicesettings.h
+    dialogdevicesettings.h \
+    dialogopenfile.h
 SOURCES       = window.cpp \
                 main.cpp \
     logowindow.cpp \
@@ -51,13 +52,12 @@ SOURCES       = window.cpp \
     lamphdevices.cpp \
     lamphtemp.cpp \
     class_write_in_file.cpp \
-    dialogdevicesettings.cpp
+    dialogdevicesettings.cpp \
+    dialogopenfile.cpp
 
 
 DISTFILES += \
     conf.txt \
-    README.md \
-    photo1.jpg \
-    photo_sql.jpg
+    README.md
 
 RC_FILE = logo.rc

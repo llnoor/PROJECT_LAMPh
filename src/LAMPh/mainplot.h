@@ -42,6 +42,9 @@ public Q_SLOTS:
     void get_bool( bool ,int);
     void get_numberofdeviceInt(int);
 
+    void appendPointVector(int, QVector <QStringList>);
+    void appendPointXY(int);
+
     //void get_bool(bool , int );
     //void appendPoint_F1(float, float);
     //void appendPoint_F2(float, float);

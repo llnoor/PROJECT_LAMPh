@@ -139,10 +139,6 @@ LAMPhEdit::LAMPhEdit(QString loginQString)
     //connect( d_OpenWindow_Exit, SIGNAL( triggered() ), this, SIGNAL(LAMPhExit()) );
     //connect( d_OpenWindow_Exit, SIGNAL( triggered() ), this, SLOT(close()) );
 
-
-
-
-
     d_edit = new MainPlot( this );
     const int margin = 4;
     d_edit->setContentsMargins( margin, margin, margin, margin );
@@ -188,11 +184,18 @@ LAMPhEdit::LAMPhEdit(QString loginQString)
     connect( d_exportAction, SIGNAL( triggered() ), this, SLOT( exportDocument() ) );
 
 
+    connect( d_openAction, SIGNAL( triggered() ), this, SLOT( openFile() ) );
+    connect( d_functionAction, SIGNAL( triggered() ), this, SLOT( functionFile() ) );
+
 
 
     connect( d_symbolType, SIGNAL( toggled( bool ) ), d_edit, SLOT( showSymbols( bool ) ) );
     connect( d_edit, SIGNAL( running( bool ) ), this, SLOT( showRunning( bool ) ) );
     connect( d_edit, SIGNAL( elapsed( int ) ), this, SLOT( showElapsed( int ) ) );
+
+
+
+
 
 
 
@@ -221,9 +224,16 @@ QToolBar *LAMPhEdit::toolBar()
     d_zoomAction->setCheckable( true );
     d_exportAction = new QAction( QPixmap( print_xpm ), "Export", toolBar );
 
+
+    d_openAction = new QAction( QPixmap( start_xpm ), "OpenFile", toolBar );
+    d_functionAction = new QAction( QPixmap( start_xpm ), "Function", toolBar );
+
     QAction *whatsThisAction = QWhatsThis::createAction( toolBar );
     whatsThisAction->setText( "Help" );
 
+
+    toolBar->addAction( d_openAction );
+    toolBar->addAction( d_functionAction );
     toolBar->addAction( d_startAction );
     toolBar->addAction( d_clearAction );
     toolBar->addAction( d_zoomAction );
@@ -412,64 +422,7 @@ void LAMPhEdit::setCheckBox()
                 break;
             }
         }
-
     }
-
-    // // // Simple and understandable explanation // // //
-
-    /*int new_int=0;
-
-    if (checkBox_A1_X->isChecked()) {number_of_checkBox = 1; new_int++;}
-    if (checkBox_A2_X->isChecked()) {number_of_checkBox = 2; new_int++;}
-    if (checkBox_A3_X->isChecked()) {number_of_checkBox = 3; new_int++;}
-    if (checkBox_A4_X->isChecked()) {number_of_checkBox = 4; new_int++;}
-
-    if (checkBox_K1_X->isChecked()) {number_of_checkBox = 11; new_int++;}
-    if (checkBox_K2_X->isChecked()) {number_of_checkBox = 12; new_int++;}
-    if (checkBox_K3_X->isChecked()) {number_of_checkBox = 13; new_int++;}
-    if (checkBox_K4_X->isChecked()) {number_of_checkBox = 14; new_int++;}
-
-    if (checkBox_L1_X->isChecked()) {number_of_checkBox = 21; new_int++;}
-    if (checkBox_L2_X->isChecked()) {number_of_checkBox = 22; new_int++;}
-    if (checkBox_L3_X->isChecked()) {number_of_checkBox = 23; new_int++;}
-    if (checkBox_L4_X->isChecked()) {number_of_checkBox = 24; new_int++;}
-
-    if (new_int>1)
-    {
-        switch (number_of_checkBox_tmp) {
-        case 1:checkBox_A1_X->setChecked(false);checkBox_A1_Y->setChecked(true);break;
-        case 2:checkBox_A2_X->setChecked(false);checkBox_A2_Y->setChecked(true);break;
-        case 3:checkBox_A3_X->setChecked(false);checkBox_A3_Y->setChecked(true);break;
-        case 4:checkBox_A4_X->setChecked(false);checkBox_A4_Y->setChecked(true);break;
-
-        case 11:checkBox_K1_X->setChecked(false);checkBox_K1_Y->setChecked(true);break;
-        case 12:checkBox_K2_X->setChecked(false);checkBox_K2_Y->setChecked(true);break;
-        case 13:checkBox_K3_X->setChecked(false);checkBox_K3_Y->setChecked(true);break;
-        case 14:checkBox_K4_X->setChecked(false);checkBox_K4_Y->setChecked(true);break;
-
-        case 21:checkBox_L1_X->setChecked(false);checkBox_L1_Y->setChecked(true);break;
-        case 22:checkBox_L2_X->setChecked(false);checkBox_L2_Y->setChecked(true);break;
-        case 23:checkBox_L3_X->setChecked(false);checkBox_L3_Y->setChecked(true);break;
-        case 24:checkBox_L4_X->setChecked(false);checkBox_L4_Y->setChecked(true);break;
-        }
-        number_of_checkBox=number_of_checkBox_tmp;
-    }
-        number_of_checkBox_tmp=number_of_checkBox;
-    switch (number_of_checkBox) {
-    case 1:if (new_int!=0)checkBox_A1_Y->setChecked(false);else checkBox_A1_Y->setChecked(true);break;
-    case 2:if (new_int!=0)checkBox_A2_Y->setChecked(false);else checkBox_A2_Y->setChecked(true);break;
-    case 3:if (new_int!=0)checkBox_A3_Y->setChecked(false);else checkBox_A3_Y->setChecked(true);break;
-    case 4:if (new_int!=0)checkBox_A4_Y->setChecked(false);else checkBox_A4_Y->setChecked(true);break;
-    case 11:if (new_int!=0)checkBox_K1_Y->setChecked(false);else checkBox_K1_Y->setChecked(true);break;
-    case 12:if (new_int!=0)checkBox_K2_Y->setChecked(false);else checkBox_K2_Y->setChecked(true);break;
-    case 13:if (new_int!=0)checkBox_K3_Y->setChecked(false);else checkBox_K3_Y->setChecked(true);break;
-    case 14:if (new_int!=0)checkBox_K4_Y->setChecked(false);else checkBox_K4_Y->setChecked(true);break;
-    case 21:if (new_int!=0)checkBox_L1_Y->setChecked(false);else checkBox_L1_Y->setChecked(true);break;
-    case 22:if (new_int!=0)checkBox_L2_Y->setChecked(false);else checkBox_L2_Y->setChecked(true);break;
-    case 23:if (new_int!=0)checkBox_L3_Y->setChecked(false);else checkBox_L3_Y->setChecked(true);break;
-    case 24:if (new_int!=0)checkBox_L4_Y->setChecked(false);else checkBox_L4_Y->setChecked(true);break;
-    }*/
-
 }
 
 void LAMPhEdit::appendPoints( bool on )
@@ -538,6 +491,66 @@ void LAMPhEdit::exportDocument()
 {
     QwtPlotRenderer renderer;
     renderer.exportTo( d_edit, "LAMPh.pdf" );
+}
+
+void LAMPhEdit::openFile()
+{
+
+}
+
+void LAMPhEdit::functionFile()
+{
+    DialogOpenFile *addDialogOpenFile = new DialogOpenFile("testFile",3);
+    //connect(addDialogOpenFile,SIGNAL(send_qMap(int, QMap <int, QStringList>)),this,SLOT(get_qMap(int, QMap <int, QStringList>)));
+    //connect(addDialogOpenFile,SIGNAL(send_qVectorData(int, QVector <QStringList>)),this,SLOT(get_qVector(int, QVector <QStringList>)));
+
+
+    connect(addDialogOpenFile,SIGNAL(send_qVectorData(int, QVector <QStringList>)),d_edit,SLOT(appendPointVector(int, QVector <QStringList>)));
+
+    connect(addDialogOpenFile,SIGNAL(send_x_result(float)),d_edit,SLOT(get_x_result(float)));
+    connect(addDialogOpenFile,SIGNAL(send_all_results(float,int)),d_edit,SLOT(get_all_results(float,int)));
+    connect(addDialogOpenFile,SIGNAL(appendPointXY(int)),d_edit,SLOT(appendPointXY(int)));
+
+
+
+    //connect(addDialogOpenFile,SIGNAL(sendAll(float,float,int)),this,SLOT(sendAll(float,float,int)));
+    //connect(addDialogOpenFile,SIGNAL(setColorSize(int,int,int)),d_edit,SLOT(setColorSize(int,int,int)));
+    //connect(addDialogOpenFile,SIGNAL(setNumberDevice_bool( bool ,int)),d_edit,SLOT(get_bool( bool ,int)));
+
+    addDialogOpenFile->setWindowTitle(QString("OpenFileTEST"));
+    addDialogOpenFile->exec();
+}
+
+void LAMPhEdit::sendAll(float X, float Y, int r){
+    d_edit->get_x_result(X);
+    d_edit->get_all_results(Y,r);
+    d_edit->appendPointXY(r);
+}
+
+/*void LAMPhEdit::get_qMap(int device_num,QMap <int, QStringList> qmap_temp)
+{
+    qDebug() << "device_num" << device_num;
+    QMap <int, QStringList>::iterator it=qmap_temp.begin();
+    for(;it !=qmap_temp.end();++it)
+    {
+        qDebug() << "Key: " << it.key() << "Value: " << it.value();
+    }
+
+
+}*/
+
+void LAMPhEdit::get_qVector(int device_num, QVector <QStringList> qVector_temp){
+    //qDebug() << "device_num" << device_num;
+    for(int i=0; i<qVector_temp.size();i++)
+    {
+        //qDebug() << "i: " << i << "qVector_temp: " << qVector_temp.at(i);
+        d_edit->get_x_result(qVector_temp.at(i).at(0).toFloat());
+        d_edit->get_all_results(qVector_temp.at(i).at(1).toFloat(),device_num);
+    }
+
+
+
+
 }
 
 void LAMPhEdit::enableZoomMode( bool on )
