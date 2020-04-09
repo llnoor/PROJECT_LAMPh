@@ -132,6 +132,9 @@ void MainPlot::appendPointVector(int device_num, QVector <QStringList> qVector_t
     }
 }
 
+void MainPlot::appendPointVectorXY(QVector <double> qVector_X,QVector <double> qVector_Y,int device_num){
+    IncrementalPlot::appendPointVectorXY_Incremental(qVector_X,qVector_Y,device_num);
+}
 
 
 void MainPlot::append( int timeout, int count )
@@ -210,6 +213,21 @@ void MainPlot::autoscale()
     float x_max = x_result_max +(x_result_max-x_result_min)*0.05;
     float y_min = y_result_min-(y_result_max-y_result_min)*0.05;
     float y_max = y_result_max +(y_result_max-y_result_min)*0.05;
+
+    setAxisScale( xBottom, x_min , x_max );
+    setAxisScale( yLeft, y_min , y_max );
+
+    send_data_PlotSize(x_min,x_max,y_min,y_max);
+
+    replot();
+}
+
+
+void MainPlot::autoscaleXY(double x__min, double x__max, double y__min, double y__max){
+    float x_min = x__min-(x__max-x__min)*0.05;
+    float x_max = x__max +(x__max-x__min)*0.05;
+    float y_min = y__min-(y__max-y__min)*0.05;
+    float y_max = y__max +(y__max-y__min)*0.05;
 
     setAxisScale( xBottom, x_min , x_max );
     setAxisScale( yLeft, y_min , y_max );

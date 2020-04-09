@@ -92,6 +92,8 @@ LAMPhPlot::LAMPhPlot(QString loginQString)
     addToolBar(Qt::TopToolBarArea, toolBar()); // main buttons (for switching between windows)
     addToolBar(Qt::LeftToolBarArea, toolBar_Devices()); // data fields
     addToolBar(Qt::LeftToolBarArea, toolBar_PlotSize());
+    addToolBar(Qt::RightToolBarArea, toolBar_Devices_Edit());
+
 
 #ifndef QT_NO_STATUSBAR
     ( void )statusBar();
@@ -235,6 +237,9 @@ LAMPhPlot::LAMPhPlot(QString loginQString)
     connect( d_zoomAction, SIGNAL( toggled( bool ) ), SLOT( enableZoomMode( bool ) ) );
     connect( d_exportAction, SIGNAL( triggered() ), this, SLOT( exportDocument() ) );
 
+    connect( d_openAction, SIGNAL( triggered() ), this, SLOT( openFile() ) );
+    connect( d_functionAction, SIGNAL( triggered() ), this, SLOT( functionFile() ) );
+
     connect( d_symbolType, SIGNAL( toggled( bool ) ), d_plot, SLOT( showSymbols( bool ) ) );
     connect( d_plot, SIGNAL( running( bool ) ), this, SLOT( showRunning( bool ) ) );
     connect( d_plot, SIGNAL( elapsed( int ) ), this, SLOT( showElapsed( int ) ) );
@@ -246,6 +251,13 @@ LAMPhPlot::LAMPhPlot(QString loginQString)
         connect(checkBox_Devices_Y[i], SIGNAL(toggled(bool)),this,SLOT(setCheckBox()) );
         //connect(checkBox_Devices_Show[i], SIGNAL(toggled(bool)),this,SLOT(setCheckBox()) );
     }*/
+
+    for (int i=0;i<20;i++){
+        xMin[i]=0;
+        xMax[i]=1;
+        yMin[i]=0;
+        yMax[i]=1;
+    }
 
     setWindowTitle(tr("LAMPh Plot - %1 ").arg(login->toLower()));
     //showFullScreen();
@@ -295,6 +307,18 @@ LAMPhPlot::LAMPhPlot(QString loginQString)
            });
     }
 
+    for(int i=0; i<20; i++)
+    {
+        connect(edit_Button_Devices_Clear[i], static_cast<void(QPushButton::*)(bool)>(&QPushButton::clicked),
+                [=](bool bool_one){
+                clear_one(i);
+           });
+        connect(edit_Button_Devices_AutoScale[i], static_cast<void(QPushButton::*)(bool)>(&QPushButton::clicked),
+                [=](bool bool_one){
+                autoscale_one(i);
+           });
+    }
+
     //PlotSize
     connect(Button_PlotSize_replot, SIGNAL (released()), this ,SLOT( replot_PlotSize()));
     connect(d_plot, SIGNAL(send_data_PlotSize(float,float,float,float)),this,SLOT(get_data_PlotSize(float,float,float,float)));
@@ -321,6 +345,9 @@ QToolBar *LAMPhPlot::toolBar()
     d_zoomAction->setCheckable( true );
     d_exportAction = new QAction( QPixmap( print_xpm ), "Export", toolBar );
 
+    d_openAction = new QAction( QPixmap( start_xpm ), "OpenFile", toolBar );
+    d_functionAction = new QAction( QPixmap( start_xpm ), "Function", toolBar );
+
     QAction *whatsThisAction = QWhatsThis::createAction( toolBar );
     whatsThisAction->setText( "Help" );
 
@@ -329,6 +356,9 @@ QToolBar *LAMPhPlot::toolBar()
     toolBar->addAction( d_zoomAction );
     toolBar->addAction( d_exportAction );
     toolBar->addAction( whatsThisAction );
+    toolBar->addSeparator();
+    toolBar->addAction( d_openAction );
+    toolBar->addAction( d_functionAction );
     toolBar->addSeparator();
 
     setIconSize( QSize( 22, 22 ) );
@@ -518,6 +548,59 @@ QToolBar *LAMPhPlot::toolBar_PlotSize()
 
     toolBar_PlotSize->addWidget( hBox_PlotSize );
     return toolBar_PlotSize;
+}
+
+QToolBar *LAMPhPlot::toolBar_Devices_Edit()
+{
+    MyToolBar *toolBar_Devices_Edit = new MyToolBar( this );
+    toolBar_Devices_Edit->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+    hBox_Devices_Edit = new QWidget( toolBar_Devices_Edit );
+
+    edit_label_Devices_All = new QLabel(tr("LINE"));
+    edit_Button_Devices_ClearAll = new QPushButton(tr("Clear"));
+    edit_Button_Devices_AutoScaleAll = new QPushButton(tr("AutoScale"));
+    edit_label_Devices_All->setFixedWidth(200);
+    edit_Button_Devices_ClearAll->setFixedWidth(40);
+    edit_Button_Devices_AutoScaleAll->setFixedWidth(70);
+
+    for(int i=0; i<20; i++)
+    {
+        edit_lineEdit_Devices[i] = new QLineEdit();
+        edit_lineEdit_Devices[i]->setText( QString("Line %1: empty").arg(i));
+        edit_lineEdit_Devices[i]->setReadOnly(true);
+        edit_Button_Devices_Clear[i] = new QPushButton(tr("Clear"));
+        edit_Button_Devices_AutoScale[i] = new QPushButton(tr("AutoScale"));
+        edit_Button_Devices_Clear[i]->setFixedWidth(40);
+        edit_Button_Devices_AutoScale[i]->setFixedWidth(70);
+
+    }
+
+    for(int i=10 /*int_GET*/; i<CurvCnt; i++)
+    {
+        edit_lineEdit_Devices[i]->hide();
+        edit_Button_Devices_Clear[i]->hide();
+        edit_Button_Devices_AutoScale[i]->hide();
+    }
+
+
+    QGridLayout *mainLayout = new QGridLayout( hBox_Devices_Edit );
+
+    mainLayout->addWidget(edit_label_Devices_All, 0, 0);
+
+    for(int i=0; i<20; i++)
+    {
+        mainLayout->addWidget(edit_lineEdit_Devices[i], i+1, 0);
+        mainLayout->addWidget(edit_Button_Devices_Clear[i], i+1, 1);
+        mainLayout->addWidget(edit_Button_Devices_AutoScale[i], i+1, 2);
+
+    }
+
+    mainLayout->setContentsMargins(5,5,5,5);
+    mainLayout->setVerticalSpacing(5);
+    mainLayout->setHorizontalSpacing(5);
+
+    toolBar_Devices_Edit->addWidget( hBox_Devices_Edit );
+    return toolBar_Devices_Edit;
 }
 
 void LAMPhPlot::replot_PlotSize()
@@ -766,4 +849,57 @@ void LAMPhPlot::moved( const QPoint &pos )
 void LAMPhPlot::selected( const QPolygon & )
 {
     showInfo();
+}
+
+void LAMPhPlot::openFile(){
+    DialogOpenFile *addDialogOpenFile = new DialogOpenFile("testFile",3);
+
+    connect(addDialogOpenFile,SIGNAL(send_VectorXY(QVector<double>, QVector<double>, int)),this,SLOT(get_VectorXY(QVector<double>,QVector<double>,int)));
+    connect(addDialogOpenFile,SIGNAL(sendMinMaxofVectorXY(double,double,double,double,int)),this,SLOT(getMinMaxofVectorXY(double,double,double,double,int)));
+
+    connect(addDialogOpenFile,SIGNAL(sendFileName(QString,int)),this,SLOT(getFileName(QString,int)));
+
+    addDialogOpenFile->setWindowTitle(QString("OpenFileTEST"));
+    addDialogOpenFile->exec();
+}
+
+void LAMPhPlot::functionFile(){
+
+}
+
+void LAMPhPlot::get_VectorXY(QVector<double> X , QVector<double> Y, int r){
+    qVectorX[r].clear();
+    qVectorY[r].clear();
+    qVectorX[r]=X;
+    qVectorY[r]=Y;
+    d_plot->appendPointVectorXY_Incremental(qVectorX[r],qVectorY[r],r);
+}
+void LAMPhPlot::getMinMaxofVectorXY(double x__min, double x__max, double y__min, double y__max, int r){
+    xMin[r]=x__min;
+    xMax[r]=x__max;
+    yMin[r]=y__min;
+    yMax[r]=y__max;
+    //qDebug() << "x__min " << x__min << " x__max "  << x__max << " y__min " << y__min << " y__max " << y__max;
+
+    d_plot->autoscaleXY(x__min,x__max,y__min,y__max);
+}
+
+void LAMPhPlot::getFileName(QString fileNameShort, int i){
+    edit_lineEdit_Devices[i]->setText(fileNameShort);
+    //lineEdit_Devices[i]->setText( QString("Line %1: %2").arg(i).arg(fileNameShort));
+}
+
+void LAMPhPlot::clear_one(int r){
+    edit_lineEdit_Devices[r]->setText( QString("Line %1: empty").arg(r));
+    qVectorX[r].clear();
+    qVectorY[r].clear();
+    xMin[r]=0;
+    xMax[r]=1;
+    yMin[r]=0;
+    yMax[r]=1;
+    d_plot->appendPointVectorXY_Incremental(qVectorX[r],qVectorY[r],r);
+}
+
+void LAMPhPlot::autoscale_one(int r){
+    d_plot->autoscaleXY(xMin[r],xMax[r],yMin[r],yMax[r]);
 }

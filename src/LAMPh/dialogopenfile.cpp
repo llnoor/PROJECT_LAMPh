@@ -39,9 +39,10 @@ DialogOpenFile::DialogOpenFile(QString txtFile, int number, QWidget *parent) :
 
 
 void DialogOpenFile::save_data(){
+    qVectorX.clear();
+    qVectorY.clear();
+    double xMin,xMax,yMin,yMax=0;
 
-    //QMap <int, QStringList> qMapDataOpenFile;
-    //qVectorData.clear();
     QFile file (filePath);
     int fileSize = file.size();
     int number_line = fileSize/100;
@@ -49,38 +50,42 @@ void DialogOpenFile::save_data(){
         file.open(QIODevice::ReadOnly | QIODevice::Text);
         QStringList list_temp;
         QString line;
-        QStringList list_for_qmap;
         int i=-2;
         QTextStream in(&file);
         while (!in.atEnd()) {
             line = in.readLine();
             i++;
-            if (i>=0){
+            if (i>0){
                 list_temp = line.split("\t");
-                list_for_qmap.append(list_temp[numberOfX]);
-                list_for_qmap.append(list_temp[numberOfY]);
-                //qVectorData.push_back(list_for_qmap);
-                //progressBar->setValue(i/100);
                 progressBar->setValue(i*100/number_line);
-                send_x_result(list_temp[numberOfX].toFloat());
-                send_all_results(list_temp[numberOfY].toFloat(),comboBox_Device->currentIndex());
-                appendPointXY(comboBox_Device->currentIndex());
-                //sendAll(list_temp[numberOfX].toFloat(),list_temp[numberOfY].toFloat(),comboBox_Device->currentIndex());
-                list_for_qmap.clear();
+                if (i==1){
+                    xMin=xMax=list_temp[numberOfX].toDouble();
+                    yMin=yMax=list_temp[numberOfY].toDouble();
+                }
+                if (list_temp[numberOfX].toDouble()>xMax) xMax=list_temp[numberOfX].toDouble();
+                if (list_temp[numberOfX].toDouble()<xMin) xMin=list_temp[numberOfX].toDouble();
+                if (list_temp[numberOfY].toDouble()>yMax) yMax=list_temp[numberOfY].toDouble();
+                if (list_temp[numberOfY].toDouble()<yMin) yMin=list_temp[numberOfY].toDouble();
+
+                qVectorX.push_back(list_temp[numberOfX].toDouble());
+                qVectorY.push_back(list_temp[numberOfY].toDouble());
             }
         }
         file.flush();
         file.close();
+
+        send_VectorXY(qVectorX, qVectorY, comboBox_Device->currentIndex());
+        sendMinMaxofVectorXY(xMin,xMax,yMin,yMax,comboBox_Device->currentIndex());
+
+        file.open(QIODevice::ReadOnly | QIODevice::Text);
+        line = in.readLine();
+        list_temp = line.split("\t");
+        QString temp4 = list_temp[numberOfY];
+        file.flush();
+        file.close();
+        sendFileName(QString ("%1 %2").arg(filePath.split("/").last()).arg(temp4),comboBox_Device->currentIndex());
     }
-
     close();
-    //qVectorData.remove(0,2);
-    //send_qVectorData(2,qVectorData);
-
-
-    //send_qMap(comboBox_Device->currentIndex(),qMapDataOpenFile);
-    //for (int i=-2; i<5; i++){qDebug() << qMapDataOpenFile.contains(i);}
-
 }
 
 void DialogOpenFile::setCheckBox(int temp){
@@ -202,8 +207,11 @@ QGroupBox *DialogOpenFile::groupTableSettings()
     }
     labelImportTo = new QLabel(QString ("Import to:"));
     comboBox_Device = new QComboBox;
-    for (int i=0; i<20; i++){
-    comboBox_Device->addItem(QString ("Device %1").arg(i));
+    //QStringList colorsQStringList_edit = { "black", "red", "green", "blue", "gray", "magenta", "darkCyan", "darkRed", "darkMagenta", "darkGreen", "darkYellow", "darkBlue", "darkGray", "lightGray", "black", "red", "green", "blue", "gray", "black" };
+    QStringList colorsQStringList = { "white", "black", "cyan", "red", "magenta", "green", "yellow", "blue", "gray", "darkCyan", "darkRed", "darkMagenta", "darkGreen", "darkYellow", "darkBlue", "darkGray", "lightGray","white", "black", "cyan", "red", "magenta", "green", "yellow", "blue" };
+
+    for (int i=0; i<10 /*20*/; i++){
+    comboBox_Device->addItem(QString ("Line %1 (%2)").arg(i).arg(colorsQStringList.at(i)));
     }
     button_plot_F = new QPushButton(tr("Import"));
 

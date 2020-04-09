@@ -30,6 +30,7 @@ public Q_SLOTS:
     void clear_one(int);
 
     void autoscale();
+    void autoscaleXY(double, double, double, double);
     void autoscale_one(int);
 
     void replot_PlotSize(float,float,float,float);
@@ -43,6 +44,7 @@ public Q_SLOTS:
     void get_numberofdeviceInt(int);
 
     void appendPointVector(int, QVector <QStringList>);
+    void appendPointVectorXY(QVector<double>, QVector<double>, int);
     void appendPointXY(int);
 
     //void get_bool(bool , int );
@@ -74,6 +76,8 @@ private:
     int d_timerCount;
 
     QTime d_timeStamp;
+
+
 };
 
 #endif // _MAINPLOT_H_

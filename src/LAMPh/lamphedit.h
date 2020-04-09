@@ -54,9 +54,13 @@ private Q_SLOTS:
     void functionFile();
     void enableZoomMode( bool );
     void setCheckBox();
-    //void get_qMap(int, QMap <int, QStringList>);
-    void get_qVector(int, QVector <QStringList>);
-    void sendAll(float, float, int);
+
+    void get_VectorXY(QVector<double>, QVector<double>, int);
+    void getMinMaxofVectorXY(double, double, double, double, int);//xmin xmax ymin ymax numberofdata
+    void getFileName(QString,int);
+
+    void clear_one(int);
+    void autoscale_one(int);
 
 
 private:
@@ -138,6 +142,11 @@ private:
     int number_of_checkBox_tmp;
 
     QLabel *label_PlotSize;
+    QLabel *label_Plot_x_min;
+    QLabel *label_Plot_x_max;
+    QLabel *label_Plot_y_min;
+    QLabel *label_Plot_y_max;
+
     QLineEdit *lineEdit_Plot_x_min;
     QLineEdit *lineEdit_Plot_x_max;
     QLineEdit *lineEdit_Plot_y_min;
@@ -156,12 +165,12 @@ private:
     QPushButton     *editExpButton;
     QPushButton     *tableButton;
 
-    struct dataEdit{
-                float X;
-                float Y;
-                bool Empty;  //1-empty, 0 -have data
-            };
-    QMap <int, dataEdit> qMapDataEdit[20];
+    QVector <double> qVectorX[20];
+    QVector <double> qVectorY[20];
+    double xMin[20];
+    double xMax[20];
+    double yMin[20];
+    double yMax[20];
 };
 
 #endif // LAMPHEDIT_H

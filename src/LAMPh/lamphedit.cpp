@@ -93,6 +93,8 @@ LAMPhEdit::LAMPhEdit(QString loginQString)
 
     addToolBar(Qt::TopToolBarArea, toolBar());
     addToolBar(Qt::LeftToolBarArea, toolBar_Devices());
+    addToolBar(Qt::LeftToolBarArea, toolBar_PlotSize());
+
 
 #ifndef QT_NO_STATUSBAR
     ( void )statusBar();
@@ -142,7 +144,10 @@ LAMPhEdit::LAMPhEdit(QString loginQString)
     d_edit = new MainPlot( this );
     const int margin = 4;
     d_edit->setContentsMargins( margin, margin, margin, margin );
+    d_edit->setCanvasBackground(QColor( Qt::white ) );
 
+
+            //setCanvasBackground( QColor( 29, 100, 141 ) );
 
     d_zoomer[0] = new Zoomer( QwtPlot::xBottom, QwtPlot::yLeft,
         d_edit->canvas() );
@@ -164,7 +169,8 @@ LAMPhEdit::LAMPhEdit(QString loginQString)
 
     setCentralWidget( d_edit );
 
-
+    centralWidget()->setStyleSheet("background:white;");
+    //setStyleSheet("background:white;");
 
     initWhatsThis();
 
@@ -189,16 +195,31 @@ LAMPhEdit::LAMPhEdit(QString loginQString)
 
 
 
-    connect( d_symbolType, SIGNAL( toggled( bool ) ), d_edit, SLOT( showSymbols( bool ) ) );
+    //connect( d_symbolType, SIGNAL( toggled( bool ) ), d_edit, SLOT( showSymbols( bool ) ) );
     connect( d_edit, SIGNAL( running( bool ) ), this, SLOT( showRunning( bool ) ) );
     connect( d_edit, SIGNAL( elapsed( int ) ), this, SLOT( showElapsed( int ) ) );
 
 
 
+    for(int i=0; i<20; i++)
+    {
+        connect(Button_Devices_Clear[i], static_cast<void(QPushButton::*)(bool)>(&QPushButton::clicked),
+                [=](bool bool_one){
+                clear_one(i);
+           });
+        connect(Button_Devices_AutoScale[i], static_cast<void(QPushButton::*)(bool)>(&QPushButton::clicked),
+                [=](bool bool_one){
+                autoscale_one(i);
+           });
+    }
 
 
-
-
+    for (int i=0;i<20;i++){
+        xMin[i]=0;
+        xMax[i]=1;
+        yMin[i]=0;
+        yMax[i]=1;
+    }
 
 
     setWindowTitle(tr("LAMPhEdit - %1 ").arg(login->toLower()));
@@ -234,7 +255,7 @@ QToolBar *LAMPhEdit::toolBar()
 
     toolBar->addAction( d_openAction );
     toolBar->addAction( d_functionAction );
-    toolBar->addAction( d_startAction );
+    //toolBar->addAction( d_startAction );
     toolBar->addAction( d_clearAction );
     toolBar->addAction( d_zoomAction );
     toolBar->addAction( d_exportAction );
@@ -245,7 +266,7 @@ QToolBar *LAMPhEdit::toolBar()
 
     QWidget *hBox = new QWidget( toolBar );
 
-    d_symbolType = new QCheckBox( "Symbols", hBox );
+    /*d_symbolType = new QCheckBox( "Symbols", hBox );
     d_symbolType->setChecked( true );
 
     d_randomCount =
@@ -253,18 +274,18 @@ QToolBar *LAMPhEdit::toolBar()
     d_randomCount->setValue( 1000 );
 
     d_timerCount = new Counter( hBox, "Delay", "ms", 0, 100000, 100 );
-    d_timerCount->setValue( 0 );
+    d_timerCount->setValue( 0 );*/
 
     QHBoxLayout *layout = new QHBoxLayout( hBox );
     layout->setMargin( 0 );
     layout->setSpacing( 0 );
     layout->addSpacing( 10 );
     layout->addWidget( new QWidget( hBox ), 10 ); // spacer
-    layout->addWidget( d_symbolType );
-    layout->addSpacing( 5 );
-    layout->addWidget( d_randomCount );
-    layout->addSpacing( 5 );
-    layout->addWidget( d_timerCount );
+    //layout->addWidget( d_symbolType );
+    //layout->addSpacing( 5 );
+    //layout->addWidget( d_randomCount );
+    //layout->addSpacing( 5 );
+   //layout->addWidget( d_timerCount );
 
     showRunning( false );
 
@@ -293,6 +314,8 @@ QToolBar *LAMPhEdit::toolBar()
     return toolBar;
 }
 
+
+
 QToolBar *LAMPhEdit::toolBar_Devices()
 {
     MyToolBar *toolBar_Devices = new MyToolBar( this );
@@ -306,21 +329,23 @@ QToolBar *LAMPhEdit::toolBar_Devices()
     d_OpenWindow_A->setShortcut(QKeySequence(tr("Ctrl+A")));
     d_OpenWindow_A->setStatusTip(tr("Open Window"));*/
 
-    label_Devices_All = new QLabel(tr("Devices"));
+    label_Devices_All = new QLabel(tr("LINE"));
+    //label_Devices_All->setFont(QFont("Arial",16));
     label_Devices_All_X = new QLabel(tr("X"));
     label_Devices_All_Y = new QLabel(tr("Y"));
     label_Devices_All_Y2 = new QLabel(tr("Y2"));
     //label_Devices_All_Show = new QLabel(tr("Show"));
     Button_Devices_ClearAll = new QPushButton(tr("Clear"));
     Button_Devices_AutoScaleAll = new QPushButton(tr("AutoScale"));
+    label_Devices_All->setFixedWidth(100);
     Button_Devices_ClearAll->setFixedWidth(40);
     Button_Devices_AutoScaleAll->setFixedWidth(70);
 	
 	/*
 	these things will be realised INSH
-	1) opening files (FILE)
-	2) addition to files or data (DATA1+DATA2)
-	3) special function for calculation R and maybe MWA (R or MWA)
+    1) opening files (FILE)                                             /ready
+    2) addition to files or data (DATA1+DATA2)                          /
+    3) special function for calculation R and maybe MWA (R or MWA)
 	4) deleting points with mouse selection
 	5) to plot realtime data (MAIN)
 	*/
@@ -328,11 +353,13 @@ QToolBar *LAMPhEdit::toolBar_Devices()
     for(int i=0; i<20; i++)
     {
         lineEdit_Devices[i] = new QLineEdit();
-        lineEdit_Devices[i]->setText( QString("Device %1:").arg(i));
+        lineEdit_Devices[i]->setText( QString("Line %1: empty").arg(i));
         lineEdit_Devices[i]->setReadOnly(true);
+        //lineEdit_Devices[i]->setFont(QFont("Arial",16));
 
         label_Devices[i] = new QLabel();
-        label_Devices[i]->setText( QString("Device %1:").arg(i));
+        label_Devices[i]->setText( QString("Line %1:").arg(i));
+        label_Devices[i]->setFont(QFont("Arial",16));
         checkBox_Devices_X[i] = new QCheckBox(tr(""));
         checkBox_Devices_Y[i] = new QCheckBox(tr(""));
         checkBox_Devices_Y2[i] = new QCheckBox(tr(""));
@@ -348,24 +375,31 @@ QToolBar *LAMPhEdit::toolBar_Devices()
 
     }
 
+    for(int i=10 /*int_GET*/; i<CurvCnt; i++)
+    {
+        lineEdit_Devices[i]->hide();
+        Button_Devices_Clear[i]->hide();
+        Button_Devices_AutoScale[i]->hide();
+    }
+
 
     QGridLayout *mainLayout = new QGridLayout( hBox_Devices );
 
     mainLayout->addWidget(label_Devices_All, 0, 0);
-    mainLayout->addWidget(label_Devices_All_X, 0, 1);
-    mainLayout->addWidget(label_Devices_All_Y, 0, 2);
+  //  mainLayout->addWidget(label_Devices_All_X, 0, 1);
+  //  mainLayout->addWidget(label_Devices_All_Y, 0, 2);
     //mainLayout->addWidget(label_Devices_All_Y2, 0, 3);
     //mainLayout->addWidget(label_Devices_All_Show, 0, 4);
-    mainLayout->addWidget(Button_Devices_ClearAll, 0, 5);
-    mainLayout->addWidget(Button_Devices_AutoScaleAll, 0, 6);
+  //  mainLayout->addWidget(Button_Devices_ClearAll, 0, 5);
+  //  mainLayout->addWidget(Button_Devices_AutoScaleAll, 0, 6);
 
 
     for(int i=0; i<20; i++)
     {
         mainLayout->addWidget(lineEdit_Devices[i], i+1, 0);
         //mainLayout->addWidget(label_Devices[i], 0, 0);
-        mainLayout->addWidget(checkBox_Devices_X[i], i+1, 1);
-        mainLayout->addWidget(checkBox_Devices_Y[i], i+1, 2);
+   //     mainLayout->addWidget(checkBox_Devices_X[i], i+1, 1);
+   //     mainLayout->addWidget(checkBox_Devices_Y[i], i+1, 2);
         //mainLayout->addWidget(checkBox_Devices_Y2[i], i+1, 3);
         //mainLayout->addWidget(checkBox_Devices_Show[i], i+1, 4);
         //mainLayout->addWidget(Button_Devices_Start[i], 0, 5);
@@ -381,6 +415,55 @@ QToolBar *LAMPhEdit::toolBar_Devices()
 
     toolBar_Devices->addWidget( hBox_Devices );
     return toolBar_Devices;
+}
+
+QToolBar *LAMPhEdit::toolBar_PlotSize()
+{
+    MyToolBar *toolBar_PlotSize = new MyToolBar( this );
+    toolBar_PlotSize->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+    hBox_PlotSize = new QWidget( toolBar_PlotSize );
+
+    hBox_PlotSize->setFont(QFont("Arial",15));
+
+    label_PlotSize  = new QLabel(tr("Plot Size"));
+
+    label_Plot_x_min = new QLabel(tr("Plot Size: x_min:"));
+    label_Plot_x_max = new QLabel(tr("Plot Size: x_max:"));
+    label_Plot_y_min = new QLabel(tr("Plot Size: y_min:"));
+    label_Plot_y_max = new QLabel(tr("Plot Size: y_max:"));
+
+    lineEdit_Plot_x_min = new QLineEdit(tr(""));
+    lineEdit_Plot_x_max = new QLineEdit(tr(""));
+    lineEdit_Plot_y_min = new QLineEdit(tr(""));
+    lineEdit_Plot_y_max = new QLineEdit(tr(""));
+
+    Button_PlotSize_replot = new QPushButton(tr("Replot"));
+    //Button_PlotSize_multiply = new QPushButton(tr("*"));
+    //Button_PlotSize_divide = new QPushButton(tr("/"));
+
+    //Button_Devices_AutoScaleAll->setFixedWidth(70);
+    //label_Devices_All->setFont(QFont("Arial",16));
+
+    QGridLayout *mainLayout = new QGridLayout( hBox_PlotSize );
+
+    mainLayout->addWidget(label_PlotSize, 0, 0);
+    mainLayout->addWidget(label_Plot_x_min, 1, 0);
+    mainLayout->addWidget(label_Plot_x_max, 2, 0);
+    mainLayout->addWidget(label_Plot_y_min, 3, 0);
+    mainLayout->addWidget(label_Plot_y_max, 4, 0);
+    mainLayout->addWidget(lineEdit_Plot_x_min, 1, 1);
+    mainLayout->addWidget(lineEdit_Plot_x_max, 2, 1);
+    mainLayout->addWidget(lineEdit_Plot_y_min, 3, 1);
+    mainLayout->addWidget(lineEdit_Plot_y_max, 4, 1);
+
+    mainLayout->addWidget(Button_PlotSize_replot, 5, 1);
+
+    mainLayout->setContentsMargins(5,5,5,5);
+    mainLayout->setVerticalSpacing(5);
+    mainLayout->setHorizontalSpacing(5);
+
+    toolBar_PlotSize->addWidget( hBox_PlotSize );
+    return toolBar_PlotSize;
 }
 
 void LAMPhEdit::setCheckBox()
@@ -427,19 +510,19 @@ void LAMPhEdit::setCheckBox()
 
 void LAMPhEdit::appendPoints( bool on )
 {
-    if ( on )
+    /*if ( on )
         d_edit->append( d_timerCount->value(),
                         d_randomCount->value() );
     else
-        d_edit->stop();
+        d_edit->stop();*/
 }
 
 void LAMPhEdit::showRunning( bool running )
 {
-    d_randomCount->setEnabled( !running );
+    /*d_randomCount->setEnabled( !running );
     d_timerCount->setEnabled( !running );
     d_startAction->setChecked( running );
-    d_startAction->setText( running ? "Stop" : "Start" );
+    d_startAction->setText( running ? "Stop" : "Start" );*/
 }
 
 void LAMPhEdit::showElapsed( int ms )
@@ -481,10 +564,10 @@ void LAMPhEdit::initWhatsThis()
     const char *text5 = "Remove all points.";
 
     d_edit->setWhatsThis( text1 );
-    d_randomCount->setWhatsThis( text2 );
-    d_timerCount->setWhatsThis( text3 );
-    d_startAction->setWhatsThis( text4 );
-    d_clearAction->setWhatsThis( text5 );
+   // d_randomCount->setWhatsThis( text2 );
+   // d_timerCount->setWhatsThis( text3 );
+   // d_startAction->setWhatsThis( text4 );
+   // d_clearAction->setWhatsThis( text5 );
 }
 
 void LAMPhEdit::exportDocument()
@@ -495,62 +578,59 @@ void LAMPhEdit::exportDocument()
 
 void LAMPhEdit::openFile()
 {
-
-}
-
-void LAMPhEdit::functionFile()
-{
     DialogOpenFile *addDialogOpenFile = new DialogOpenFile("testFile",3);
-    //connect(addDialogOpenFile,SIGNAL(send_qMap(int, QMap <int, QStringList>)),this,SLOT(get_qMap(int, QMap <int, QStringList>)));
-    //connect(addDialogOpenFile,SIGNAL(send_qVectorData(int, QVector <QStringList>)),this,SLOT(get_qVector(int, QVector <QStringList>)));
 
+    connect(addDialogOpenFile,SIGNAL(send_VectorXY(QVector<double>, QVector<double>, int)),this,SLOT(get_VectorXY(QVector<double>,QVector<double>,int)));
+    connect(addDialogOpenFile,SIGNAL(sendMinMaxofVectorXY(double,double,double,double,int)),this,SLOT(getMinMaxofVectorXY(double,double,double,double,int)));
 
-    connect(addDialogOpenFile,SIGNAL(send_qVectorData(int, QVector <QStringList>)),d_edit,SLOT(appendPointVector(int, QVector <QStringList>)));
-
-    connect(addDialogOpenFile,SIGNAL(send_x_result(float)),d_edit,SLOT(get_x_result(float)));
-    connect(addDialogOpenFile,SIGNAL(send_all_results(float,int)),d_edit,SLOT(get_all_results(float,int)));
-    connect(addDialogOpenFile,SIGNAL(appendPointXY(int)),d_edit,SLOT(appendPointXY(int)));
-
-
-
-    //connect(addDialogOpenFile,SIGNAL(sendAll(float,float,int)),this,SLOT(sendAll(float,float,int)));
-    //connect(addDialogOpenFile,SIGNAL(setColorSize(int,int,int)),d_edit,SLOT(setColorSize(int,int,int)));
-    //connect(addDialogOpenFile,SIGNAL(setNumberDevice_bool( bool ,int)),d_edit,SLOT(get_bool( bool ,int)));
+    connect(addDialogOpenFile,SIGNAL(sendFileName(QString,int)),this,SLOT(getFileName(QString,int)));
 
     addDialogOpenFile->setWindowTitle(QString("OpenFileTEST"));
     addDialogOpenFile->exec();
 }
 
-void LAMPhEdit::sendAll(float X, float Y, int r){
-    d_edit->get_x_result(X);
-    d_edit->get_all_results(Y,r);
-    d_edit->appendPointXY(r);
+void LAMPhEdit::functionFile()
+{
+    /*
+    qVectorY[0][6]=100;
+    qVectorY[0][7]=100;
+    qVectorY[0][8]=100;
+    for (int i=0; i<20 ; i++){
+       qDebug() << "X: " << qVectorX[0].at(i) << " Y: " << qVectorY[0].at(i);
+    }
+
+    d_edit->appendPointVectorXY_Incremental(qVectorX[0],qVectorY[0],0);
+    */
 }
 
-/*void LAMPhEdit::get_qMap(int device_num,QMap <int, QStringList> qmap_temp)
-{
-    qDebug() << "device_num" << device_num;
-    QMap <int, QStringList>::iterator it=qmap_temp.begin();
-    for(;it !=qmap_temp.end();++it)
-    {
-        qDebug() << "Key: " << it.key() << "Value: " << it.value();
-    }
+void LAMPhEdit::get_VectorXY(QVector<double> X , QVector<double> Y, int r){
+    qVectorX[r].clear();
+    qVectorY[r].clear();
+    qVectorX[r]=X;
+    qVectorY[r]=Y;
+    d_edit->appendPointVectorXY_Incremental(qVectorX[r],qVectorY[r],r);
+}
+void LAMPhEdit::getMinMaxofVectorXY(double x__min, double x__max, double y__min, double y__max, int r){
+    xMin[r]=x__min;
+    xMax[r]=x__max;
+    yMin[r]=y__min;
+    yMax[r]=y__max;
+    //qDebug() << "x__min " << x__min << " x__max "  << x__max << " y__min " << y__min << " y__max " << y__max;
 
+    d_edit->autoscaleXY(x__min,x__max,y__min,y__max);
+}
 
-}*/
+void LAMPhEdit::getFileName(QString fileNameShort, int i){
+    lineEdit_Devices[i]->setText(fileNameShort);
+    //lineEdit_Devices[i]->setText( QString("DATA %1: %2").arg(i).arg(fileNameShort));
+}
 
-void LAMPhEdit::get_qVector(int device_num, QVector <QStringList> qVector_temp){
-    //qDebug() << "device_num" << device_num;
-    for(int i=0; i<qVector_temp.size();i++)
-    {
-        //qDebug() << "i: " << i << "qVector_temp: " << qVector_temp.at(i);
-        d_edit->get_x_result(qVector_temp.at(i).at(0).toFloat());
-        d_edit->get_all_results(qVector_temp.at(i).at(1).toFloat(),device_num);
-    }
+void LAMPhEdit::clear_one(int i){
+    lineEdit_Devices[i]->setText( QString("DATA %1: empty").arg(i));
+}
 
-
-
-
+void LAMPhEdit::autoscale_one(int r){
+    d_edit->autoscaleXY(xMin[r],xMax[r],yMin[r],yMax[r]);
 }
 
 void LAMPhEdit::enableZoomMode( bool on )
@@ -583,7 +663,7 @@ void LAMPhEdit::showInfo( QString text )
 void LAMPhEdit::moved( const QPoint &pos )
 {
     QString info;
-    info.sprintf( "Freq=%g, Ampl=%g, Phase=%g",
+    info.sprintf( "Temp=%g, Ampl=%g, Ampl=%g",
         d_edit->invTransform( QwtPlot::xBottom, pos.x() ),
         d_edit->invTransform( QwtPlot::yLeft, pos.y() ),
         d_edit->invTransform( QwtPlot::yRight, pos.y() )

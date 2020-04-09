@@ -58,6 +58,19 @@ IncrementalPlot::IncrementalPlot( QWidget *parent ):
         d_curves[i]->setData( new CurveData() );
     }
 
+    for(int i = 0; i < CurvCnt; i++ )
+    {
+        d_curveXY[i] = new QwtPlotCurve( "Amplitude 1-20" );
+        d_curveXY[i]->setRenderHint( QwtPlotItem::RenderAntialiased );
+        //d_curveXY[i]->setPen( Qt::yellow );
+        d_curveXY[i]->setPen(QColor(colorsQStringList.at(i)));
+        d_curveXY[i]->setLegendAttribute( QwtPlotCurve::LegendShowLine );
+        d_curveXY[i]->setYAxis( QwtPlot::yLeft );
+        //d_curveXY[i]->setYAxis(QwtPlot::yRight);
+        d_curveXY[i]->attach( this );
+    }
+
+
     showSymbols( true );
 
     d_curve->attach( this );
@@ -75,6 +88,11 @@ IncrementalPlot::~IncrementalPlot()
     for(int i = 0; i < (CurvCnt+CurvCounter); i++ )
     {
         delete d_curves[i];
+    }
+
+    for(int i = 0; i < CurvCnt; i++ )
+    {
+        delete d_curveXY[i];
     }
 
 }
@@ -181,6 +199,11 @@ void IncrementalPlot::clearPoints()
     replot();
 }
 
+
+void IncrementalPlot::appendPointVectorXY_Incremental(const QVector <double> &qVector_X, const QVector <double> &qVector_Y,int device_num){
+    d_curveXY[device_num]->setSamples(qVector_X,qVector_Y);
+    replot();
+}
 
 void IncrementalPlot::appendPoint_S(int number, const QPointF &point )
 {

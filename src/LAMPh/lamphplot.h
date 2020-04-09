@@ -53,12 +53,23 @@ private Q_SLOTS:
     void get_data_PlotSize (float,float,float,float);
     void replot_PlotSize();
 
+    void openFile();
+    void functionFile();
+
+    void get_VectorXY(QVector<double>, QVector<double>, int);
+    void getMinMaxofVectorXY(double, double, double, double, int);//xmin xmax ymin ymax numberofdata
+    void getFileName(QString,int);
+
+    void clear_one(int);
+    void autoscale_one(int);
+
 private:
     QToolBar *toolBar(); //main
     QToolBar *toolBar_Actions();
     QToolBar *toolBar_Temp();
     QToolBar *toolBar_Devices();
     QToolBar *toolBar_PlotSize();
+    QToolBar *toolBar_Devices_Edit();
     void initWhatsThis();
 
 private:
@@ -81,7 +92,8 @@ private:
     QAction *d_connectAction;
     QAction *d_OpenWindow_PlotSize;
     QAction *d_helpAction;
-    //QAction *d_exportAction;
+    QAction *d_openAction;
+    QAction *d_functionAction;
 
     QAction *d_OpenWindow_Main;
     QAction *d_OpenWindow_Devices;
@@ -102,6 +114,7 @@ private:
     QWidget *hBox_Temp;
     QWidget *hBox_Devices;
     QWidget *hBox_PlotSize;
+    QWidget *hBox_Devices_Edit;
     //QWidget *hBox_
 
     QLineEdit *lineEdit_Temp_X;
@@ -133,6 +146,15 @@ private:
     int number_of_checkBox;
     int number_of_checkBox_tmp;
 
+
+    QLabel *edit_label_Devices_All;
+    QPushButton *edit_Button_Devices_ClearAll;
+    QPushButton *edit_Button_Devices_AutoScaleAll;
+
+    QLineEdit *edit_lineEdit_Devices[20];
+    QPushButton *edit_Button_Devices_Clear[20];
+    QPushButton *edit_Button_Devices_AutoScale[20];
+
     QLabel *label_PlotSize;
     QLabel *label_Plot_x_min;
     QLabel *label_Plot_x_max;
@@ -159,6 +181,13 @@ private:
     //QMenuBar *menu_bar;
     //QMenuBar *menu_barDevices;
     //QLabel *infoLabel;
+
+    QVector <double> qVectorX[20];
+    QVector <double> qVectorY[20];
+    double xMin[20];
+    double xMax[20];
+    double yMin[20];
+    double yMax[20];
    
 
 

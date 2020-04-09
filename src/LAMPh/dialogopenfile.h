@@ -23,13 +23,9 @@ public:
     explicit DialogOpenFile(QString txtFile, int number, QWidget *parent = 0);
 
 Q_SIGNALS:
-    //void send_qMap(int, QMap <int, QStringList>);
-    void send_qVectorData(int, QVector <QStringList>);
-    void send_x_result(float);
-    void send_all_results(float,int);
-    void appendPointXY(int);
-    void sendAll(float,float,int);
-
+    void send_VectorXY(QVector<double>, QVector<double>, int);
+    void sendMinMaxofVectorXY(double,double,double,double,int);
+    void sendFileName(QString,int);
 
 private Q_SLOTS:
     void save_data();
@@ -67,8 +63,8 @@ private:
     QString filePath;
     int numberOfX;
     int numberOfY;
-    //QMap <int, QStringList> qMapDataOpenFile;
-    QVector <QStringList> qVectorData;
+    QVector <double> qVectorX;
+    QVector <double> qVectorY;
 
 
 };
