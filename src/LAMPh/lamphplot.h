@@ -25,6 +25,7 @@ class QwtPlotPicker;
 class QwtPlotPanner;
 class Plot;
 class QPolygon;
+class QMouseEvent;
 
 
 class LAMPhPlot : public QMainWindow
@@ -44,6 +45,7 @@ private Q_SLOTS:
     void selected( const QPolygon & );
     void exportDocument();
     void enableZoomMode( bool );
+    void enableDelMode( bool );
     void setCheckBox();
     void show_all_results(float,int);
 
@@ -63,7 +65,23 @@ private Q_SLOTS:
     void clear_one(int);
     void autoscale_one(int);
 
+    void mousePressEvent( QMouseEvent * event );
+    void mouseReleaseEvent( QMouseEvent * event );
+    void keyPressEvent(QKeyEvent *e);
+
 private:
+    int mousePressEvent_int;
+    int mouseReleaseEvent_int;
+
+
+    QVector <QVector <double> > stack_zoom;
+
+    QVector <double> vector_to_stack_zoom;
+
+    bool firstPoint_del;
+    double x_del[5];
+    double y_del[5];
+
     QToolBar *toolBar(); //main
     QToolBar *toolBar_Actions();
     QToolBar *toolBar_Temp();
@@ -94,6 +112,7 @@ private:
     QAction *d_helpAction;
     QAction *d_openAction;
     QAction *d_functionAction;
+    QAction *d_deletePoints;
 
     QAction *d_OpenWindow_Main;
     QAction *d_OpenWindow_Devices;
@@ -184,6 +203,10 @@ private:
 
     QVector <double> qVectorX[20];
     QVector <double> qVectorY[20];
+
+    QVector <QVector <double> > stack_qVectorX[20];
+    QVector <QVector <double> > stack_qVectorY[20];
+
     double xMin[20];
     double xMax[20];
     double yMin[20];

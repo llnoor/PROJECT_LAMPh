@@ -21,6 +21,8 @@
 #include <QLineEdit>
 #include <QFileDialog>
 #include <QPushButton>
+#include <QMouseEvent>
+#include <QKeyEvent>
 
 
 class MyToolBar: public QToolBar
@@ -67,7 +69,7 @@ private:
     QSpinBox *d_counter;
 };
 
-class Zoomer: public QwtPlotZoomer //Zoomer
+/*class Zoomer: public QwtPlotZoomer //Zoomer
 {
 public:
     Zoomer( int xAxis, int yAxis, QWidget *canvas ):
@@ -84,7 +86,7 @@ public:
         setMousePattern( QwtEventPattern::MouseSelect3,
             Qt::RightButton );
     }
-};
+};*/
 
 LAMPhPlot::LAMPhPlot(QString loginQString)
 {
@@ -199,12 +201,12 @@ LAMPhPlot::LAMPhPlot(QString loginQString)
     d_plot->setContentsMargins( margin, margin, margin, margin );
 
     //Zoomer
-    d_zoomer[0] = new Zoomer( QwtPlot::xBottom, QwtPlot::yLeft,
+    /*d_zoomer[0] = new Zoomer( QwtPlot::xBottom, QwtPlot::yLeft,
         d_plot->canvas() );
     d_zoomer[0]->setRubberBand( QwtPicker::RectRubberBand );
     d_zoomer[0]->setRubberBandPen( QColor( Qt::green ) );
     d_zoomer[0]->setTrackerMode( QwtPicker::ActiveOnly );
-    d_zoomer[0]->setTrackerPen( QColor( Qt::white ) );
+    d_zoomer[0]->setTrackerPen( QColor( Qt::white ) );*/
 
     //allows to work with graphs with the mouse
     d_panner = new QwtPlotPanner( d_plot->canvas() );
@@ -217,6 +219,8 @@ LAMPhPlot::LAMPhPlot(QString loginQString)
         d_picker->setRubberBandPen( QColor( Qt::green ) );
         d_picker->setRubberBand( QwtPicker::CrossRubberBand );
         d_picker->setTrackerPen( QColor( Qt::white ) );
+
+
 
     setCentralWidget( d_plot );
 
@@ -235,6 +239,7 @@ LAMPhPlot::LAMPhPlot(QString loginQString)
     connect( d_startAction, SIGNAL( toggled( bool ) ), this, SLOT( appendPoints( bool ) ) );
     connect( d_clearAction, SIGNAL( triggered() ), d_plot, SLOT( clear() ) );
     connect( d_zoomAction, SIGNAL( toggled( bool ) ), SLOT( enableZoomMode( bool ) ) );
+    connect( d_deletePoints, SIGNAL( toggled( bool ) ), SLOT( enableDelMode( bool ) ) );
     connect( d_exportAction, SIGNAL( triggered() ), this, SLOT( exportDocument() ) );
 
     connect( d_openAction, SIGNAL( triggered() ), this, SLOT( openFile() ) );
@@ -258,6 +263,10 @@ LAMPhPlot::LAMPhPlot(QString loginQString)
         yMin[i]=0;
         yMax[i]=1;
     }
+
+    firstPoint_del=false;
+    mousePressEvent_int=0;
+    mouseReleaseEvent_int=0;
 
     setWindowTitle(tr("LAMPh Plot - %1 ").arg(login->toLower()));
     //showFullScreen();
@@ -323,7 +332,6 @@ LAMPhPlot::LAMPhPlot(QString loginQString)
     connect(Button_PlotSize_replot, SIGNAL (released()), this ,SLOT( replot_PlotSize()));
     connect(d_plot, SIGNAL(send_data_PlotSize(float,float,float,float)),this,SLOT(get_data_PlotSize(float,float,float,float)));
 
-
     lamphDevices->first();
 
     //QMessageBox::critical(NULL,QObject::tr(""),tr(""));
@@ -348,6 +356,9 @@ QToolBar *LAMPhPlot::toolBar()
     d_openAction = new QAction( QPixmap( start_xpm ), "OpenFile", toolBar );
     d_functionAction = new QAction( QPixmap( start_xpm ), "Function", toolBar );
 
+    d_deletePoints = new QAction( QPixmap( zoom_xpm ), "Delete points", toolBar );
+    d_deletePoints->setCheckable( true );
+
     QAction *whatsThisAction = QWhatsThis::createAction( toolBar );
     whatsThisAction->setText( "Help" );
 
@@ -359,6 +370,7 @@ QToolBar *LAMPhPlot::toolBar()
     toolBar->addSeparator();
     toolBar->addAction( d_openAction );
     toolBar->addAction( d_functionAction );
+    toolBar->addAction( d_deletePoints );
     toolBar->addSeparator();
 
     setIconSize( QSize( 22, 22 ) );
@@ -809,13 +821,16 @@ void LAMPhPlot::exportDocument()
 
 void LAMPhPlot::enableZoomMode( bool on )
 {
-    d_panner->setEnabled( on );
+    //d_picker->setEnabled( on );
+    d_deletePoints->setChecked(false);
+    showInfo();
+}
 
-    d_zoomer[0]->setEnabled( on );
-    //d_zoomer[0]->zoom( 0 );
-
-    d_picker->setEnabled( !on );
-
+void LAMPhPlot::enableDelMode( bool on )
+{
+    //d_panner->setEnabled( !on );
+    //d_picker->setEnabled( on );
+    d_zoomAction->setChecked(false);
     showInfo();
 }
 
@@ -838,12 +853,183 @@ void LAMPhPlot::showInfo( QString text )
 void LAMPhPlot::moved( const QPoint &pos )
 {
     QString info;
-    info.sprintf( "X=%g, Y=%g, Y2=%g",
+    info.sprintf( "X=%g, Y=%g",   //X=%g, Y=%g, Y2=%g
         d_plot->invTransform( QwtPlot::xBottom, pos.x() ),
-        d_plot->invTransform( QwtPlot::yLeft, pos.y() ),
-        d_plot->invTransform( QwtPlot::yRight, pos.y() )
+        d_plot->invTransform( QwtPlot::yLeft, pos.y() ) /*,
+        d_plot->invTransform( QwtPlot::yRight, pos.y() )*/
     );
+
+    //qDebug() << "tesst:" << d_plot->invTransform( QwtPlot::xBottom, pos.x() );
+
+    if (d_deletePoints->isChecked() and mousePressEvent_int==1){
+        if (!firstPoint_del){
+            x_del[0]=d_plot->invTransform(QwtPlot::xBottom, pos.x());
+            y_del[0]=d_plot->invTransform(QwtPlot::yLeft, pos.y());
+            x_del[4]=x_del[0];
+            y_del[4]=y_del[0];
+
+            firstPoint_del=true;
+        }else{
+            x_del[2]=d_plot->invTransform(QwtPlot::xBottom, pos.x());
+            y_del[2]=d_plot->invTransform(QwtPlot::yLeft, pos.y());
+            x_del[1]=x_del[2];
+            y_del[1]=y_del[0];
+            x_del[3]=x_del[0];
+            y_del[3]=y_del[2];
+            d_plot->appendPoint_del(x_del,y_del,5);
+        }
+    }
+
+    if (d_zoomAction->isChecked() and mousePressEvent_int==1){
+        if (!firstPoint_del){
+            x_del[0]=d_plot->invTransform(QwtPlot::xBottom, pos.x());
+            y_del[0]=d_plot->invTransform(QwtPlot::yLeft, pos.y());
+            x_del[4]=x_del[0];
+            y_del[4]=y_del[0];
+
+            firstPoint_del=true;
+        }else{
+            x_del[2]=d_plot->invTransform(QwtPlot::xBottom, pos.x());
+            y_del[2]=d_plot->invTransform(QwtPlot::yLeft, pos.y());
+            x_del[1]=x_del[2];
+            y_del[1]=y_del[0];
+            x_del[3]=x_del[0];
+            y_del[3]=y_del[2];
+            d_plot->appendPoint_del(x_del,y_del,5);
+        }
+    }
+
     showInfo( info );
+}
+
+
+void LAMPhPlot::mousePressEvent( QMouseEvent * event ){
+    //qDebug() << "mousePressEvent" << event->button();
+    mousePressEvent_int=event->button();
+}
+
+
+
+void LAMPhPlot::mouseReleaseEvent( QMouseEvent * event ){
+    //qDebug() << "mouseReleaseEvent" << event->button();
+    firstPoint_del=false;
+    mouseReleaseEvent_int=event->button();
+
+    if (d_deletePoints->isChecked() and mouseReleaseEvent_int==1){
+
+        double x_min_del=0;
+        double x_max_del=0;
+        double y_min_del=0;
+        double y_max_del=0;
+
+        bool del_first=false;
+
+        if (x_del[0]<x_del[2]){x_min_del=x_del[0];x_max_del=x_del[2];}
+        else {x_min_del=x_del[2];x_max_del=x_del[0];}
+        if (y_del[0]<y_del[2]){y_min_del=y_del[0];y_max_del=y_del[2];}
+        else {y_min_del=y_del[2];y_max_del=y_del[0];}
+
+        for (int r=0;r<10;r++){
+            int size_del = qVectorX[r].size(); //qVectorY[r] have the same size
+            for (int iterator=0;iterator<size_del;iterator++) {
+                if (((x_min_del<qVectorX[r].at(iterator))and(qVectorX[r].at(iterator)<x_max_del))
+                      and
+                    ((y_min_del<qVectorY[r].at(iterator))and(qVectorY[r].at(iterator)<y_max_del)))
+                {
+                    if (iterator==0){  //some problems with first element. QVector is slow to remove elements, so I decided to replace elements, but you cannot replace first element to -1 position.
+                        del_first=true;
+                    }else{
+                        qVectorX[r].replace(iterator,qVectorX[r].at(iterator-1));
+                        qVectorY[r].replace(iterator,qVectorY[r].at(iterator-1));
+                    }
+                }
+            }
+
+            if (del_first){
+                del_first=false;
+                int y=1;
+                while (y<size_del)
+                if ((qVectorX[r].at(0)==qVectorX[r].at(y)) and (qVectorY[r].at(0)==qVectorY[r].at(y))) //can have problems with last element, in case all elements will be equal
+                {
+                    y++;
+                }
+                else{
+                    int t=0;
+                    while(t<y){
+                        qVectorX[r].replace(t,qVectorX[r].at(y));
+                        qVectorY[r].replace(t,qVectorY[r].at(y));
+                        t++;
+                    }
+                    break;
+                }
+            }
+
+
+            d_plot->appendPointVectorXY_Incremental(qVectorX[r],qVectorY[r],r);
+        }
+
+        for (int i=0;i<5;i++){
+            x_del[i]=0;
+            y_del[i]=0;
+        }
+        d_plot->appendPoint_del(x_del,y_del,5);
+
+    }
+
+    if ((d_zoomAction->isChecked() and mouseReleaseEvent_int==1) and ((x_del[0]!=x_del[2]) and (y_del[0]!=y_del[2]))){
+
+        double x_min_zoom=0;
+        double x_max_zoom=0;
+        double y_min_zoom=0;
+        double y_max_zoom=0;
+
+        if (x_del[0]<x_del[2]){x_min_zoom=x_del[0];x_max_zoom=x_del[2];}
+        else {x_min_zoom=x_del[2];x_max_zoom=x_del[0];}
+        if (y_del[0]<y_del[2]){y_min_zoom=y_del[0];y_max_zoom=y_del[2];}
+        else {y_min_zoom=y_del[2];y_max_zoom=y_del[0];}
+
+        vector_to_stack_zoom.clear();
+        vector_to_stack_zoom.append(x_min_zoom);
+        vector_to_stack_zoom.append(x_max_zoom);
+        vector_to_stack_zoom.append(y_min_zoom);
+        vector_to_stack_zoom.append(y_max_zoom);
+        stack_zoom.push_back(vector_to_stack_zoom);
+
+        d_plot->autoscaleXY(x_min_zoom,x_max_zoom,y_min_zoom,y_max_zoom);
+
+        for (int i=0;i<5;i++){
+            x_del[i]=0;
+            y_del[i]=0;
+        }
+        d_plot->appendPoint_del(x_del,y_del,5);
+    }
+
+    if (d_zoomAction->isChecked() and mouseReleaseEvent_int==2){
+        if (stack_zoom.size()>0){
+            vector_to_stack_zoom.clear();
+            vector_to_stack_zoom = stack_zoom.last();
+            //qDebug() << "pop" << vector_to_stack_zoom;
+            stack_zoom.removeLast();
+            d_plot->autoscaleXY(vector_to_stack_zoom.at(0),vector_to_stack_zoom.at(1),vector_to_stack_zoom.at(2),vector_to_stack_zoom.at(3));
+        }else{
+            //d_plot->autoscaleXY(0,1,0,1);
+        }
+    }
+}
+
+void LAMPhPlot::keyPressEvent(QKeyEvent *e){
+    if (e->key() == Qt::Key_C && e->modifiers() & Qt::ControlModifier)
+    {
+        qDebug() << "Ctrl+C pressed!";
+    }
+    if (e->key() == Qt::Key_V && e->modifiers() & Qt::ControlModifier)
+    {
+        qDebug() << "Ctrl+V pressed!";
+    }
+    if (e->key() == Qt::Key_Z && e->modifiers() & Qt::ControlModifier)
+    {
+        qDebug() << "Ctrl+Z pressed!";
+    }
 }
 
 void LAMPhPlot::selected( const QPolygon & )
@@ -874,6 +1060,7 @@ void LAMPhPlot::get_VectorXY(QVector<double> X , QVector<double> Y, int r){
     qVectorY[r]=Y;
     d_plot->appendPointVectorXY_Incremental(qVectorX[r],qVectorY[r],r);
 }
+
 void LAMPhPlot::getMinMaxofVectorXY(double x__min, double x__max, double y__min, double y__max, int r){
     xMin[r]=x__min;
     xMax[r]=x__max;
@@ -882,6 +1069,13 @@ void LAMPhPlot::getMinMaxofVectorXY(double x__min, double x__max, double y__min,
     //qDebug() << "x__min " << x__min << " x__max "  << x__max << " y__min " << y__min << " y__max " << y__max;
 
     d_plot->autoscaleXY(x__min,x__max,y__min,y__max);
+    vector_to_stack_zoom.clear();
+    vector_to_stack_zoom.append(x__min);
+    vector_to_stack_zoom.append(x__max);
+    vector_to_stack_zoom.append(y__min);
+    vector_to_stack_zoom.append(y__max);
+    stack_zoom.push_back(vector_to_stack_zoom);
+
 }
 
 void LAMPhPlot::getFileName(QString fileNameShort, int i){
@@ -902,4 +1096,11 @@ void LAMPhPlot::clear_one(int r){
 
 void LAMPhPlot::autoscale_one(int r){
     d_plot->autoscaleXY(xMin[r],xMax[r],yMin[r],yMax[r]);
+    vector_to_stack_zoom.clear();
+    vector_to_stack_zoom.append(xMin[r]);
+    vector_to_stack_zoom.append(xMax[r]);
+    vector_to_stack_zoom.append(yMin[r]);
+    vector_to_stack_zoom.append(yMax[r]);
+    stack_zoom.push_back(vector_to_stack_zoom);
+
 }

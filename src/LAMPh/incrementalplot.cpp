@@ -70,6 +70,12 @@ IncrementalPlot::IncrementalPlot( QWidget *parent ):
         d_curveXY[i]->attach( this );
     }
 
+    d_curve_del  = new QwtPlotCurve( "Del" );
+    d_curve_del->setRenderHint( QwtPlotItem::RenderAntialiased );
+    d_curve_del->setPen( Qt::white );
+    d_curve_del->setLegendAttribute( QwtPlotCurve::LegendShowLine );
+    d_curve_del->setYAxis( QwtPlot::yLeft );
+    d_curve_del->attach( this );
 
     showSymbols( true );
 
@@ -94,6 +100,7 @@ IncrementalPlot::~IncrementalPlot()
     {
         delete d_curveXY[i];
     }
+    delete d_curve_del;
 
 }
 /*
@@ -202,6 +209,11 @@ void IncrementalPlot::clearPoints()
 
 void IncrementalPlot::appendPointVectorXY_Incremental(const QVector <double> &qVector_X, const QVector <double> &qVector_Y,int device_num){
     d_curveXY[device_num]->setSamples(qVector_X,qVector_Y);
+    replot();
+}
+
+void IncrementalPlot::appendPoint_del(const double *x_del, const double *y_del, int size){
+    d_curve_del->setSamples(x_del,y_del,size);
     replot();
 }
 

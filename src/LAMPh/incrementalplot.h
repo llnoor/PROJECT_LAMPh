@@ -29,13 +29,15 @@ public Q_SLOTS:
     void showSymbols( bool );
     void setColorSize(int number, int color, int size);
     void appendPointVectorXY_Incremental(const QVector<double> &,const  QVector<double> &, int);
-
+    void appendPoint_del(const double *x_del, const double *y_del,int size);
 
 
 private:
     QwtPlotCurve *d_curve;
     QwtPlotCurve *d_curves[CurvCnt+CurvCounter];
     QwtPlotCurve *d_curveXY[CurvCnt];
+
+    QwtPlotCurve *d_curve_del;
 
     QwtPlotDirectPainter *d_directPainter;
     QStringList colorsQStringList = { "white", "black", "cyan", "red", "magenta", "green", "yellow", "blue", "gray", "darkCyan", "darkRed", "darkMagenta", "darkGreen", "darkYellow", "darkBlue", "darkGray", "lightGray","white", "black", "cyan", "red", "magenta", "green", "yellow", "blue" };
