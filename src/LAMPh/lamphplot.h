@@ -9,6 +9,8 @@
 #include <datatable.h>
 #include <lamphdevices.h>
 #include <lamphtemp.h>
+#include <dialogopenfile.h>
+#include <dialogsavefile.h>
 
 #define CurvCnt 20
 
@@ -26,6 +28,7 @@ class QwtPlotPanner;
 class Plot;
 class QPolygon;
 class QMouseEvent;
+class QMenu;
 
 
 class LAMPhPlot : public QMainWindow
@@ -64,6 +67,7 @@ private Q_SLOTS:
 
     void clear_one(int);
     void autoscale_one(int);
+    void saveFile_one(int);
 
     void mousePressEvent( QMouseEvent * event );
     void mouseReleaseEvent( QMouseEvent * event );
@@ -89,6 +93,16 @@ private:
     QToolBar *toolBar_PlotSize();
     QToolBar *toolBar_Devices_Edit();
     void initWhatsThis();
+
+    //QAction *d_OpenWindow_toolBar;
+    QAction *d_OpenWindow_toolBar_Devices;
+    QAction *d_OpenWindow_toolBar_PlotSize;
+    QAction *d_OpenWindow_toolBar_Devices_Edit;
+
+    void createMenus();
+    QMenu *fileMenu;
+    QMenu *recentFilesMenu;
+    QMenu *helpMenu;
 
 private:
     LAMPhDevices *lamphDevices;
@@ -173,6 +187,7 @@ private:
     QLineEdit *edit_lineEdit_Devices[20];
     QPushButton *edit_Button_Devices_Clear[20];
     QPushButton *edit_Button_Devices_AutoScale[20];
+    QPushButton *edit_Button_Devices_Save[20];
 
     QLabel *label_PlotSize;
     QLabel *label_Plot_x_min;

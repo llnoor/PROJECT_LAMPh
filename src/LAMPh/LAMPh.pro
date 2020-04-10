@@ -32,7 +32,8 @@ HEADERS       = window.h \
     lamphtemp.h \
     class_write_in_file.h \
     dialogdevicesettings.h \
-    dialogopenfile.h
+    dialogopenfile.h \
+    dialogsavefile.h
 SOURCES       = window.cpp \
                 main.cpp \
     logowindow.cpp \
@@ -53,7 +54,8 @@ SOURCES       = window.cpp \
     lamphtemp.cpp \
     class_write_in_file.cpp \
     dialogdevicesettings.cpp \
-    dialogopenfile.cpp
+    dialogopenfile.cpp \
+    dialogsavefile.cpp
 
 
 DISTFILES += \

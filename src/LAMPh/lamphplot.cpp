@@ -23,6 +23,8 @@
 #include <QPushButton>
 #include <QMouseEvent>
 #include <QKeyEvent>
+#include <QMenu>
+#include <QMenuBar>
 
 
 class MyToolBar: public QToolBar
@@ -95,6 +97,8 @@ LAMPhPlot::LAMPhPlot(QString loginQString)
     addToolBar(Qt::LeftToolBarArea, toolBar_Devices()); // data fields
     addToolBar(Qt::LeftToolBarArea, toolBar_PlotSize());
     addToolBar(Qt::RightToolBarArea, toolBar_Devices_Edit());
+
+    createMenus();
 
 
 #ifndef QT_NO_STATUSBAR
@@ -326,6 +330,10 @@ LAMPhPlot::LAMPhPlot(QString loginQString)
                 [=](bool bool_one){
                 autoscale_one(i);
            });
+        connect(edit_Button_Devices_Save[i], static_cast<void(QPushButton::*)(bool)>(&QPushButton::clicked),
+                [=](bool bool_one){
+                saveFile_one(i);
+           });
     }
 
     //PlotSize
@@ -425,18 +433,26 @@ QToolBar *LAMPhPlot::toolBar()
     return toolBar;
 }
 
+void LAMPhPlot::createMenus()
+{
+    fileMenu = menuBar()->addMenu(tr("&Windows"));
+    fileMenu->addAction(d_OpenWindow_toolBar_Devices);
+    fileMenu->addAction(d_OpenWindow_toolBar_PlotSize);
+    fileMenu->addAction(d_OpenWindow_toolBar_Devices_Edit);
+}
+
 QToolBar *LAMPhPlot::toolBar_Devices() //toolBar_Data, it's not devices!!!
 {
     MyToolBar *toolBar_Devices = new MyToolBar( this );
     toolBar_Devices->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
     hBox_Devices = new QWidget( toolBar_Devices );
 
-    /*d_OpenWindow_A = toolBar_Devices->toggleViewAction();
-    d_OpenWindow_A->setIconText("APPA");
-    d_OpenWindow_A->setIcon(QPixmap( start_xpm ));
-    d_OpenWindow_A->setText("APPA");
-    d_OpenWindow_A->setShortcut(QKeySequence(tr("Ctrl+A")));
-    d_OpenWindow_A->setStatusTip(tr("Open Window"));*/
+    d_OpenWindow_toolBar_Devices = toolBar_Devices->toggleViewAction();
+    d_OpenWindow_toolBar_Devices->setIconText("Devices");
+    d_OpenWindow_toolBar_Devices->setIcon(QPixmap( start_xpm ));
+    d_OpenWindow_toolBar_Devices->setText("Devices");
+    d_OpenWindow_toolBar_Devices->setShortcut(QKeySequence(tr("Ctrl+D")));
+    d_OpenWindow_toolBar_Devices->setStatusTip(tr("Open Window"));
 
     label_Devices_All = new QLabel(tr("DATA"));
     label_Devices_All_X = new QLabel(tr("X"));
@@ -521,6 +537,13 @@ QToolBar *LAMPhPlot::toolBar_PlotSize()
 
     hBox_PlotSize->setFont(QFont("Arial",15));
 
+    d_OpenWindow_toolBar_PlotSize = toolBar_PlotSize->toggleViewAction();
+    d_OpenWindow_toolBar_PlotSize->setIconText("PlotSize");
+    d_OpenWindow_toolBar_PlotSize->setIcon(QPixmap( start_xpm ));
+    d_OpenWindow_toolBar_PlotSize->setText("PlotSize");
+    d_OpenWindow_toolBar_PlotSize->setShortcut(QKeySequence(tr("Ctrl+G")));
+    d_OpenWindow_toolBar_PlotSize->setStatusTip(tr("Open Window"));
+
     label_PlotSize  = new QLabel(tr("Plot Size"));
 
     label_Plot_x_min = new QLabel(tr("Plot Size: x_min:"));
@@ -568,6 +591,13 @@ QToolBar *LAMPhPlot::toolBar_Devices_Edit()
     toolBar_Devices_Edit->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
     hBox_Devices_Edit = new QWidget( toolBar_Devices_Edit );
 
+    d_OpenWindow_toolBar_Devices_Edit = toolBar_Devices_Edit->toggleViewAction();
+    d_OpenWindow_toolBar_Devices_Edit->setIconText("Line");
+    d_OpenWindow_toolBar_Devices_Edit->setIcon(QPixmap( start_xpm ));
+    d_OpenWindow_toolBar_Devices_Edit->setText("Line");
+    d_OpenWindow_toolBar_Devices_Edit->setShortcut(QKeySequence(tr("Ctrl+F")));
+    d_OpenWindow_toolBar_Devices_Edit->setStatusTip(tr("Open Window"));
+
     edit_label_Devices_All = new QLabel(tr("LINE"));
     edit_Button_Devices_ClearAll = new QPushButton(tr("Clear"));
     edit_Button_Devices_AutoScaleAll = new QPushButton(tr("AutoScale"));
@@ -582,8 +612,10 @@ QToolBar *LAMPhPlot::toolBar_Devices_Edit()
         edit_lineEdit_Devices[i]->setReadOnly(true);
         edit_Button_Devices_Clear[i] = new QPushButton(tr("Clear"));
         edit_Button_Devices_AutoScale[i] = new QPushButton(tr("AutoScale"));
+        edit_Button_Devices_Save[i]= new QPushButton(tr("Save"));
         edit_Button_Devices_Clear[i]->setFixedWidth(40);
         edit_Button_Devices_AutoScale[i]->setFixedWidth(70);
+        edit_Button_Devices_Save[i]->setFixedWidth(40);
 
     }
 
@@ -592,6 +624,7 @@ QToolBar *LAMPhPlot::toolBar_Devices_Edit()
         edit_lineEdit_Devices[i]->hide();
         edit_Button_Devices_Clear[i]->hide();
         edit_Button_Devices_AutoScale[i]->hide();
+        edit_Button_Devices_Save[i]->hide();
     }
 
 
@@ -604,7 +637,7 @@ QToolBar *LAMPhPlot::toolBar_Devices_Edit()
         mainLayout->addWidget(edit_lineEdit_Devices[i], i+1, 0);
         mainLayout->addWidget(edit_Button_Devices_Clear[i], i+1, 1);
         mainLayout->addWidget(edit_Button_Devices_AutoScale[i], i+1, 2);
-
+        mainLayout->addWidget(edit_Button_Devices_Save[i], i+1, 3);
     }
 
     mainLayout->setContentsMargins(5,5,5,5);
@@ -823,6 +856,7 @@ void LAMPhPlot::enableZoomMode( bool on )
 {
     //d_picker->setEnabled( on );
     d_deletePoints->setChecked(false);
+    //d_zoomAction->setChecked(true);
     showInfo();
 }
 
@@ -831,6 +865,7 @@ void LAMPhPlot::enableDelMode( bool on )
     //d_panner->setEnabled( !on );
     //d_picker->setEnabled( on );
     d_zoomAction->setChecked(false);
+    //d_deletePoints->setChecked(true);
     showInfo();
 }
 
@@ -902,13 +937,10 @@ void LAMPhPlot::moved( const QPoint &pos )
     showInfo( info );
 }
 
-
 void LAMPhPlot::mousePressEvent( QMouseEvent * event ){
     //qDebug() << "mousePressEvent" << event->button();
     mousePressEvent_int=event->button();
 }
-
-
 
 void LAMPhPlot::mouseReleaseEvent( QMouseEvent * event ){
     //qDebug() << "mouseReleaseEvent" << event->button();
@@ -929,7 +961,13 @@ void LAMPhPlot::mouseReleaseEvent( QMouseEvent * event ){
         if (y_del[0]<y_del[2]){y_min_del=y_del[0];y_max_del=y_del[2];}
         else {y_min_del=y_del[2];y_max_del=y_del[0];}
 
+
+
         for (int r=0;r<10;r++){
+
+            stack_qVectorX[r].push_back(qVectorX[r]);
+            stack_qVectorY[r].push_back(qVectorY[r]);
+
             int size_del = qVectorX[r].size(); //qVectorY[r] have the same size
             for (int iterator=0;iterator<size_del;iterator++) {
                 if (((x_min_del<qVectorX[r].at(iterator))and(qVectorX[r].at(iterator)<x_max_del))
@@ -1020,15 +1058,36 @@ void LAMPhPlot::mouseReleaseEvent( QMouseEvent * event ){
 void LAMPhPlot::keyPressEvent(QKeyEvent *e){
     if (e->key() == Qt::Key_C && e->modifiers() & Qt::ControlModifier)
     {
-        qDebug() << "Ctrl+C pressed!";
+        //qDebug() << "Ctrl+C pressed!";
     }
     if (e->key() == Qt::Key_V && e->modifiers() & Qt::ControlModifier)
     {
-        qDebug() << "Ctrl+V pressed!";
+        //qDebug() << "Ctrl+V pressed!";
     }
     if (e->key() == Qt::Key_Z && e->modifiers() & Qt::ControlModifier)
     {
-        qDebug() << "Ctrl+Z pressed!";
+        for (int r=0; r<10 ; r++){
+            if (stack_qVectorX[r].size()>0)
+            {
+                qVectorX[r].clear();
+                qVectorY[r].clear();
+                qVectorX[r] = stack_qVectorX[r].last();
+                qVectorY[r] = stack_qVectorY[r].last();
+                stack_qVectorX[r].removeLast();
+                stack_qVectorY[r].removeLast();
+                d_plot->appendPointVectorXY_Incremental(qVectorX[r],qVectorY[r],r);
+            }
+        }
+    }
+    if (e->key() == Qt::Key_A && e->modifiers() & Qt::ControlModifier)
+    {
+        d_deletePoints->setChecked(false);
+        d_zoomAction->setChecked(true);
+    }
+    if (e->key() == Qt::Key_S && e->modifiers() & Qt::ControlModifier)
+    {
+        d_zoomAction->setChecked(false);
+        d_deletePoints->setChecked(true);
     }
 }
 
@@ -1102,5 +1161,11 @@ void LAMPhPlot::autoscale_one(int r){
     vector_to_stack_zoom.append(yMin[r]);
     vector_to_stack_zoom.append(yMax[r]);
     stack_zoom.push_back(vector_to_stack_zoom);
+}
 
+void LAMPhPlot::saveFile_one(int r){
+    DialogSaveFile *addDialogSaveFile = new DialogSaveFile(edit_lineEdit_Devices[r]->text(),qVectorX[r],qVectorY[r]);
+
+    addDialogSaveFile->setWindowTitle(QString("SaveFileTEST"));
+    addDialogSaveFile->exec();
 }

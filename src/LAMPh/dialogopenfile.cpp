@@ -83,7 +83,7 @@ void DialogOpenFile::save_data(){
         QString temp4 = list_temp[numberOfY];
         file.flush();
         file.close();
-        sendFileName(QString ("%1 %2").arg(filePath.split("/").last()).arg(temp4),comboBox_Device->currentIndex());
+        sendFileName(QString ("%1|%2").arg(filePath /*.split("/").last()*/).arg(temp4),comboBox_Device->currentIndex());
     }
     close();
 }

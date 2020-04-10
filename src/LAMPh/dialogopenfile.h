@@ -8,7 +8,6 @@
 #include <QLineEdit>
 #include <QPushButton>
 #include <QComboBox>
-#include <QRadioButton>
 #include <QProgressBar>
 
 QT_BEGIN_NAMESPACE
