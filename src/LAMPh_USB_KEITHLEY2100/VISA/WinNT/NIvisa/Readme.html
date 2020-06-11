@@ -1,0 +1,448 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>NI-VISA 5.2 for Windows Readme</title>
+
+<style>
+<!--
+/***************************************************/
+/* MINIMAL STYLES */
+/* The following section defines styles that every HTML Help project should need. */
+
+/* Specifies White Background color */
+body {background-color:#FFFFFF; font-family:Verdana, sans-serif; font-size:8pt; color: #000000;}
+
+/* The default style of P is red to alert you that you need to apply a style class, such as Body. */
+P { margin-top:6.00pt; margin-bottom:6.00pt;}
+
+BR { font-size:4.00pt; }
+
+/* Use H1 for all topic headings. */
+H1 { margin-top:3.00pt; margin-bottom:3.00pt; font-size:150%; font-weight:bold;  }
+
+/* Use H2 for second-level headings. */
+H2 { margin-top:9.00pt; margin-bottom:3.00pt; font-size:125%; font-weight:bold;  }
+
+/* Use H3 for third-level headings. */
+H3 { margin-top:6.00pt; margin-bottom:3.00pt; font-size:100%; font-weight:bold;  }
+
+/* Use H4 for fourth-level headings. */
+H4 { margin-top:6.00pt; margin-bottom:3.00pt; font-size:100%; font-weight:bold;  }
+
+/* H5 and H6 have the same definition as H4 because you should not need this level of heading in one topic. If you need to use H5 or H6, consider breaking up your topic into more than one topic. */
+H5 { margin-top:6.00pt; margin-bottom:3.00pt; font-size:100%; font-weight:bold;  }
+H6 { margin-top:6.00pt; margin-bottom:3.00pt; font-size:100%; font-weight:bold;  }
+
+/* Use the Body style class for normal paragraphs. */
+P.Body {  }
+
+/* Use the Anchor style class for graphic references on a line by themselves. */
+P.Anchor { font-size:125%;  }
+
+/* Use the Indent style classes to indent a paragraph. If you need to indent text below a list item, use <br><br> to start the new paragraph within the same set of <li></li> tags. If you need to indent a list within another list, nest the indented list within the first list's set of <ol></ol> or <ul></ul> tags. */
+P.Indent1 { margin-left:12.00pt; margin-bottom:3.00pt;  }
+P.Indent2 { margin-left:24.00pt; margin-bottom:3.00pt;  }
+P.Indent3 { margin-left:36.00pt; margin-bottom:3.00pt;  }
+P.Indent4 { margin-left:48.00pt; margin-bottom:3.00pt;  }
+P.Indent5 { margin-left:60.00pt; margin-bottom:3.00pt;  }
+
+/* Use the LI style for all list items. */
+LI { margin-top:3.00pt; margin-bottom:3.00pt; }
+
+/* Use the OL style for numbered lists. You do not have to type the number for each list item in a numbered list. */
+OL { margin-left:22.00pt; margin-top:3.00pt; margin-bottom:3.00pt; text-indent:0pt; list-style-type: decimal; }
+
+/* Use the OL style for numbered lists. Nested lists will use the bullet types according to the nesting scheme below */
+ol ol {list-style-type:lower-alpha}
+ol ol ol {list-style-type:decimal}
+ol ol ol ol {list-style-type:lower-alpha}
+ol ol ol ol ol {list-style-type:decimal}
+ol ol ol ol ol ol {list-style-type:lower-alpha}
+ol ol ol ol ol ol ol {list-style-type:decimal}
+ol ol ol ol ol ol ol ol {list-style-type:lower-alpha}
+
+
+/* Use the EquationNum style class for numbered lists of equations. You do not have to type the number for each list item in a numbered list. */
+OL.EquationNum { margin-left:36.00pt; text-indent:0pt; list-style-type: decimal; }
+
+/* Use the List-abc style class for lettered lists. You do not have to type the letter for each list item in a lettered list. */
+OL.List-abc { margin-left:22.00pt; text-indent:0pt; list-style-type:lower-alpha; }
+
+/* Use the UL style for bulleted lists. You do not have to type the bullet for each list item in a bulleted list. */
+UL { margin-left:22.00pt; text-indent:0pt; margin-top:3.00pt; margin-bottom:3.00pt; list-style-type: disc; }
+
+/* Use the UL style for bulleted lists. Nested lists will use the bullet types according to the nesting scheme below. */
+ul ul {list-style-image: none;list-style-type: circle}
+ul ul ul {list-style-image:none;list-style-type:disc}
+ul ul ul ul {list-style-image: none;list-style-type: circle}
+ul ul ul ul ul {list-style-image:none;list-style-type:disc}
+ul ul ul ul ul ul {list-style-image: none;list-style-type: circle}
+ul ul ul ul ul ul ul {list-style-image:none;list-style-type:disc}
+ul ul ul ul ul ul ul ul ul{list-style-image: none;list-style-type: circle}
+
+/* Use the List-Box style class for bulleted lists with boxes instead of bullets. You do not have to type the box for each list item in a box list. */
+UL.List-Box {list-style-image: none;list-style-type: square}
+
+Table { font-size:100%; }
+
+/* Use the Borderless style class for tables that do not need borders, such as for 2-column or 3-column lists with no headings. */
+Table.Borderless { border:none; }
+
+/* Use the Bordered style class for tables that need borders. */
+Table.Bordered { border-width: 1pt; border-style: solid; border-color: #000000; border-collapse: collapse; }
+
+/* Use the TD style for table cells in Borderless or Borderless-Wide tables. */
+TD { vertical-align:top; padding:3px; }
+
+/* Use the Bordered style class for table headings and cells in Bordered or Bordered-Wide tables. */
+.Bordered { border-width: 1pt; border-style: solid; border-color: #000000; }
+
+/* Use the Icon style class for table cells that contain note, caution, warning, or tip icons, or LabVIEW datatype terminals. */
+TD.Icon { width:40px; }
+
+/* Use the TH style for table heading cells in Borderless or Borderless-Wide tables. */
+TH { font-weight:bold; padding:3px; }
+
+/* Use the Left-Align style class for table headings and cells that you want to left align instead of center align. */
+.Left-Align { text-align:left; }
+
+/***************************************************/
+/* CHARACTER FORMATS */
+/* The following section defines character formats that every HTML Help project should need. */
+
+/* CHARACTER FORMATS Updated to conform with the CSE HTML Validator Pro */
+/* The following section defines character formats that every HTML Help project should need. */
+
+/* Use the Dark-Red format for warnings or cautions. */
+.Dark-Red { color: #800000 }
+
+/* Use the Monospace format for code or syntax examples. */
+.Monospace { font-family: Courier New; font-size: 100%; }
+
+/* Use the Monospace-Bold format for messages and responses that the computer automatically prints to the screen. */
+.Monospace-Bold { font-family: Courier New; font-weight: bold; font-size: 100%; }
+
+/* Use the Monospace-Italic format to denote text that is a placeholder for a word or value that the user must supply. */
+.Monospace-Italic { font-family: Courier New; font-style: italic; font-size: 100%; }
+
+/* small class */
+.smallFont { font-size:87.5%; }
+
+/* Bold class */
+.Bold { font-weight: bold; }
+
+/* Italic class */
+.Italic { font-style: italic; }
+
+/* Use the Platform format to denote a specific platform. */
+.Platform { color: #0000FF; font-weight: bold; }
+
+/* Use the Symbol format for characters not in the Verdana character set. Use this format sparingly. When possible, you should use the correct ASCII code for the symbol or use a graphic to recreate the symbol. */
+.Symbol { font-family: Symbol; }
+
+/* Use the Red-text format to call attention to text that needs  information added or edited by techcomm */
+.Red-text {color: #FF0000;}
+
+/* Use the Green-Underline format for the green defintion in the conventions topic */
+.Green-Underline {color: #007700; text-decoration : underline;}
+
+/* Use the glossButton format for the glossary buttons used in the glossary topic */
+.glossButton { font-size:12px; color:black; }
+
+/* Use for text sections and hyphenated words that should not break at line wraps */
+.nobreak{white-space:nowrap}
+
+/* Use for template instructions. */
+.instructions{color:red; font-style:italic}
+
+/*Use for words and text sections that do not need to be localized */
+.DNL { }
+
+/* The following styles define the color of links. */
+a:link { color: #007700 }
+a:visited { color: #7F007F }
+a:link:hover { color: #FF0000 }
+a:link:active { color: #FF0000 }
+
+/***************************************************
+/* Forms */
+
+form { margin-top:0pt; margin-bottom:3pt; color:black; }
+select { font-size:100%; color:black; }
+
+/*******************************************************
+/* Margins */
+/* Use these styles for block-level elements inside tables cells or list items where you do not want extra padding at the top or bottom of a cell. */
+.noTopMargin { margin-top:0pt;}
+.noBottomMargin { margin-bottom:0pt;}
+
+/***************************************************/
+/* CODE STYLES */
+/* The following section defines styles that you need to format entire sections of code or syntax examples. If you have just a few words you need to format as a code or syntax example, use the Monospace character format. */
+
+P.Code { margin-top:3.00pt; margin-bottom:0.00pt; font-family:Courier New;  }
+P.Code1 { margin-left:12.00pt; margin-top:3.00pt; margin-bottom:0.00pt; font-family:Courier New;  }
+P.Code2 { margin-left:24.00pt; margin-top:3.00pt; margin-bottom:0.00pt; font-family:Courier New;  }
+P.Code3 { margin-left:36.00pt; margin-top:3.00pt; margin-bottom:0.00pt; font-family:Courier New;  }
+-->
+</style>
+
+</head>
+
+<body>
+
+
+<h1>NI-VISA 5.2 for Windows Readme</h1>
+<p class="Body">August 2012</p>
+
+<p class="Body"><a href="#USING_NI-VISA_5.2">Using NI-VISA 5.2</a></p>
+<p class="Indent1"><a href="#SUPPORTED_PLATFORMS">Supported Platforms</a></p>
+<p class="Indent1"><a href="#SUPPORTED_DEVELOPMENT_ENVIRONMENTS">Supported Development Environments</a></p>
+<p class="Indent1"><a href="#INSTALLING_AND_UNINSTALLING_NI-VISA_5.2">Installing and Uninstalling NI-VISA 5.2</a></p>
+<p class="Indent1"><a href="#SUPPORT_FOR_AGILENT_HP_CONTROLLERS">Agilent/HP Controller Support</a></p>
+<p class="Indent1"><a href="#WHQL_SIGNING_USB_HARDWARE">WHQL Signing USB Hardware</a></p>
+<p class="Indent1"><a href="#CREATING_AND_DIGITALLY_SIGNING_CATALOG_FILES">Creating and Digitally Signing Catalog Files</a></p>
+<p class="Body"><a href="#KNOWN_ISSUES">Known Issues and Bug Fixes</a></p>
+<p class="Body"><a href="#IMPROVEMENTS_AND_BUG_FIXES">New Features and Improvements</a></p>
+<p class="Body"><a href="#important_info">Important Information</a></p>
+
+<hr>
+
+<h2><a name="USING_NI-VISA_5.2" id="USING_NI-VISA_5.2">Using NI-VISA 5.2</a></h2>
+
+<h3><a name="SUPPORTED_PLATFORMS" id="SUPPORTED_PLATFORMS">Supported Platforms</a></h3>
+
+<p class="Indent1">NI-VISA for Windows supports the following platforms:</p>
+
+<ul>
+<li>Windows Server 2003 R2 (32-bit version only)<sup>1,2</sup></li>
+<li>Windows Server 2008 R2 (64-bit version only)<sup>1</sup></li>
+<li>Windows 7 x64 Edition (64-bit version)</li>
+<li>Windows 7 (32-bit version)</li>
+<li>Windows Vista x64 Edition (64-bit version)</li>
+<li>Windows Vista (32-bit version)</li>
+<li>Windows XP Service Pack 3</li>
+<li>LabVIEW Real-Time (Phar Lap ETS and VxWorks) 2012/2011/2010/2009</li>
+<li>LabWindows/CVI Real-Time (Phar Lap ETS) 2012/2010/9.0/8.5</li>
+<li>LabVIEW Mobile Module 2012/2011/2010/2009</li>
+<li>LabVIEW Touch Panel Module 2012/2011/2010/2009</li>
+</ul>
+
+<p class="Indent1">While this distribution targets all these platforms, you can run <span class="Monospace">setup.exe</span> only on the Windows variants.</p>
+
+<p class="Indent1"><sup>1</sup> NI-VISA does not support the Windows Server non-R2 editions. </p>
+
+<p class="Indent1"><sup>2</sup> Support for Windows Server 2003 R2 may require disabling physical address extensions (PAE). To learn how this might affect your use of Windows Server 2003 and what actions you might need to take, visit <a href="http://www.ni.com/info"><span class="Monospace">ni.com/info</span></a> and enter the info code <em>PAESupport</em>.</p>
+
+<h3><a name="SUPPORTED_DEVELOPMENT_ENVIRONMENTS" id="SUPPORTED_DEVELOPMENT_ENVIRONMENTS">Supported Development Environments</a></h3>
+
+<p class="Indent1">NI-VISA for Windows supports the following development environments:</p>
+
+<ul>
+<li>LabVIEW 2012/2011/2010/2009</li>
+<li>LabWindows/CVI 2012/2010/9.0/8.5</li>
+<li>Measurement Studio for Visual Studio 2010/2008/2005 (all versions)<sup>1,2</sup></li>
+<li>Microsoft Visual Studio 2010/2008/2005<sup>1,2</sup></li>
+
+</ul>
+<p class="Indent1"><sup>1</sup>
+NI-VISA 5.0.2 is the last version that includes full feature support for Visual C++ MFC 2008.
+<br><br>
+NI-VISA 5.0.2 is the last version that includes full feature support for Visual C++ MFC 2005.
+<br><br>
+NI-VISA 5.0.3 and later have dropped full feature support for Visual C++ MFC 2003 and .NET Framework 1.1. If you need NI-VISA support for the aforementioned languages, you must use NI-VISA 5.0.2 or earlier. For more information on NI-VISA support for .NET Framework 1.1 or Visual C++ MFC 2003, including considerations for users upgrading from NI-VISA 5.0.2 or earlier, visit www.ni.com/info and enter the info code visamvs03.</p>
+
+<p class="Indent1"><sup>2</sup> NI-VISA support for .NET Framework 4.0 Languages requires Windows XP Service Pack 3 or later.</p>
+
+<h3><a name="INSTALLING_AND_UNINSTALLING_NI-VISA_5.2" id="INSTALLING_AND_UNINSTALLING_NI-VISA_5.2">Installing and Uninstalling NI-VISA 5.2</a></h3>
+<p class="Indent1">NI-VISA 5.2 does not support Windows 9<em>x</em>/NT/2000. To run your VISA application on Windows 95, you must install NI-VISA 2.6.1 or lower. To run your VISA application on Windows 98/Me, you must install NI-VISA 3.0.1 or lower. To run your VISA application on Windows NT, you must install NI-VISA 3.3.1 or lower. To run your VISA application on Windows 2000, you must install NI-VISA 4.6.2 or lower.</p>
+
+<p class="Indent1">Before you install NI-VISA 5.2, National Instruments recommends that you uninstall any versions of VISA prior to NI-VISA 2.0.1.</p>
+
+<p class="Indent1">After uninstalling NI-VISA, some DLLs and executables may remain in the NI-VISA directories. To complete the uninstall process, you must restart your machine.</p>
+
+<p class="Indent1"><strong>Note:</strong> The uninstaller application does not notify you when rebooting is necessary. If you plan to reinstall NI-VISA, you always should reboot the machine after running the uninstaller.</p>
+
+<p class="Indent1">You can programmatically install NI-VISA. You also can programmatically control which features of NI-VISA are enabled for installation, allowing you to install a subset of the NI-VISA feature list. Refer to the <span class="Monospace">spec.ini</span> file in the same directory as this readme for more information about installing NI-VISA programmatically and selecting which features to install.</p>
+
+<h3><a name="SUPPORT_FOR_AGILENT_HP_CONTROLLERS" id="SUPPORT_FOR_AGILENT_HP_CONTROLLERS">Agilent/HP Controller Support</a></h3>
+
+<p class="Indent1">NI-VISA now works with Agilent/HP GPIB and VXI controller cards. To use this feature, go into MAX, select <strong>Tools&#0187;NI-VISA&#0187;VISA Options</strong>, choose the <strong>Passports</strong> tab, and enable the <span class="Monospace">NiVisaTulip.dll</span> Passport. NI-VISA automatically finds and accesses any GPIB or VXI devices. However, NI-VISA does not configure the Agilent/HP hardware; you still must do that with the Agilent/HP I/O Config utility.</p>
+
+<p class="Indent1">If you have both National Instruments and Agilent/HP controllers in the same system, you must configure the cards at different system addresses, such as GPIB0 and GPIB1. If both vendors try to use the same interface address, NI-VISA reports an error from <span class="Monospace">viFindRsrc</span> or VISA Find Resources.</p>
+
+<!-- <h3><a name="USING_viPeekXX_viPokeXX_MACROS" id="USING_viPeekXX_viPokeXX_MACROS">Using viPeekXX/viPokeXX Macros</a></h3>
+
+<p class="Indent1">Users who want to use the <span class="Monospace">viPeekXX</span>/<span class="Monospace">viPokeXX</span> macros for platforms on which the macros are available must define a macro called <span class="Monospace">NIVISA_PEEKPOKE</span> before including <span class="Monospace">visa.h</span>. Note that the macros are currently available on only the Win32 platform (all C/C++ compilers).</p>
+
+<p class="Indent1">If you have used these macros with a version of NI-VISA prior to 2.0, your application will continue to run, but the peek/poke performance decreases. You should relink with the libraries supplied with this installation to regain the prior peek/poke performance.</p> -->
+
+<h3><a name="WHQL_SIGNING_USB_HARDWARE" id="WHQL_SIGNING_USB_HARDWARE">WHQL Signing USB Hardware</a></h3>
+
+<p class="Indent1">To WHQL (Windows Hardware Quality Labs) sign your USB hardware using the NI-VISA driver for Windows XP/2000, as part of this process you need a PDB (Program DataBase) file for the underlying driver (<span class="Monospace">NiViUsbK.sys</span>).</p>
+
+<p class="Indent1"><span class="Monospace">NiViUsbK.pdb</span> is provided for this purpose. It is in <span class="Monospace-italic">&lt;NI-VISA Installation Directory&gt;</span><span class="Monospace">\WinNT\NIvisa\USB</span>.</p>
+
+<h3><a name="CREATING_AND_DIGITALLY_SIGNING_CATALOG_FILES" id="CREATING_AND_DIGITALLY_SIGNING_CATALOG_FILES">Creating and Digitally Signing Catalog Files</a></h3>
+
+<p class="Indent1">On Windows Vista and Windows 7, if you generate an INF file using the NI-VISA Driver Wizard, the INF file installs correctly by itself. However, a warning dialog notifies you that Windows cannot verify the publisher of this driver software. To avoid this dialog, you must create and digitally sign a Windows Catalog (<span class="Monospace">.cat</span>) file.</p>
+
+<p class="Indent1">For more information about creating and signing catalog files, Microsoft has a <a href="http://www.microsoft.com/whdc/winlogo/drvsign/kmcs_walkthrough.mspx">Kernel-Mode Code Signing Walkthrough</a> whitepaper that describes the details of this process. The generated catalog file should reference only the INF file.</p>
+
+<hr>
+
+<h2><a name="KNOWN_ISSUES" id="KNOWN_ISSUES">Known Issues and Bug Fixes</a></h2>
+<p class="Body">For a list of Known Issues of NI-VISA 5.2, visit <span class="monospace">ni.com/info</span> and enter the Info Code <a href="http://digital.ni.com/express.nsf/bycode/NIVISA52KnownIssues">NIVISA52KnownIssues</a>.</p>
+<p class="Body">For a list of Bug Fixes for NI-VISA, visit <span class="monospace">ni.com/info</span> and enter the Info Code <a href="http://digital.ni.com/express.nsf/bycode/NIVISAFixList">NIVISAFixList</a>.</p>
+<!--
+<p class="Body">If you are using interrupts with a PXI card that uses an NI-VISA-based driver on an NI RT Hypervisor system, independent reboot of the RT system might hang if the driver does not have the Interrupt Disarm sequence defined. Stop any VISA application on the RT system that might have enabled interrupts for such cards before attempting independent reboot of the RT system. Do a full system reboot if the RT system hangs.</p>
+
+<p class="Body">IVI driver developers can use the new VISA COM API. NI-VISA does not yet document this API, so only those developers familiar with the specification should use it in this release. The relevant COM classes for getting started include IResourceManager and IVisaSession, registered in <span class="Monospace">GlobMgr.dll</span>. The VISA COM API is functionally equivalent to the VISA C API. It does not add features; it is just another language interface. You can install the VISA COM API only if you have Internet Explorer 4.01 or higher on your system.</p>
+
+<p class="Body">If you are using NI-VISA with the VisaNS .NET API, you may find that an existing project created with an older version of VisaNS now produces build errors that read <span class="Monospace">error CS0011: Referenced class '&lt;className&gt;' has base class or interface 'NationalInstruments.ISynchronizeCallbacks' defined in an
+	assembly that is not referenced. You must add a reference to assembly 'NationalInstruments.Common'</span>. To eliminate this error, add a reference to the <span class="Monospace">NationalInstruments.Common</span> assembly to your project.</p>
+
+<p class="Body">The NI-VISA Configuration component is not compatible with NI-RIO 2.1 and lower. The NI-VISA Installer shows a warning if the NI-VISA Configuration component is selected to be installed and NI-RIO 2.1 or lower currently is installed on the system.</p>
+
+<p class="Body">If NI-VISA 4.2 or earlier is installed on a system with LabWindows/CVI 8.5 or later, and you then subsequently upgrade to NI-VISA 4.3 or later, the installer does not clean up some of the older files. In this installation scenario, to use the latest VISA API with LabWindows/CVI, you should manually remove the following files, after upgrading NI-VISA:</p>
+
+<p class="Body"><span class="Monospace">C:\Program Files\National Instruments\CVI85\bin\visa.lfp<br>
+C:\Program Files\National Instruments\CVI85\bin\visa.sub<br>
+C:\Program Files\National Instruments\CVI85\bin\msvc\visa.lib<br>
+C:\Program Files\National Instruments\CVI85\bin\borland\visa.lib<br>
+C:\Program Files\National Instruments\CVI85\extlib\msvc\visa.lib<br>
+C:\Program Files\National Instruments\CVI85\extlib\borland\visa.lib<br>
+C:\Program Files\National Instruments\CVI85\include\visa.h<br>
+C:\Program Files\National Instruments\CVI85\include\vpptype.h<br>
+C:\Program Files\National Instruments\CVI85\include\visatype.h</span></p>
+-->
+<hr>
+
+<h2><a name="IMPROVEMENTS_AND_BUG_FIXES" id="IMPROVEMENTS_AND_BUG_FIXES">New Features and Improvements</a></h2>
+<h3>NI-VISA 5.2</h3>
+	<p class="Indent1">Added support for IVI VISA Plug-in specification. NI-VISA 5.2 can enumerate and communicate with third-party PCI/PXI devices with specification-compliant plugins that are installed on the system.</p>
+	<p class="Indent1">Improved performance of viWrite for a HiSLIP resource.</p>
+<h3>NI-VISA 5.1</h3>
+	<p class="Indent1">Added support for HiSLIP.</p>
+	<p class="Indent1">Added support for USB resources on PharLap-based LabVIEW RT targets.</p>
+	<p class="Indent1">Updated the VISA Interactive Control stand-alone application. Refer to the <em>NI-VISA Help</em> for more information on the updates to VISAIC.</p>
+<h3>NI-VISA 5.0.3</h3>
+	<p class="Indent1">Added support for .NET Framework 4.0</p>
+<h3><a name="NI-VISA_5.0.1_IMPROVEMENTS_AND_BUG_FIXES" id="NI-VISA_5.0.1_IMPROVEMENTS_AND_BUG_FIXES">NI-VISA 5.0.1</a></h3>
+
+<p class="Indent1">Added support for IPxi interface in VISA-COM layer.</p>
+
+<h3><a name="NI-VISA_5.0_IMPROVEMENTS_AND_BUG_FIXES" id="NI-VISA_5.0_IMPROVEMENTS_AND_BUG_FIXES">NI-VISA 5.0</a></h3>
+
+<p class="Indent1">Added the ability to launch Instrument Driver Finder from MAX.</p>
+
+<p class="Indent1">Added a page in the Driver Development Wizard to auto-detect USB devices and auto-populate device info.</p>
+
+<p class="Indent1">Added the ability to custom install VISA passports on Real-Time targets.</p>
+
+<p class="Indent1">Added support for 64-bit formatted I/O.</p>
+
+<p class="Indent1">Added the ability to configure IEEE 1588-2008 clocks on networks.</p>
+
+<h3><a name="NI-VISA_4.6.2_IMPROVEMENTS_AND_BUG_FIXES" id="NI-VISA_4.6.2_IMPROVEMENTS_AND_BUG_FIXES">NI-VISA 4.6.2</a></h3>
+
+<p class="Indent1">Added support for Windows 7 (32-bit version), Windows 7 x64 Edition (64-bit version), Windows Server 2003 R2 (32-bit version only), and Windows Server 2008 R2 (64-bit version only).</p>
+
+<h3><a name="NI-VISA_4.5.1_IMPROVEMENTS_AND_BUG_FIXES" id="NI-VISA_4.5.1_IMPROVEMENTS_AND_BUG_FIXES">NI-VISA 4.5.1</a></h3>
+
+<p class="Indent1">Added support for 64-bit user mode in .NET 3.5 Framework. You can now create 64-bit applications with .NET Framework 3.5. For additional information, refer to <em>Working with 64-bit .NET Support for NI-VISA</em> in the <em>NI-VISA .NET Framework 3.5 Help</em>. This help file is installed by default at <strong>Start&#0187;All Programs&#0187;National Instruments&#0187;VISA&#0187;Documentation&#0187;NI-VISA .NET Framework 3.5 Help</strong>. </p>
+
+<h3><a name="NI-VISA_4.5_IMPROVEMENTS_AND_BUG_FIXES" id="NI-VISA_4.5_IMPROVEMENTS_AND_BUG_FIXES">NI-VISA 4.5</a></h3>
+
+<p class="Indent1">Added a page in MAX to allow viewing and changing the <span class="Monospace">Conflict Resolution Manager</span> settings.</p>
+
+<h3><a name="NI-VISA_4.4_IMPROVEMENTS_AND_BUG_FIXES" id="NI-VISA_4.4_IMPROVEMENTS_AND_BUG_FIXES">NI-VISA 4.4</a></h3>
+
+<p class="Indent1">Added support for using NI-VISA with 64-bit applications on Windows Vista x64 Edition. VXI, GPIB-VXI, and FireWire resources are not currently supported for 64-bit applications.</p>
+
+<p class="Indent1">Added automatic detection of LXI (TCP/IP) devices that support the mDNS and DNS-SD technologies.</p>
+
+<p class="Indent1">Added support for USB and TCP/IP resources on VxWorks-based LabVIEW RT targets.</p>
+
+
+<h3><a name="NI-VISA_4.3_IMPROVEMENTS_AND_BUG_FIXES" id="NI-VISA_4.3_IMPROVEMENTS_AND_BUG_FIXES">NI-VISA 4.3</a></h3>
+
+<p class="Indent1">When using the <span class="Monospace">MAX Copy Configuration</span> API, you can now specify <span class="Monospace">"ni-visa"</span> as the product. All documented modes are supported.</p>
+
+
+<h3><a name="NI-VISA_4.2_IMPROVEMENTS_AND_BUG_FIXES" id="NI-VISA_4.2_IMPROVEMENTS_AND_BUG_FIXES">NI-VISA 4.2</a></h3>
+
+<p class="Indent1">The default installation directory has changed from <span class="Monospace">"C:\VXIPNP"</span> to <span class="Monospace">"C:\Program Files\IVI Foundation\VISA"</span>. Upgrades over previous versions of NI-VISA use the previous installation directory.</p>
+
+<p class="Indent1">The default path to the configuration file <span class="Monospace">visaconf.ini</span> has changed to <span class="Monospace">"C:\Documents and Settings\All Users\Application Data\National Instruments\NIvisa"</span> on Windows XP/2000 and to <span class="Monospace">"C:\ProgramData\National Instruments\NIvisa"</span> on Windows Vista.</p>
+
+<p class="Indent1">Added support for Windows Mobile 5.0 on x86 processors.</p>
+
+<h3><a name="NI-VISA_4.1_IMPROVEMENTS_AND_BUG_FIXES" id="NI-VISA_4.1_IMPROVEMENTS_AND_BUG_FIXES">NI-VISA 4.1</a></h3>
+
+<p class="Indent1">The NI-VISA Driver Wizard generates new INF files that work on Vista. If you want to run your VISA based drivers on Vista that previously required an INF file, you will need to regenerate a new INF file using the new Driver Wizard.</p>
+
+<p class="Indent1">On Pocket PC 2003/Windows Mobile 5.0 devices, the NI-VISA configuration file <span class="Monospace">visaconf.ini</span> was installed as read-only. This caused problems with serial port detection. Now it is writeable.</p>
+
+<p class="Indent1">In MAX, the IP address of TCPIP INSTR and SOCKET resources was not shown when the resource was configuring using a hostname. This IP address is now shown.</p>
+
+<p class="Indent1">NI-VISA Server now warns if it is launched and there are no permissions set to allow clients to connect.</p>
+
+<p class="Indent1">The NI-VISA Driver Wizard now has an option for PXI Express devices that provide a way to read the slot number using a sequence of register-level accesses.</p>
+
+<p class="Indent1">The enabled/disabled state of Passports is preserved across upgrades of NI-VISA.</p>
+
+
+
+<h3><a name="NI-VISA_4.0_IMPROVEMENTS_AND_BUG_FIXES" id="NI-VISA_4.0_IMPROVEMENTS_AND_BUG_FIXES">NI-VISA 4.0</a></h3>
+
+<p class="Indent1">Added support for 64-bit data transfers in register-based operations, to support the VISA 4.0 specification.</p>
+
+<h2>Automating the Installation of NI Products</h2>
+<p class="Body">You can automate the installation of most NI products using command-line arguments to suppress some or all of the installer user interface and dialog boxes. However, starting with the August 2012 releases (products using NI Installers version 3.1 or later), you may need to perform additional steps before or during a silent installation of NI software.</p>
+
+<p class="Body">If the NI product you are installing uses Microsoft .NET 4.0, the .NET installer may run before any NI software installs and may require a reboot before the installation of NI software begins. To avoid a .NET reboot, install .NET 4.0 separately before you install NI software.</p>
+
+<p class="Body">For more information, refer to the following KnowledgeBase articles:</p>
+<ul>
+<li>For more information on silent installations of individual NI products, refer to KB 4CJDP38M, <a href="http://digital.ni.com/express.nsf/bycode/InstallerAutomation">Automating the Installation of a Single Installer</a>.</li>
+<li>For more information on silent installations of suited NI products, such as NI Developer Suite, refer to KB 4GGGDQH0, <a href="http://digital.ni.com/express.nsf/bycode/SuiteInstallerAutomation">Automating the Installation of a Suited Installer</a>.</li>
+<li>To determine what version of NI Installers your product contains, refer to KB 4CJDR18M, <a href="http://digital.ni.com/express.nsf/bycode/InstallerVersion">How Can I Determine the Type and Version of My National Instruments Installer?</a>.</li>
+</ul>
+<!--Important Information-->
+<hr>
+
+<h2><a name="important_info">Important Information</a></h2>
+<!--Copyright-->
+<p class="Body"><strong>Copyright</strong></p>
+<p class="Body">&#0169; 2012 National Instruments Corporation. All rights reserved.</p>
+
+<p class="Body">Under the copyright laws, this publication may not be reproduced or transmitted in any form, electronic or mechanical, including photocopying, recording, storing in an information retrieval system, or translating, in whole or in part, without the prior written consent of National Instruments Corporation.</p>
+
+<p class="Body">National Instruments respects the intellectual property of others, and we ask our users to do the same. NI software is protected by copyright and other intellectual property laws. Where NI software may be used to reproduce software or other materials belonging to others, you may use NI software only to reproduce materials that you may reproduce in accordance with the terms of any applicable license or other legal restriction.</p>
+		
+<p class="Body"><strong>End-User License Agreements and Third-Party Legal Notices</strong></p>
+<p>You can find end-user license agreements (EULAs) and third-party legal notices in the following locations:</p>
+<ul>
+<li>Notices are located in the <span class="Monospace">&lt;National Instruments&gt;\_Legal Information</span> and <span class="Monospace">&lt;National Instruments&gt;</span> directories.</li> 
+<li>EULAs are located in the <span class="Monospace">&lt;National Instruments&gt;\Shared\MDF\Legal\license</span> directory.</li>
+<li>Review <span class="Monospace">&lt;National Instruments&gt;\_Legal Information.txt</span> for information on including legal information in installers built with NI products.</li>
+</ul>
+
+<!--Trademarks-->
+<p class="Body"><strong>Trademarks</strong></p>
+
+<p class="Body"><span class="DNL">CVI</span>, <span class="DNL">LabVIEW</span>, <span class="DNL">National Instruments</span>, <span class="DNL">NI</span>, <span class="DNL">ni.com</span>, the <span class="DNL">National Instruments</span> corporate logo, and the Eagle logo are trademarks of <span class="DNL">National Instruments Corporation</span>. Refer to the <em><span class="DNL">Trademark Information</span></em> at <span class="Monospace">ni.com/trademarks</span> for other <a href="http://digital.ni.com/express.nsf/bycode/rdtrad" target="_blank"><span class="DNL">National Instruments</span> trademarks</a>.</p>
+
+<p class="Body"><span class="DNL">The mark LabWindows is used under a license from Microsoft Corporation. Windows is a registered trademark of Microsoft Corporation in the United States and other countries.</span></p>
+
+<p class="Body">Other product and company names mentioned herein are trademarks or trade names of their respective companies.</p>
+
+<!--Patents-->
+<p class="Body"><strong>Patents</strong></p>
+<p class="Body">For patents covering the National Instruments products/technology, refer to the appropriate location: <strong>Help&#0187;Patents</strong> in your software, the <span class="Monospace">patents.txt</span> file on your media, or the <a href="http://digital.ni.com/express.nsf/bycode/rdlv17" target="_blank">National Instruments Patent Notice</a> at <span class="Monospace">ni.com/patents</span>.</p>
+
+</body>
+</html>

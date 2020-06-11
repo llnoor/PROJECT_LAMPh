@@ -1,0 +1,50 @@
+bool setParameterButton(int column, int row, float data_float){
+		switch(row){
+        case(0): //Functions I
+				switch(column){
+                case(0): viPrintf (vi, "*RST\r\n");viPrintf (vi, ":SENS:FUNC \"CURR:AC\"\r\n"); return true; break;
+                case(1): viPrintf (vi, "*RST\r\n");viPrintf (vi, ":SENS:FUNC \"CURR:DC\"\r\n"); return true; break;
+                case(2): viPrintf (vi, "*RST\r\n");viPrintf (vi, ":SENS:FUNC \"VOLT:AC\"\r\n"); return true; break;
+                case(3): viPrintf (vi, "*RST\r\n");viPrintf (vi, ":SENS:FUNC \"VOLT:DC\"\r\n"); return true; break;
+                case(4): viPrintf (vi, "*RST\r\n");viPrintf (vi, ":SENS:FUNC \"TEMP\"\r\n"); return true; break;
+				}
+				break;	
+        case(1): //Functions II
+            switch(column){
+                case(0): viPrintf (vi, "*RST\r\n");viPrintf (vi, ":SENS:FUNC \"RES\"\r\n"); return true; break;
+                case(1): viPrintf (vi, "*RST\r\n");viPrintf (vi, ":SENS:FUNC \"FRES\"\r\n"); return true; break;
+                case(2): viPrintf (vi, "*RST\r\n");viPrintf (vi, ":SENS:FUNC \"PER\"\r\n"); return true; break;
+                case(3): viPrintf (vi, "*RST\r\n");viPrintf (vi, ":SENS:FUNC \"FREQ\"\r\n"); return true; break;
+                case(4): viPrintf (vi, "*RST\r\n");viPrintf (vi, ":SENS:FUNC \"DIOD\"\r\n"); return true; break;
+				}
+				break;
+        case(2): //Channels I
+                switch(column){
+                case(0): viPrintf (vi, ":DISP 1\r\n"); return true; break;
+                case(1): viPrintf (vi, ":DISP 0\r\n"); return true; break;
+                case(2): viPrintf (vi, ":SYST:REM r\n"); return true; break;
+                case(3): viPrintf (vi, ":SYST:LOC r\n"); return true; break;
+                case(4): viPrintf (vi, ":SYST:REM r\n"); return true; break;
+				}
+				break;	
+        case(3): //Channels II
+				switch(column){
+                case(0): viPrintf (vi, ":DISP 1\r\n"); return true; break;
+                case(1): viPrintf (vi, ":DISP 0\r\n"); return true; break;
+                case(2): viPrintf (vi, ":DISP:TEXT:CLE\r\n"); return true; break;
+                case(3): viPrintf (vi, ":DISP:TEXT \"CONNECTED LAMPh\"\r\n"); return true; break;
+                case(4): viPrintf (vi, ":SYST:ERR? r\n"); return true; break;
+				}
+				break;	
+		case(4): //Config
+				switch(column){
+                case(0): viPrintf (vi, ":DISP 1\r\n"); return true; break;
+                case(1): viPrintf (vi, ":DISP 0\r\n"); return true; break;
+                case(2): viPrintf (vi, ":SYST:KEY 30\r\n"); return true; break;
+                case(3): viPrintf (vi, ":SYST:KEY 31\r\n"); return true; break;
+                case(4): viPrintf (vi, ":SYST:KEY 12\r\n"); return true; break;
+                }
+        default:
+				break;
+        }
+    }

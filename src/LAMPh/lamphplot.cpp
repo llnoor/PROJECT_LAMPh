@@ -98,6 +98,7 @@ LAMPhPlot::LAMPhPlot(QString loginQString)
     addToolBar(Qt::LeftToolBarArea, toolBar_PlotSize());
     addToolBar(Qt::RightToolBarArea, toolBar_Devices_Edit());
 
+
     createMenus();
 
 
@@ -526,6 +527,7 @@ QToolBar *LAMPhPlot::toolBar_Devices() //toolBar_Data, it's not devices!!!
     mainLayout->setHorizontalSpacing(5);
 
     toolBar_Devices->addWidget( hBox_Devices );
+    //toolBar_Devices->hide();
     return toolBar_Devices;
 }
 
@@ -645,6 +647,7 @@ QToolBar *LAMPhPlot::toolBar_Devices_Edit()
     mainLayout->setHorizontalSpacing(5);
 
     toolBar_Devices_Edit->addWidget( hBox_Devices_Edit );
+    toolBar_Devices_Edit->hide();
     return toolBar_Devices_Edit;
 }
 
