@@ -36,8 +36,8 @@ class LAMPhPlot : public QMainWindow
     Q_OBJECT
 
 public:
-    LAMPhPlot(QString loginQString);
-    //~LAMPhPlot();
+    LAMPhPlot(QStringList argumentsQStringList);
+    //~LAMPhPlot();List
 
 private Q_SLOTS:
     void showRunning( bool );

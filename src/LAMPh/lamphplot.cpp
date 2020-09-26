@@ -90,7 +90,7 @@ public:
     }
 };*/
 
-LAMPhPlot::LAMPhPlot(QString loginQString)
+LAMPhPlot::LAMPhPlot(QStringList argumentsQStringList)
 {
 
     addToolBar(Qt::TopToolBarArea, toolBar()); // main buttons (for switching between windows)
@@ -106,9 +106,23 @@ LAMPhPlot::LAMPhPlot(QString loginQString)
     ( void )statusBar();
 #endif
 
+    QString argPlot = "Plot";
+    QString argDevices = "Devices";
+
+    for (int i=0; i<argumentsQStringList.size(); i++){
+        if (argumentsQStringList.at(i).contains("-plot", Qt::CaseInsensitive)){
+            argPlot = argumentsQStringList.at(i+1);
+        }
+        if (argumentsQStringList.at(i).contains("-devices", Qt::CaseInsensitive)){
+            argDevices = argumentsQStringList.at(i+1);
+        }
+    }
+
+    /*QString argumentsQString = argumentsQStringList.join(",");
+    lineEdit_Devices[0]->setText(argumentsQString);*/
 
     login = new QString(); // to transfer the user's login and delineation of rights
-    *login = loginQString;
+    *login = argPlot;
 
     //newuserButton = new QPushButton(tr("New"));
     //newExpButton = new QPushButton(tr("New Exp"));
@@ -132,7 +146,7 @@ LAMPhPlot::LAMPhPlot(QString loginQString)
     dataTable = new DataTable("DataBase");
     dataTable ->close();
 
-    lamphDevices = new LAMPhDevices("LAMPhDevices");
+    lamphDevices = new LAMPhDevices(argDevices);
     lamphDevices ->show();
     lamphDevices ->close();
 
@@ -345,6 +359,7 @@ LAMPhPlot::LAMPhPlot(QString loginQString)
 
     //QMessageBox::critical(NULL,QObject::tr(""),tr(""));
     //exit(0);
+
 }
 
 QToolBar *LAMPhPlot::toolBar()

@@ -77,6 +77,7 @@ private Q_SLOTS:
     void setCheckBox();
     void saveConf();
     void loadConf();
+    void loadConfQString(QString);
 
     void update_comboBox_Function_Parameters(int r,int Index);
     void update_comboBoxes_Function_Parameters(int r,int Index);

@@ -9,8 +9,13 @@
 
 int main(int argc, char *argv[])
 {
+    QStringList argumentsQStringList;
+    for (int i=0; i<argc; i++){
+        argumentsQStringList.append(QString::fromLocal8Bit(argv[i]));
+    }
+
     QApplication app(argc, argv);
-    Window window;
+    Window window(argumentsQStringList);
     return app.exec();
 }
 

@@ -5,7 +5,7 @@
 #include "experiments.h"
 #include "lamphplot.h"
 
-Window::Window() : QWidget(0, Qt::Window | Qt::FramelessWindowHint)
+Window::Window(QStringList argumentsQStringList) : QWidget(0, Qt::Window | Qt::FramelessWindowHint)
 {
     logoWindow = new Logo();
     logoWindow->show();
@@ -19,8 +19,8 @@ Window::Window() : QWidget(0, Qt::Window | Qt::FramelessWindowHint)
     authWindow = new AuthorizationWindow();
     //authWindow->show();
 
-
-    lamphPlot = new LAMPhPlot("user");
+    lamphPlot = new LAMPhPlot(argumentsQStringList);
+    //lamphPlot = new LAMPhPlot("user");
     lamphPlot ->show();
 
     //exprimentsWindow = new Experiments("user");

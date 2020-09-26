@@ -166,6 +166,10 @@ LAMPhDevices::LAMPhDevices(QString loginQString)
            });
     }
 
+    if (!loginQString.contains("devices", Qt::CaseInsensitive)){
+        loadConfQString(QString("./conf/%1").arg(loginQString));
+    }
+
 }
 
 void LAMPhDevices::setCheckBox() //this automatically switches checkBoxes so that there is no controversy in the program
@@ -989,8 +993,11 @@ void LAMPhDevices::saveConf(){
 }
 
 void LAMPhDevices::loadConf(){
-
     QString filePath = QFileDialog::getOpenFileName( this, trUtf8( "Open file" ), "./conf", trUtf8( "Data (*.txt)" ) );
+    loadConfQString(filePath);
+}
+
+void LAMPhDevices::loadConfQString(QString filePath){
     QFile file(filePath);
     file.open(QIODevice::ReadOnly |QIODevice::Text);
 
