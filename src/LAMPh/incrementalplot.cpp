@@ -67,6 +67,8 @@ IncrementalPlot::IncrementalPlot( QWidget *parent ):
         d_curveXY[i]->setLegendAttribute( QwtPlotCurve::LegendShowLine );
         d_curveXY[i]->setYAxis( QwtPlot::yLeft );
         //d_curveXY[i]->setYAxis(QwtPlot::yRight);
+        d_curveXY[i]->setSymbol( new QwtSymbol( QwtSymbol::Ellipse,
+                                              QBrush(QColor(colorsQStringList.at(i))), QPen(QColor(colorsQStringList.at(i))), QSize( 4, 4 ) ) );
         d_curveXY[i]->attach( this );
     }
 
