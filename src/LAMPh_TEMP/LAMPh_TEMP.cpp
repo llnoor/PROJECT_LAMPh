@@ -37,8 +37,16 @@ private:
 	char * unit_char;
 	
     bool Cirnox1050X01_active = false;
+    bool Cirnox1050X02_active = false;
+    bool Cirnox1050X03_active = false;
+    bool Cirnox1050X04_active = false;
+    bool Cirnox1050X05_active = false;
+    bool Cirnox1050X06_active = false;
+    bool Cirnox1050X07_active = false;
+    bool Cirnox1050X08_active = false;
+    bool Cirnox1050X09_active = false;
     bool Cirnox1050X82_active = false;
-    bool Cirnox1050X83_active = false;
+    bool Cirnox1050X83_active = false;    
     bool Cirnox1030_active = false;
     bool CrNi_CuNi_active = false;
     bool Cu_CuFe102_active = false;
@@ -51,6 +59,14 @@ private:
     bool TempSensorS_active = false;
 
     QMap<QString, float> tempCirnox1050X01;
+    QMap<QString, float> tempCirnox1050X02;
+    QMap<QString, float> tempCirnox1050X03;
+    QMap<QString, float> tempCirnox1050X04;
+    QMap<QString, float> tempCirnox1050X05;
+    QMap<QString, float> tempCirnox1050X06;
+    QMap<QString, float> tempCirnox1050X07;
+    QMap<QString, float> tempCirnox1050X08;
+    QMap<QString, float> tempCirnox1050X09;
     QMap<QString, float> tempCirnox1050X82;
     QMap<QString, float> tempCirnox1050X83;
     QMap<QString, float> tempCirnox1030;
@@ -144,38 +160,310 @@ public:
 	}
 	
     float Cirnox1050X01(float parameter){
-        if (!Cirnox1050X01_active) {
-            QString str;
-            str = "temp/";
-            str.append("Cirnox1050X01");
-            str.append(".txt");
-            QFile file (str);
-            if(QFileInfo(str).exists()){
-                file.open(QIODevice::ReadOnly | QIODevice::Text);
-                QStringList list_temp;
-                QString line;
-                QString Temp_X;
+            if (!Cirnox1050X01_active) {
+                QString str;
+                str = "temp/";
+                str.append("Cirnox1050X01");
+                str.append(".txt");
+                QFile file (str);
+                if(QFileInfo(str).exists()){
+                    file.open(QIODevice::ReadOnly | QIODevice::Text);
+                    QStringList list_temp;
+                    QString line;
+                    QString Temp_X;
 
-                QTextStream in(&file);
-                while (!in.atEnd()) {
-                    line = in.readLine();
-                    list_temp = line.split("\t");
-                    list_temp[0].replace(",",".");  //rus_float->eng_float ))) lol
-                    list_temp[1].replace(",",".");
-                    Temp_X= QString::number(list_temp[0].toFloat(),'f',3);
-                    tempCirnox1050X01[Temp_X] = list_temp[1].toFloat();
+                    QTextStream in(&file);
+                    while (!in.atEnd()) {
+                        line = in.readLine();
+                        list_temp = line.split("\t");
+                        list_temp[0].replace(",",".");  //rus_float->eng_float ))) lol
+                        list_temp[1].replace(",",".");
+                        Temp_X= QString::number(list_temp[0].toFloat(),'f',3);
+                        tempCirnox1050X01[Temp_X] = list_temp[1].toFloat();
+                    }
+                    file.flush();
+                    file.close();
                 }
-                file.flush();
-                file.close();
+                Cirnox1050X01_active = true;
+            }else{
+                QString parameterStr = QString::number(parameter,'f',3);
+                float temp = 0;
+                if (tempCirnox1050X01.contains(parameterStr))  temp = tempCirnox1050X01.value(parameterStr);
+                return temp;
             }
-            Cirnox1050X01_active = true;
-        }else{
-            QString parameterStr = QString::number(parameter,'f',3);
-            float temp = 0;
-            if (tempCirnox1050X01.contains(parameterStr))  temp = tempCirnox1050X01.value(parameterStr);
-            return temp;
         }
-    }
+
+    float Cirnox1050X02(float parameter){
+            if (!Cirnox1050X02_active) {
+                QString str;
+                str = "temp/";
+                str.append("Cirnox1050X02");
+                str.append(".txt");
+                QFile file (str);
+                if(QFileInfo(str).exists()){
+                    file.open(QIODevice::ReadOnly | QIODevice::Text);
+                    QStringList list_temp;
+                    QString line;
+                    QString Temp_X;
+
+                    QTextStream in(&file);
+                    while (!in.atEnd()) {
+                        line = in.readLine();
+                        list_temp = line.split("\t");
+                        list_temp[0].replace(",",".");  //rus_float->eng_float ))) lol
+                        list_temp[1].replace(",",".");
+                        Temp_X= QString::number(list_temp[0].toFloat(),'f',3);
+                        tempCirnox1050X02[Temp_X] = list_temp[1].toFloat();
+                    }
+                    file.flush();
+                    file.close();
+                }
+                Cirnox1050X02_active = true;
+            }else{
+                QString parameterStr = QString::number(parameter,'f',3);
+                float temp = 0;
+                if (tempCirnox1050X02.contains(parameterStr))  temp = tempCirnox1050X02.value(parameterStr);
+                return temp;
+            }
+        }
+
+    float Cirnox1050X03(float parameter){
+            if (!Cirnox1050X03_active) {
+                QString str;
+                str = "temp/";
+                str.append("Cirnox1050X03");
+                str.append(".txt");
+                QFile file (str);
+                if(QFileInfo(str).exists()){
+                    file.open(QIODevice::ReadOnly | QIODevice::Text);
+                    QStringList list_temp;
+                    QString line;
+                    QString Temp_X;
+
+                    QTextStream in(&file);
+                    while (!in.atEnd()) {
+                        line = in.readLine();
+                        list_temp = line.split("\t");
+                        list_temp[0].replace(",",".");  //rus_float->eng_float ))) lol
+                        list_temp[1].replace(",",".");
+                        Temp_X= QString::number(list_temp[0].toFloat(),'f',3);
+                        tempCirnox1050X03[Temp_X] = list_temp[1].toFloat();
+                    }
+                    file.flush();
+                    file.close();
+                }
+                Cirnox1050X03_active = true;
+            }else{
+                QString parameterStr = QString::number(parameter,'f',3);
+                float temp = 0;
+                if (tempCirnox1050X03.contains(parameterStr))  temp = tempCirnox1050X03.value(parameterStr);
+                return temp;
+            }
+        }
+
+    float Cirnox1050X04(float parameter){
+            if (!Cirnox1050X04_active) {
+                QString str;
+                str = "temp/";
+                str.append("Cirnox1050X04");
+                str.append(".txt");
+                QFile file (str);
+                if(QFileInfo(str).exists()){
+                    file.open(QIODevice::ReadOnly | QIODevice::Text);
+                    QStringList list_temp;
+                    QString line;
+                    QString Temp_X;
+
+                    QTextStream in(&file);
+                    while (!in.atEnd()) {
+                        line = in.readLine();
+                        list_temp = line.split("\t");
+                        list_temp[0].replace(",",".");  //rus_float->eng_float ))) lol
+                        list_temp[1].replace(",",".");
+                        Temp_X= QString::number(list_temp[0].toFloat(),'f',3);
+                        tempCirnox1050X04[Temp_X] = list_temp[1].toFloat();
+                    }
+                    file.flush();
+                    file.close();
+                }
+                Cirnox1050X04_active = true;
+            }else{
+                QString parameterStr = QString::number(parameter,'f',3);
+                float temp = 0;
+                if (tempCirnox1050X04.contains(parameterStr))  temp = tempCirnox1050X04.value(parameterStr);
+                return temp;
+            }
+        }
+
+    float Cirnox1050X05(float parameter){
+            if (!Cirnox1050X05_active) {
+                QString str;
+                str = "temp/";
+                str.append("Cirnox1050X05");
+                str.append(".txt");
+                QFile file (str);
+                if(QFileInfo(str).exists()){
+                    file.open(QIODevice::ReadOnly | QIODevice::Text);
+                    QStringList list_temp;
+                    QString line;
+                    QString Temp_X;
+
+                    QTextStream in(&file);
+                    while (!in.atEnd()) {
+                        line = in.readLine();
+                        list_temp = line.split("\t");
+                        list_temp[0].replace(",",".");  //rus_float->eng_float ))) lol
+                        list_temp[1].replace(",",".");
+                        Temp_X= QString::number(list_temp[0].toFloat(),'f',3);
+                        tempCirnox1050X05[Temp_X] = list_temp[1].toFloat();
+                    }
+                    file.flush();
+                    file.close();
+                }
+                Cirnox1050X05_active = true;
+            }else{
+                QString parameterStr = QString::number(parameter,'f',3);
+                float temp = 0;
+                if (tempCirnox1050X05.contains(parameterStr))  temp = tempCirnox1050X05.value(parameterStr);
+                return temp;
+            }
+        }
+
+    float Cirnox1050X06(float parameter){
+            if (!Cirnox1050X06_active) {
+                QString str;
+                str = "temp/";
+                str.append("Cirnox1050X06");
+                str.append(".txt");
+                QFile file (str);
+                if(QFileInfo(str).exists()){
+                    file.open(QIODevice::ReadOnly | QIODevice::Text);
+                    QStringList list_temp;
+                    QString line;
+                    QString Temp_X;
+
+                    QTextStream in(&file);
+                    while (!in.atEnd()) {
+                        line = in.readLine();
+                        list_temp = line.split("\t");
+                        list_temp[0].replace(",",".");  //rus_float->eng_float ))) lol
+                        list_temp[1].replace(",",".");
+                        Temp_X= QString::number(list_temp[0].toFloat(),'f',3);
+                        tempCirnox1050X06[Temp_X] = list_temp[1].toFloat();
+                    }
+                    file.flush();
+                    file.close();
+                }
+                Cirnox1050X06_active = true;
+            }else{
+                QString parameterStr = QString::number(parameter,'f',3);
+                float temp = 0;
+                if (tempCirnox1050X06.contains(parameterStr))  temp = tempCirnox1050X06.value(parameterStr);
+                return temp;
+            }
+        }
+
+    float Cirnox1050X07(float parameter){
+            if (!Cirnox1050X07_active) {
+                QString str;
+                str = "temp/";
+                str.append("Cirnox1050X07");
+                str.append(".txt");
+                QFile file (str);
+                if(QFileInfo(str).exists()){
+                    file.open(QIODevice::ReadOnly | QIODevice::Text);
+                    QStringList list_temp;
+                    QString line;
+                    QString Temp_X;
+
+                    QTextStream in(&file);
+                    while (!in.atEnd()) {
+                        line = in.readLine();
+                        list_temp = line.split("\t");
+                        list_temp[0].replace(",",".");  //rus_float->eng_float ))) lol
+                        list_temp[1].replace(",",".");
+                        Temp_X= QString::number(list_temp[0].toFloat(),'f',3);
+                        tempCirnox1050X07[Temp_X] = list_temp[1].toFloat();
+                    }
+                    file.flush();
+                    file.close();
+                }
+                Cirnox1050X07_active = true;
+            }else{
+                QString parameterStr = QString::number(parameter,'f',3);
+                float temp = 0;
+                if (tempCirnox1050X07.contains(parameterStr))  temp = tempCirnox1050X07.value(parameterStr);
+                return temp;
+            }
+        }
+
+    float Cirnox1050X08(float parameter){
+            if (!Cirnox1050X08_active) {
+                QString str;
+                str = "temp/";
+                str.append("Cirnox1050X08");
+                str.append(".txt");
+                QFile file (str);
+                if(QFileInfo(str).exists()){
+                    file.open(QIODevice::ReadOnly | QIODevice::Text);
+                    QStringList list_temp;
+                    QString line;
+                    QString Temp_X;
+
+                    QTextStream in(&file);
+                    while (!in.atEnd()) {
+                        line = in.readLine();
+                        list_temp = line.split("\t");
+                        list_temp[0].replace(",",".");  //rus_float->eng_float ))) lol
+                        list_temp[1].replace(",",".");
+                        Temp_X= QString::number(list_temp[0].toFloat(),'f',3);
+                        tempCirnox1050X08[Temp_X] = list_temp[1].toFloat();
+                    }
+                    file.flush();
+                    file.close();
+                }
+                Cirnox1050X08_active = true;
+            }else{
+                QString parameterStr = QString::number(parameter,'f',3);
+                float temp = 0;
+                if (tempCirnox1050X08.contains(parameterStr))  temp = tempCirnox1050X08.value(parameterStr);
+                return temp;
+            }
+        }
+
+    float Cirnox1050X09(float parameter){
+            if (!Cirnox1050X09_active) {
+                QString str;
+                str = "temp/";
+                str.append("Cirnox1050X09");
+                str.append(".txt");
+                QFile file (str);
+                if(QFileInfo(str).exists()){
+                    file.open(QIODevice::ReadOnly | QIODevice::Text);
+                    QStringList list_temp;
+                    QString line;
+                    QString Temp_X;
+
+                    QTextStream in(&file);
+                    while (!in.atEnd()) {
+                        line = in.readLine();
+                        list_temp = line.split("\t");
+                        list_temp[0].replace(",",".");  //rus_float->eng_float ))) lol
+                        list_temp[1].replace(",",".");
+                        Temp_X= QString::number(list_temp[0].toFloat(),'f',3);
+                        tempCirnox1050X09[Temp_X] = list_temp[1].toFloat();
+                    }
+                    file.flush();
+                    file.close();
+                }
+                Cirnox1050X09_active = true;
+            }else{
+                QString parameterStr = QString::number(parameter,'f',3);
+                float temp = 0;
+                if (tempCirnox1050X09.contains(parameterStr))  temp = tempCirnox1050X09.value(parameterStr);
+                return temp;
+            }
+        }
 
     float Cirnox1050X82(float parameter){
         if (!Cirnox1050X82_active) {
@@ -852,6 +1140,70 @@ void readData(int number_of_device){
 float Cirnox1050X01(int number_of_device, float parameter){
     if (number_of_device < NUMBER ){
         return classLAMPh[number_of_device].Cirnox1050X01(parameter);
+    }else{
+        return -1;
+    }
+}
+
+float Cirnox1050X02(int number_of_device, float parameter){
+    if (number_of_device < NUMBER ){
+        return classLAMPh[number_of_device].Cirnox1050X02(parameter);
+    }else{
+        return -1;
+    }
+}
+
+float Cirnox1050X03(int number_of_device, float parameter){
+    if (number_of_device < NUMBER ){
+        return classLAMPh[number_of_device].Cirnox1050X03(parameter);
+    }else{
+        return -1;
+    }
+}
+
+float Cirnox1050X04(int number_of_device, float parameter){
+    if (number_of_device < NUMBER ){
+        return classLAMPh[number_of_device].Cirnox1050X04(parameter);
+    }else{
+        return -1;
+    }
+}
+
+float Cirnox1050X05(int number_of_device, float parameter){
+    if (number_of_device < NUMBER ){
+        return classLAMPh[number_of_device].Cirnox1050X05(parameter);
+    }else{
+        return -1;
+    }
+}
+
+float Cirnox1050X06(int number_of_device, float parameter){
+    if (number_of_device < NUMBER ){
+        return classLAMPh[number_of_device].Cirnox1050X06(parameter);
+    }else{
+        return -1;
+    }
+}
+
+float Cirnox1050X07(int number_of_device, float parameter){
+    if (number_of_device < NUMBER ){
+        return classLAMPh[number_of_device].Cirnox1050X07(parameter);
+    }else{
+        return -1;
+    }
+}
+
+float Cirnox1050X08(int number_of_device, float parameter){
+    if (number_of_device < NUMBER ){
+        return classLAMPh[number_of_device].Cirnox1050X08(parameter);
+    }else{
+        return -1;
+    }
+}
+
+float Cirnox1050X09(int number_of_device, float parameter){
+    if (number_of_device < NUMBER ){
+        return classLAMPh[number_of_device].Cirnox1050X09(parameter);
     }else{
         return -1;
     }

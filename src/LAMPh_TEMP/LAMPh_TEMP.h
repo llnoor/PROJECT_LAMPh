@@ -28,6 +28,14 @@ LAMPHLIBSHARED_EXPORT const char* getUnit(int number_of_device); // LAMPh will r
 LAMPHLIBSHARED_EXPORT void readData(int number_of_device); //LAMPh send command to read Data from device
 
 LAMPHLIBSHARED_EXPORT float Cirnox1050X01(int number_of_device, float parameter = 0); //LAMPh will receive Data (Float) from device by this Lib and will set parameter (default =0)
+LAMPHLIBSHARED_EXPORT float Cirnox1050X02(int number_of_device, float parameter = 0);
+LAMPHLIBSHARED_EXPORT float Cirnox1050X03(int number_of_device, float parameter = 0);
+LAMPHLIBSHARED_EXPORT float Cirnox1050X04(int number_of_device, float parameter = 0);
+LAMPHLIBSHARED_EXPORT float Cirnox1050X05(int number_of_device, float parameter = 0);
+LAMPHLIBSHARED_EXPORT float Cirnox1050X06(int number_of_device, float parameter = 0);
+LAMPHLIBSHARED_EXPORT float Cirnox1050X07(int number_of_device, float parameter = 0);
+LAMPHLIBSHARED_EXPORT float Cirnox1050X08(int number_of_device, float parameter = 0);
+LAMPHLIBSHARED_EXPORT float Cirnox1050X09(int number_of_device, float parameter = 0);
 LAMPHLIBSHARED_EXPORT float Cirnox1050X82(int number_of_device, float parameter = 0);
 LAMPHLIBSHARED_EXPORT float Cirnox1050X83(int number_of_device, float parameter = 0);
 LAMPHLIBSHARED_EXPORT float Cirnox1030(int number_of_device, float parameter = 0);
