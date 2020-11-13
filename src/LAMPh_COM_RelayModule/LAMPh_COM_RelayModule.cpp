@@ -100,6 +100,7 @@ public:
 		for (const QSerialPortInfo &info : QSerialPortInfo::availablePorts()){
             if (!info.isBusy())
             {
+                qDebug() << "port: " << info.portName();
                 serialPort.setPortName(info.portName());
                 serialPort.setBaudRate(QSerialPort::Baud9600);
                 serialPort.setStopBits(QSerialPort::OneStop);
@@ -123,19 +124,18 @@ public:
                 ba[6] = 0x0a; // "*IDN?"
 
                 serialPort.waitForBytesWritten(1000);
-                serialPort.write("*IDN?\r\n"); //or
-                serialPort.waitForReadyRead(1000);
+                serialPort.write(ba);
+                //serialPort.write("*IDN?\r\n"); //or
+                serialPort.waitForReadyRead(2000);
 
                 //data= serialPort.readAll();
 
-                //qDebug() << data;
-
                 while (serialPort.waitForReadyRead(20))
                     data += serialPort.readAll();
-				
+
 				QString dataQString(data.toHex());
 
-                qDebug() << data;
+                qDebug() << "RelayModule: " << dataQString;
 
                 if (dataQString.contains("41726475696E6F", Qt::CaseInsensitive)){ //ArduinoDUE
                     serialPort.write("70\r\n");

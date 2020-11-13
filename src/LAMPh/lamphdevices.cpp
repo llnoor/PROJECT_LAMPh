@@ -166,9 +166,6 @@ LAMPhDevices::LAMPhDevices(QString loginQString)
            });
     }
 
-    if (!loginQString.contains("devices", Qt::CaseInsensitive)){
-        loadConfQString(QString("./conf/%1").arg(loginQString));
-    }
 
 }
 
@@ -479,7 +476,6 @@ void LAMPhDevices::getAllAvailableSerialPorts(){ // main
             }
         }
     }*/
-
     update_toolBar_PORTS();
 }
 
@@ -534,6 +530,9 @@ void LAMPhDevices::first(){
     send_numberofdeviceInt(numberofdeviceInt);
     for (int r=0; r<CurvCnt; r++)
         update_comboBox_Device_Functions(r,0);
+    if (!login->contains("devices", Qt::CaseInsensitive)){
+        loadConfQString(QString("./conf/%1").arg(login->toLower()));
+    }
 
 }
 

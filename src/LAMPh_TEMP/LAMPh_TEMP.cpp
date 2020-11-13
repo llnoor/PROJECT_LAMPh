@@ -26,7 +26,7 @@
 #define DEVICE "TEMP" 			//Name of device
 #define FOLDER  "Functions/"	//Folder where file will be created (please do not change this value)
 #define TXT "_functions.txt"	//Names of functions will be recorded in this file (please do not change this value)	
-#define FUNCTIONS "float Cirnox1050X01(float);float Cirnox1050X82(float);float Cirnox1050X83(float);float Cirnox1030(float);float CrNi_CuNi(float);float Cu_CuFe102(float);float Cu_CuFe114(float);float GaAlAsLS102(float);float CuFeLi422(float);float TempSensor1(float);float TempSensor2(float);float TempSensor3(float);float TempSensorS(float)"  //one can use only void and float functions with only float parameter (don't leave empty space after ";")
+#define FUNCTIONS "float Cirnox1050X01(float);float Cirnox1050X02(float);float Cirnox1050X03(float);float Cirnox1050X04(float);float Cirnox1050X05(float);float Cirnox1050X06(float);float Cirnox1050X07(float);float Cirnox1050X08(float);float Cirnox1050X09(float);float Cirnox1050X82(float);float Cirnox1050X83(float);float Cirnox1030(float);float CrNi_CuNi(float);float Cu_CuFe102(float);float Cu_CuFe114(float);float GaAlAsLS102(float);float CuFeLi422(float);float TempSensor1(float);float TempSensor2(float);float TempSensor3(float);float TempSensorS(float)"  //one can use only void and float functions with only float parameter (don't leave empty space after ";")
 #define INFO "The Lib for LAMPh to connect with TEMP" //Info about this Lib or device
 #define NUMBER 1 //Only one device can be connected by this Lib (this value can be changed)
 #define NONE "None"
