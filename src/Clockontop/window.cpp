@@ -1,9 +1,9 @@
 #include "window.h"
 #include "logowindow.h"
 
-Window::Window() : QWidget(0, Qt::Window | Qt::FramelessWindowHint)
+Window::Window(QStringList argumentsQStringList) : QWidget(0, Qt::Window | Qt::FramelessWindowHint)
 {
-    logoWindow = new Logo();
+    logoWindow = new Logo(argumentsQStringList);
     logoWindow->show();
 
     setAttribute(Qt::WA_TranslucentBackground);

@@ -13,7 +13,7 @@ class Logo : public QWidget
 {
     Q_OBJECT
 public:
-    Logo();
+    Logo(QStringList argumentsQStringList);
 
 private slots:
     void slotTimerAlarm();
@@ -23,6 +23,11 @@ private:
     QTimer *timer;
     QLabel *label_1;
     QLabel *label_2;
+
+    QString argX;
+    QString argY;
+    QString argFont;
+    QString argColor;
 };
 
 #endif // LOGO_H
