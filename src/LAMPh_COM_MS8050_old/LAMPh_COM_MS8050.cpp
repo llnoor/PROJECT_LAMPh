@@ -27,7 +27,7 @@
 #define TXT "_functions.txt"	//Names of functions will be recorded in this file (please do not change this value)	
 #define FUNCTIONS "float getFloat()"  //one can use only void and float functions with only float parameter (don't leave empty space after ";")
 #define INFO "The Lib for LAMPh to connect with COM_MASTECH_MS8050" //Info about this Lib or device
-#define NUMBER 2 //Two devices can be connected by this Lib (this value can be changed)
+#define NUMBER 1 //Two devices can be connected by this Lib (this value can be changed)
 #define NONE "None"
 
 class ClassLAMPh{
@@ -99,10 +99,11 @@ public:
 	
     bool connectL(){
         for (const QSerialPortInfo &info : QSerialPortInfo::availablePorts()){
-            qDebug() << "serialPortMASTECH_MS8050" <<info.portName();
+            qDebug() << "serialPortMASTECH_MS8050_2021" <<info.portName();
             if (!info.isBusy())
             {
                 qDebug() << info.portName();
+                qDebug() << "checkpoint_1";
                 serialPort.setPortName(info.portName());
                 serialPort.setBaudRate(QSerialPort::Baud2400);
                 serialPort.setStopBits(QSerialPort::OneStop);
@@ -112,9 +113,12 @@ public:
                 serialPort.setFlowControl(QSerialPort::NoFlowControl);
                 serialPort.open(QIODevice::ReadWrite);
                 serialPort.waitForReadyRead(200);
+                serialPort.setRequestToSend(false);
+                serialPort.setDataTerminalReady(true);
 
                 QByteArray data = serialPort.readAll();
                 //int yt=0;
+                //qDebug() << "yt: " << yt;
                 while (serialPort.waitForReadyRead(10))
                 {
                     data += serialPort.readAll();
@@ -125,11 +129,15 @@ public:
 
                 //qDebug().noquote() << "bytes: " << data.size() << " values: " << data.toHex();
                 QString dataQString(data.toHex());
-                // qDebug() << "dataQString" << dataQString;
+                //qDebug() << "dataQString" << dataQString;
 
 
-                if (dataQString.contains("00007f00", Qt::CaseInsensitive))
+                //00007f00
+                //8000f800
+                //0000b700
+                if (dataQString.contains("0000b700", Qt::CaseInsensitive))
                 {
+                   qDebug() << "checkpoint_2";
                    return true;
                 }else
                 {
@@ -164,6 +172,7 @@ public:
     }
 	
 	void readData(){
+        /*qDebug() << "checkpoint_3";
         serialPort.waitForReadyRead(200);
         QByteArray data = serialPort.readAll();
         int yt=0;
@@ -171,11 +180,11 @@ public:
         {
             data += serialPort.readAll();
             yt++;
-            qDebug("%d", yt);
+            //qDebug("%d", yt);
             //if (yt>5) break;
         }
 
-        qDebug().noquote() << "bytes: " << data.size() << " values: " << data.toHex();
+        //qDebug().noquote() << "bytes: " << data.size() << " values: " << data.toHex();
 
         char *buff = data.data();
         int buff_int[24];
@@ -186,11 +195,11 @@ public:
             //qDebug("buff_int[%d]: %d", l, buff_int[l]);
         }
 
-
         int kk_start[4];
         kk_start[0]=0;
         kk_start[1]=0;
         kk_start[2]=0;
+        kk_start[3]=0;
 
         int number_of_kk=0;
         for (int kk=0; kk<24; kk++)
@@ -202,16 +211,19 @@ public:
             }
         }
 
+        qDebug() << "checkpoint_4";
+
         for (int l=0; l<14; l++){
             right_array[l]=buff_int[l+kk_start[0]];
         }
 
         if (3<number_of_kk) right_array[0]=0;  //break;
 
-    //qDebug("kk: %d, [0]: %d,[1]: %d,[2]: %d,[3]: %d,[4]: %d,[5]: %d,[6]: %d,[7]: %d,[8]: %d,",kk_start[0], right_array[0],right_array[1],right_array[2],right_array[3],right_array[4],right_array[5],right_array[6],right_array[7],right_array[8]);
+        //qDebug("kk: %d, [0]: %d,[1]: %d,[2]: %d,[3]: %d,[4]: %d,[5]: %d,[6]: %d,[7]: %d,[8]: %d,",kk_start[0], right_array[0],right_array[1],right_array[2],right_array[3],right_array[4],right_array[5],right_array[6],right_array[7],right_array[8]);
 
         if ( -97<right_array[0] and -90>right_array[0])
         {
+            qDebug() << "checkpoint_5";
             result_float=right_array[4]*10000+
                         right_array[5]*1000+
                         right_array[6]*100+
@@ -264,10 +276,15 @@ public:
                 break;
             }
         }
-        result_float=result_float*0.001;
+        result_float=result_float*0.001;*/
+        qDebug() << "checkpoint_6";
     }
 	
     float getFloat(){
+
+        result_float=15;
+        qDebug() << "checkpoint_15";
+
         return result_float;
     }
 
