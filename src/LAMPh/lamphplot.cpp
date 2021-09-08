@@ -101,6 +101,8 @@ LAMPhPlot::LAMPhPlot(QStringList argumentsQStringList)
 
     createMenus();
 
+    //setStyleSheet("QMessageBox { messagebox-text-interaction-flags: 5; }");
+
 
 #ifndef QT_NO_STATUSBAR
     ( void )statusBar();
@@ -150,8 +152,6 @@ LAMPhPlot::LAMPhPlot(QStringList argumentsQStringList)
     lamphDevices ->show();
     lamphDevices ->close();
 
-
-
     lamphTemp = new LAMPhTemp("LAMPhTemp");
     lamphTemp ->close();
 
@@ -161,6 +161,9 @@ LAMPhPlot::LAMPhPlot(QStringList argumentsQStringList)
     connect( d_OpenWindow_DataTable, SIGNAL( triggered() ), dataTable, SLOT( show() ) );
     connect( d_OpenWindow_Edit, SIGNAL( triggered() ), lamphEdit, SLOT(show()) );
     connect( d_OpenWindow_Setting, SIGNAL( triggered() ), lamphSetting, SLOT( show() ) );
+    connect( d_OpenWindow_About, SIGNAL( triggered() ), this, SLOT( messageAbout() ) );
+    connect(lamphDevices, SIGNAL(messageAbout()),this,SLOT(messageAbout()));
+    connect(lamphEdit, SIGNAL(messageAbout()),this,SLOT(messageAbout()));
 
     /*connect( d_OpenWindow_Devices, SIGNAL( triggered() ), lamphDevices, SLOT( raise() ) );
     //connect( d_OpenWindow_Temp, SIGNAL( triggered() ), lamphTemp, SLOT( raise() ) );
@@ -435,15 +438,17 @@ QToolBar *LAMPhPlot::toolBar()
     d_OpenWindow_DataTable = new QAction( QPixmap( start_xpm ), "DataTable", toolBar );
     d_OpenWindow_Edit = new QAction( QPixmap( start_xpm ), "Edit", toolBar );
     d_OpenWindow_Setting = new QAction( QPixmap( start_xpm ), "Setting", toolBar );
+    d_OpenWindow_About = new QAction( QPixmap( start_xpm ), "About", toolBar );
     d_OpenWindow_Exit = new QAction( QPixmap( start_xpm ), "Exit", toolBar );
 
     toolBar->addSeparator();
     toolBar->addAction( d_OpenWindow_Main );
     toolBar->addAction( d_OpenWindow_Devices );
-    toolBar->addAction( d_OpenWindow_Temp );
-    toolBar->addAction( d_OpenWindow_DataTable );
+    //toolBar->addAction( d_OpenWindow_Temp );
+    //toolBar->addAction( d_OpenWindow_DataTable );
     toolBar->addAction( d_OpenWindow_Edit );
-    toolBar->addAction( d_OpenWindow_Setting );
+    //toolBar->addAction( d_OpenWindow_Setting );
+    toolBar->addAction( d_OpenWindow_About );
     toolBar->addAction( d_OpenWindow_Exit );
 
     return toolBar;
@@ -1128,6 +1133,24 @@ void LAMPhPlot::openFile(){
 
 void LAMPhPlot::functionFile(){
 
+}
+
+void LAMPhPlot::messageAbout(){
+    QMessageBox mb(QMessageBox::NoIcon, "About",
+                   "LAMPh — Laboratory for Advanced Materials Physics \n"
+                   "ver. 1.5.4 \n\n"
+                   "Designed By Ilnur Gimazov \n"
+                   "ubvfp94@mail.ru \n"
+                   "t.me/Il_noor \n"
+                   "instagram.com/noor.gimazov \n\n"
+                   "Russian Federation, Tatarstan, Kazan\n"
+                   "2016-2022\n\n"
+                   "The program is provided AS IS with NO WARRANTY OF ANY KIND, \n"
+                   "INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND \n"
+                   "FITNESS FOR A PARTICULAR PURPOSE."
+                   , QMessageBox::Ok, this);
+    mb.setTextInteractionFlags(Qt::TextSelectableByMouse);
+    int dialogResult = mb.exec();
 }
 
 void LAMPhPlot::get_VectorXY(QVector<double> X , QVector<double> Y, int r){

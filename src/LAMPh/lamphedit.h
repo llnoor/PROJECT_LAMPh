@@ -31,7 +31,7 @@ public:
     void getDataDll();
 
 Q_SIGNALS:
-
+    void messageAbout();
     void showLAMPhPlot();
     void showLAMPhDevices();
     void showLAMPhTemp();
@@ -97,6 +97,7 @@ private:
     QAction *d_OpenWindow_DataTable;
     QAction *d_OpenWindow_Edit;
     QAction *d_OpenWindow_Setting;
+    QAction *d_OpenWindow_About;
     QAction *d_OpenWindow_Exit;
     //QAction *d_OpenWindow_
 
@@ -154,6 +155,9 @@ private:
     QPushButton *Button_PlotSize_replot;
     QPushButton *Button_PlotSize_multiply;
     QPushButton *Button_PlotSize_divide;
+
+    void createMenus();
+    QMenu *fileMenu;
 
 private:
     QLabel          *labelPlotSetting;

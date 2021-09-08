@@ -35,6 +35,9 @@
 #include <QFile>
 #include <QTextStream>
 
+#include <QMenu>
+#include <QMenuBar>
+
 QT_USE_NAMESPACE
 
 class MyToolBar: public QToolBar
@@ -62,6 +65,9 @@ LAMPhDevices::LAMPhDevices(QString loginQString)
     addToolBar(Qt::LeftToolBarArea, toolBar_COUNTERS());*/
     addToolBar(Qt::LeftToolBarArea, toolBar_PORTS()); //All Available Serial Ports (COM+USB+LAN+Sockets and so on)
     //addToolBar(Qt::RightToolBarArea, toolBar_DEVICES());
+
+    createMenus();
+
 #ifndef QT_NO_STATUSBAR
     ( void )statusBar();
 #endif
@@ -99,6 +105,8 @@ LAMPhDevices::LAMPhDevices(QString loginQString)
     connect( d_OpenWindow_Edit, SIGNAL( triggered() ), this, SLOT(close()) );
     connect( d_OpenWindow_Setting, SIGNAL( triggered() ), this, SIGNAL(showLAMPhSetting()) );
     connect( d_OpenWindow_Setting, SIGNAL( triggered() ), this, SLOT(close()) );
+    connect( d_OpenWindow_About, SIGNAL( triggered() ), this, SIGNAL( messageAbout() ) );
+    connect( d_OpenWindow_About, SIGNAL( triggered() ), this, SLOT(close()) );
 
     //connect( d_OpenWindow_Exit, SIGNAL( triggered() ), this, SIGNAL(LAMPhExit()) );
     //connect( d_OpenWindow_Exit, SIGNAL( triggered() ), this, SLOT(close()) );
@@ -536,6 +544,12 @@ void LAMPhDevices::first(){
 
 }
 
+void LAMPhDevices::createMenus()
+{
+    fileMenu = menuBar()->addMenu(tr("&Windows"));
+}
+
+
 QToolBar *LAMPhDevices::toolBar()
 {
     MyToolBar *toolBar = new MyToolBar( this );
@@ -586,6 +600,7 @@ QToolBar *LAMPhDevices::toolBar()
     d_OpenWindow_DataTable = new QAction( QPixmap( start_xpm ), "DataTable", toolBar );
     d_OpenWindow_Edit = new QAction( QPixmap( start_xpm ), "Edit", toolBar );
     d_OpenWindow_Setting = new QAction( QPixmap( start_xpm ), "Setting", toolBar );
+    d_OpenWindow_About = new QAction( QPixmap( start_xpm ), "About", toolBar );
     d_OpenWindow_Exit = new QAction( QPixmap( start_xpm ), "Exit", toolBar );
     d_OpenWindow_Devices->setEnabled(false);
     d_OpenWindow_Exit->setEnabled(false);
@@ -595,10 +610,11 @@ QToolBar *LAMPhDevices::toolBar()
 
     toolBar->addAction( d_OpenWindow_Main );
     toolBar->addAction( d_OpenWindow_Devices );
-    toolBar->addAction( d_OpenWindow_Temp );
-    toolBar->addAction( d_OpenWindow_DataTable );
+    //toolBar->addAction( d_OpenWindow_Temp );
+    //toolBar->addAction( d_OpenWindow_DataTable );
     toolBar->addAction( d_OpenWindow_Edit );
-    toolBar->addAction( d_OpenWindow_Setting );
+    //toolBar->addAction( d_OpenWindow_Setting );
+    toolBar->addAction( d_OpenWindow_About );
     toolBar->addAction( d_OpenWindow_Exit );
 
     return toolBar;

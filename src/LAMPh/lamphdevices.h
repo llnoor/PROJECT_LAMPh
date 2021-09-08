@@ -41,8 +41,9 @@ public:
     int get_numberofdeviceInt();
     void first();
 
-Q_SIGNALS:
 
+Q_SIGNALS:
+    void messageAbout();
     void showLAMPhPlot();
     void showLAMPhDevices();
     void showLAMPhTemp();
@@ -138,6 +139,8 @@ private:
 
     QMap<int, QString> notBusyCOMDevicesQMap;
 
+    void createMenus();
+    QMenu *fileMenu;
 
     Counter *d_randomCount;
     Counter *d_timerCount;
@@ -160,6 +163,7 @@ private:
     QAction *d_OpenWindow_DataTable;
     QAction *d_OpenWindow_Edit;
     QAction *d_OpenWindow_Setting;
+    QAction *d_OpenWindow_About;
     QAction *d_OpenWindow_Exit;
 
     MainPlot *d_plot;

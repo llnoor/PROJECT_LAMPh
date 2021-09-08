@@ -3,7 +3,6 @@
 
 #include <qmainwindow.h>
 #include <qaction.h>
-
 #include <lamphedit.h>
 #include <lamphsetting.h>
 #include <datatable.h>
@@ -60,6 +59,7 @@ private Q_SLOTS:
 
     void openFile();
     void functionFile();
+    void messageAbout();
 
     void get_VectorXY(QVector<double>, QVector<double>, int);
     void getMinMaxofVectorXY(double, double, double, double, int);//xmin xmax ymin ymax numberofdata
@@ -134,6 +134,7 @@ private:
     QAction *d_OpenWindow_DataTable;
     QAction *d_OpenWindow_Edit;
     QAction *d_OpenWindow_Setting;
+    QAction *d_OpenWindow_About;
     QAction *d_OpenWindow_Exit;
     //QAction *d_OpenWindow_
 

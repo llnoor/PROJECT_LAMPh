@@ -23,6 +23,8 @@
 #include <QFileDialog>
 #include <QPushButton>
 
+#include <QMenu>
+#include <QMenuBar>
 
 
 class MyToolBar: public QToolBar
@@ -95,6 +97,8 @@ LAMPhEdit::LAMPhEdit(QString loginQString)
     addToolBar(Qt::LeftToolBarArea, toolBar_Devices());
     addToolBar(Qt::LeftToolBarArea, toolBar_PlotSize());
 
+    createMenus();
+
 
 #ifndef QT_NO_STATUSBAR
     ( void )statusBar();
@@ -137,6 +141,10 @@ LAMPhEdit::LAMPhEdit(QString loginQString)
     connect( d_OpenWindow_Edit, SIGNAL( triggered() ), this, SLOT(close()) );
     connect( d_OpenWindow_Setting, SIGNAL( triggered() ), this, SIGNAL(showLAMPhSetting()) );
     connect( d_OpenWindow_Setting, SIGNAL( triggered() ), this, SLOT(close()) );
+    connect( d_OpenWindow_About, SIGNAL( triggered() ), this, SIGNAL( messageAbout() ) );
+    connect( d_OpenWindow_About, SIGNAL( triggered() ), this, SLOT(close()) );
+
+
 
     //connect( d_OpenWindow_Exit, SIGNAL( triggered() ), this, SIGNAL(LAMPhExit()) );
     //connect( d_OpenWindow_Exit, SIGNAL( triggered() ), this, SLOT(close()) );
@@ -230,6 +238,12 @@ LAMPhEdit::LAMPhEdit(QString loginQString)
 
 }
 
+void LAMPhEdit::createMenus()
+{
+    fileMenu = menuBar()->addMenu(tr(" "));
+}
+
+
 QToolBar *LAMPhEdit::toolBar()
 {
     MyToolBar *toolBar = new MyToolBar( this );
@@ -297,6 +311,7 @@ QToolBar *LAMPhEdit::toolBar()
     d_OpenWindow_DataTable = new QAction( QPixmap( start_xpm ), "DataTable", toolBar );
     d_OpenWindow_Edit = new QAction( QPixmap( start_xpm ), "Edit", toolBar );
     d_OpenWindow_Setting = new QAction( QPixmap( start_xpm ), "Setting", toolBar );
+    d_OpenWindow_About = new QAction( QPixmap( start_xpm ), "About", toolBar );
     d_OpenWindow_Exit = new QAction( QPixmap( start_xpm ), "Exit", toolBar );
     d_OpenWindow_Edit->setEnabled(false);
     d_OpenWindow_Exit->setEnabled(false);
@@ -305,10 +320,11 @@ QToolBar *LAMPhEdit::toolBar()
 
     toolBar->addAction( d_OpenWindow_Main );
     toolBar->addAction( d_OpenWindow_Devices );
-    toolBar->addAction( d_OpenWindow_Temp );
-    toolBar->addAction( d_OpenWindow_DataTable );
+    //toolBar->addAction( d_OpenWindow_Temp );
+    //toolBar->addAction( d_OpenWindow_DataTable );
     toolBar->addAction( d_OpenWindow_Edit );
-    toolBar->addAction( d_OpenWindow_Setting );
+    //toolBar->addAction( d_OpenWindow_Setting );
+    toolBar->addAction( d_OpenWindow_About );
     toolBar->addAction( d_OpenWindow_Exit );
 
     return toolBar;

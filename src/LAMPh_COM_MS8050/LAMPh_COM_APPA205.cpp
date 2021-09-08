@@ -75,6 +75,27 @@ public:
     }
 	
     bool connectL(){
+
+        QStringList wait_temp;
+        QString wait_line;
+        QFile file_wait ("MS8050_wait.txt");
+        if(QFileInfo("MS8050_wait.txt").exists()){
+            file_wait.open(QIODevice::ReadOnly | QIODevice::Text);
+
+            QTextStream in(&file_wait);
+            while (!in.atEnd()) {
+                wait_line = in.readLine();
+                wait_temp.append(wait_line);
+            }
+
+            file_wait.flush();
+            file_wait.close();
+        }
+
+        //qDebug() << "wait_temp0: " << wait_temp.at(0);
+        //qDebug() << "wait_temp1: " << wait_temp.at(1);
+
+
         for (const QSerialPortInfo &info : QSerialPortInfo::availablePorts()){
             if (!info.isBusy())
             {
@@ -97,11 +118,13 @@ public:
                 serialPort.setFlowControl(QSerialPort::NoFlowControl);
                 serialPort.open(QIODevice::ReadWrite);
                 serialPort.waitForReadyRead(200);
+                //serialPort.waitForReadyRead(wait_temp.at(0).toInt());
                 serialPort.setRequestToSend(false);
                 serialPort.setDataTerminalReady(true);
 
                 QByteArray data = serialPort.readAll();
-                while (serialPort.waitForReadyRead(20))
+
+                while (serialPort.waitForReadyRead(16)) //16
                 {
                     data += serialPort.readAll();
                 }
@@ -257,7 +280,8 @@ public:
                 break;
             }
         }
-        result_float=result_float*0.001;
+        //result_float=result_float*0.001;
+        //result_float=result_float;
 	}
 	
 	float getFloat(){
