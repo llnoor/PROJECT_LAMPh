@@ -1138,13 +1138,15 @@ void LAMPhPlot::functionFile(){
 void LAMPhPlot::messageAbout(){
     QMessageBox mb(QMessageBox::NoIcon, "About",
                    "LAMPh — Laboratory for Advanced Materials Physics \n"
-                   "ver. 1.5.4 \n\n"
+                   "ver. 1.5.4 (license until 31 December 2022)\n\n"
+
                    "Designed By Ilnur Gimazov \n"
                    "ubvfp94@mail.ru \n"
                    "t.me/Il_noor \n"
                    "instagram.com/noor.gimazov \n\n"
                    "Russian Federation, Tatarstan, Kazan\n"
                    "2016-2022\n\n"
+
                    "The program is provided AS IS with NO WARRANTY OF ANY KIND, \n"
                    "INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND \n"
                    "FITNESS FOR A PARTICULAR PURPOSE."

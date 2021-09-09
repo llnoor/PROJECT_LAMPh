@@ -7,7 +7,7 @@
 #include <dialogdevicesettings.h>
 #define CurvCnt 20
 #define CurvCounter 5
-#define CurvDsf 8225
+#define CurvDsf 8226
 
 class QSpinBox;
 class QPushButton;
