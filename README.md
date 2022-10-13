@@ -19,7 +19,7 @@ Main fields of research: Study of physical properties of materials with nonstand
 
 # Use
 
-Try to start `LAMPh.exe` (only for Windows) or compile the project for you system 
+Try to start `bin/release/LAMPh.exe` (only for Windows) or compile the project for you system 
 
 # Installation
 
