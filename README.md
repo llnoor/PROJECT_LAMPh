@@ -39,7 +39,7 @@ In real time, you can draw, edit, scale, control devices.
 # Screenshots
 
 LAMPhPlot:
-![1](https://github.com/llnoor/PROJECT_LAMPh/blob/master/img/1?raw=true)
+![1](https://github.com/llnoor/PROJECT_LAMPh/blob/master/img/1.jpg?raw=true)
 
 LAMPhDevices:
-![2](https://github.com/llnoor/PROJECT_LAMPh/blob/master/img/1?raw=true)
+![2](https://github.com/llnoor/PROJECT_LAMPh/blob/master/img/2.jpg?raw=true)
