@@ -35,3 +35,11 @@ The project uses a modular system. To connect new devices, you need to write onl
 This makes it possible to work in the same way with all devices, regardless of how they are connected, via RS232, USB or another method.
 Inside the program, everything is configured in the form of a constructor.
 In real time, you can draw, edit, scale, control devices.
+
+# Screenshots
+
+LAMPhPlot:
+![1](https://github.com/llnoor/PROJECT_LAMPh/blob/master/img/1?raw=true)
+
+LAMPhDevices:
+![2](https://github.com/llnoor/PROJECT_LAMPh/blob/master/img/1?raw=true)
