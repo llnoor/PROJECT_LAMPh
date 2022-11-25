@@ -21,7 +21,6 @@ MOC_DIR = $${BUILD_PATH}/moc/
 OBJECTS_DIR = $${BUILD_PATH}/obj/
 
 linux-g++: QMAKE_CXXFLAGS += -std=c++11
-
 INCLUDEPATH += $${IMPORT_PATH}/QxtCore/ $${IMPORT_PATH}/QxtNetwork/
 INCLUDEPATH += $${PROJECT_ROOT_PATH}/src/include/
 LIBS += -L$${LIBS_PATH}/
